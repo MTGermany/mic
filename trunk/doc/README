@@ -1,0 +1,196 @@
+
+#################################################
+Allgemein: Hier Entwicklungs-Historie
+fuer TODO => extra TODO-File
+Arne's Quellen: /home/kesting/trafficSim/sources/mic/
+#################################################
+
+(aug05)
+Arne hat jede Menge README Files ueber diverse Aspekte des mic:
+/home/kesting/trafficSim/sources/mic/README*
+
+(mai05)
+generelles revamping des gesamten mic von Arne: 
+  - 20% schneller
+  - kein -Wno deprecated mehr noetig
+  - windows kompatibel
+Achtung: "make" allein reicht nicht mehr fuer neues mic; man muss
+explizit "make mic" angeben (mit "make clean" kann man alles loeschen)
+
+
+(feb05)
+Weitere Modelle (Kerner's Modell, selbst CA (Antoni), siehe modelsOld.cc
+
+
+(Apr 04, Martin)
+Bug in Ramp.cc.tryMerge(..) behoben.
+Setzte neues Fz zwei Indices zu hoch, wenn kein Fz parallel der
+Zufahrt
+
+(5.12.03, Martin)
+
+Das Human-Driver model in zwei Aspekten verbessert:
+(i) durch Antizipationen auch in v,
+(ii) nur Nettoabstaende werden bei den NNN-WW addiert.
+
+Zu (i):
+
+Es wird nicht nur (a la Davis) der Nettoabstand antizipiert:
+
+s_antic=s-dv*T_react
+
+sondern auch die Geschwindigkeit:
+
+v_antic=v+a*T_react
+
+Interessanterweise ergibt die Antizipation auch der
+Geschwindigkeitsdifferenz schlechtere Ergebnisse. Es ist
+offensichtl. besser, anzunehmen, das der Vordermann gleich stark
+beschleunigt, so dass die Differenz gleich bleibt.
+
+Alle Groessen auf der rechten Seite werden zu den alten Zeiten
+genommen. Statt s und v wird aber s_antic und v_antic in die
+IDM-Gleichung eingesetzt.
+
+Zu (ii):
+
+Der uebernaechste Nachbar hat effektiven Abstand
+gleich der Summe der beiden nettoabstaende, d.h. von den
+Bruttoabstaenden werden BEIDE Fz-Laengen abgezogen usw. 
+Das verstaerkt insgesamt die Kopplung und macht die Summe
+ueber 1/i^2 = pi^2/6 fuer die Gleichgewichts-Berechnung erst gueltig.
+
+Damit ist (vgl. Projekt sim/humanT1.0) eine Reaktionszeit von 1 s
+simulierbar!
+
+
+Beeinflusst ist: Fluct.cc
+
+
+
+(4.12.03, Martin)
+
+Fluktuationen konsistenter gemacht:
+
+(a) Fluktuation in dv ist nun proportional NN-Nettoabstand s
+(je weiter Fahrzeug weg, desto schlechter kann man dv abschaetzen):
+sigma_dv = s/tau_ttc mit ttc= mit 
+Ungenauigkeit assoziierte Time-to-Collision
+
+Parameter Fluct.stddev_dv wird zu Fluct.invttc_dv.
+
+Da diese selbe Groessenordnung haben, laufen .fluct Files
+der bisherigen Prjekte auch nun, aber mit anderer Interpretation
+u. Skalierung der Fluktuationen.
+
+Beeinflusst sind:  Fluct.h, Fluct.cc, <proj>.fluct
+
+(b) Konsistentere Umsetzung der Fluktuationen in Vehicle.cc:
+  - die Konsistenz-Checks (auf negative Geschw. etc nach
+    Fluktuationen) sind nun in Fluct. Deshalb brauch die
+    Fluct.update-Methode, die in Vehicle.calcAcc(..) aufgerufen wird,
+     nun s,v,dv.
+  - Die Fluktuationen in s und dv werden nun ueber Aenderung des
+    Vorgaengerfahrzeugs in die Beschleunigungsmethode des Long-Modells
+    eingebracht: Eigene Geschwindigkeit und Ort weiss man ja genau.
+  - das Rueckgaengigmachen der Fehler in x und v ist nun konsistent,
+    nicht wie bisher mit systematischer Restkomponente 
+    => Vehicle.calcAcc(..), suche nach "undo error in x and v"
+
+Beeinflusst ist: Vehicle.calcAcc(..)
+
+Achtung: nur das NN-Fahrzeug ist mit Fluktuationen beruecksichtigt; 
+die NNN-Fahrzeuge bei Antizipation auf >1 Fahrzeug haben exakte Werte
+von s und dv!
+
+
+(21.11.03, Arne)
+On Mon, 24 Nov 2003, Arne Kesting wrote:
+
+
+> Hi Martin,
+>
+> ich habe den cirular buffer auf allgemeine T_react erweitert indem man
+> noch ein weiteren Timestep speichert.
+>
+> weiterhin ist T_react in den Modellen enthalten (ausser HDM haben alle
+> anderen T_react=0).
+>
+> aenderungen hab es in den modellen und in der roadsection. Ich habe
+> alles mit "arne" kommentiert. wenn ich das richtig rekonstruiere, habe
+> ich nur die folgenden files geaendert:
+>
+> RoadSection.h
+> RoadSection.cc
+> MicroModel.cc
+> MicroModel.h
+> Human.h
+
+OK, sehr schoen!
+habe auch Deinen Vorschlag bei der Initialisierung des Buffers
+angenommen.
+
+>
+> was ist kurz ins Auge gefasst habe, aber wieder verworfen habe, ist die
+> Behandlung individueller Reactionszeiten. man muesste das schreiben und
+> lesen des buffers trennen, weil jedes fahrzeug sein eigenes (bzw. i.d.R.
+> haben sie doch wieder gleiche Reactionszeiten) Old-Array bekommt. der
+> buffer speichert die fuer die maximale Reactionszeit noetigen
+> vergangenheitsschritte. der zugriff erfolgt ausgehend von dem actuellen
+> "icycle" um ca. (T_react%T_react_maximum)*nt_past zeitschritte davor.
+> aber das fand ich doch etwas fummelig, weil wir es ja wohl kaum benutzen
+> werden, oder!
+
+ok, koennen wir so lassen!
+
+
+
+
+(Okt. 03)
+Achtung: "kommerzieller" Temporegler mit VW-spezifischen
+Features (wie 7 T-Stufen; s=0 => kein Signal, Integer-Input)
+nun bei ~/projekte/invent/Temporegler/src/VW.cc;
+generischer VW-Algorithmus mit allen sinnvollen kont. Features 
+verbleibt hier
+
+
+--------------
+
+(Okt. 03)
+Loesun c++ Fehler vom Sep: ~/info/cc
+
+(12.09.03)
+C++ Fehler!!
+strstream's gehen nicht, auch n icht die neue Mode, stringstreams!!
+=> nehme altes InOut.o File und ruehre InOut.cc bis zur Klaerung nicht
+an!!!
+
+=> ~/info/cc
+
+--------------
+
+./InOut.h => ../lib/InOut.h:
+
+perl -i -p -e 's/\.\/InOut/\.\.\/lib\/InOut/g' *.cc
+
+Achtung: Denial of Service in InOut, wenn dieses in ../lib und 
+nicht ALLE .o Files geloescht 
+
+--------------
+
+
+(10.7.03)
+InOut.*, general.cc in ../lib ausgelagert; wird von master, mic, Statistics gem. benutzt
+
+
+(4.7.03)
+Statistics.cc: hier nur Statistics.o und Statisticsh.h; Souce code
+bei ~/investing/Treibi/src
+
+
+
+(16.6.03)
+Fluktuationen:
+Es gibt zwar Fluct.cc und in einigen Projekten .fluct Files,
+diese aber nicht implementiert
+

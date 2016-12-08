@@ -1,0 +1,203 @@
+
+Doku der aenderungen am mic-project:
+zeitraum jan/feb/maerz 2006 UND Oktober 2006
+=====================================================
+
+(a) CyclicBuffer als neue klasse
+
+uebernimmt die verwaltung der zustands-daten (present und past) aus
+RoadSection.  Damit greift man nur noch ueber diese klasse darauf zu
+und entsprechend muss an Vehicle auch nur noch dieser pointer
+uebergeben werden. Das hatte aenderungen in fast allen klassen zur
+folge.
+
+es gibt 3 Konstruktoren, die in RoadSection ausgewaehlt werden:
+(1) ohne reactionzeit --> schlank und schnell 
+    (nur marginal langsamer als altes mic)
+
+(2) mit fester reactionzeit --> wie alte implementierung, 
+    entsprechend schnell (sogar etwas schneller als altes mic!)
+
+(3) mit verteilter reactionzeit --> ist deutlich langsamer als (2) 
+    (ca. Faktor 2) weil jetzt jedes mal der individuelle zustand 
+    berechnet werden muss. das gilt natuerlich auch wenn man mit 
+    verschiedenen HDMi files arbeitet. bisher war das nur mit einer
+    instanz vom HDM modell moeglich  
+
+Beim klassen-layout habe ich mich v.a. an der bisherigen implementierung
+orientiert. ich habe alles ausfuehrlich getestet und denke dass die neue 
+mic-version die alte reproduziert.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+(b) RoadSection ist entsprechend "streamlined". Im wesentlich enthaelt
+es nicht mehr den Buffer und den aktuellen systemzustand, wohl aber noch 
+das array der Vehicles.
+
+z.B. "Comfort" ist jetzt im tt-output als weitere zeilen drin, kein eigenes
+project.comfort output file mehr. Dieses ma\3 ist aber immer noch "experimentell"....
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+(c) Input files fuer *.proj und *.HDM*  sind erweitert
+
+%**************************************************************************
+% mic proj file (upgrade Sep 06)
+%***************************************************************************
+%
+%    Initial and boundary conditions
+%
+0        choice_BCup   = {0=Dirichlet,1=Neumann,2=zero,3=period,4=flowControl}
+0        choice_BCdown = {0=Dirichlet,1=Neumann,2=free,3=period,4=block}
+3        choice_init   = {0=micro, 1=KK, 2=rho from file, 3=rho Q from file}
+%
+%    Numerical parameters
+%
+5400     tmax           = Total simulation time (s)
+12000    xmax           = (Initial) Length of the simulated section (m)
+0.4      dt             = Discretization in t (s)
+%
+%    Output options
+%
+%
+%    Output options
+%
+1.0      dtout_FCD      = Discretization for FCD (in s)
+120      dt_tseries     = Discretization for time series (x_macro,tt,fuel,det,comfort)
+400      dxout_3D       = output grid for 3d output (dat)
+120      dtout_3D       = Discretization for 3d output (dat and micdat)
+6        dnout_3D       = Trajectory for every dnout'th vehicle (micdat)
+%
+0        choice_output     = {0=macro3D(dat), 1=microTraj(micdat), 2=both, 3=none}
+1        travelTime_output = flag for travel time output {0=off,on}
+0        trajectory_los    = flag for trajectories for LOS {0=off,on}
+%
+%    randomness  and heterogeneity
+%
+0        random_seed   = {0=off,on}
+0.0      distr_v0_T    = {uniformly distributed, 0=without distr, 0.1=+/-10 perCent etc.}
+%
+
+
+NEU SIND: 
+dtout_FCD --> nun kann man das ausgabe intervall einstellen
+
+travelTime_output, comfort_output, trajectory_los --> flags 
+(insbesondere trajectory_los ist fuer ein weiteres arbeiten mit LOS gedacht)
+
+random_seed --> bool flag fuer seed
+distr_v0_T --> halbe spannweite fuer gleichverteilung fuer heterogenitaet
+
+rungeKutta option ist raus (war sowieso nicht mehr implementiert)
+
+Die zahl  der proj parameter ist nun 16  !!!!!!!!!!
+In altem proj sind es 13 parameter gewesen. 
+Es gibt nun eine entsprechende fehlermeldung bei verwendung alter projekte
+
+%###########################################
+% Additional Parameters of the Human Driver Model (HDM), version Oct06
+%###########################################
+%
+0.5      T_react
+0        T_react_span // uniformly distributed T_react (T_react+/-T_react_span)
+%
+500      smax     // maximum anticipation distance (500m)
+3        n_antimax // maximum number of anticipated vehicles in dense traff(5)
+%
+1        n_Tr_temp_anticipation //integer of T_react temporal anticipation (1)
+%
+1        alpha_a_resmin  // min accel. factor due to resignation (0.5)
+1        alpha_v0_resmin // min v0- factor due to resignation (1)
+1.8      alpha_T_resmax  // max increase factor of T due to resignation (1.5)
+600      tau_res         // time scale for adapt to traff environnement(120s)
+0        v1rel;          // v-threshold for traffic quality=0(in units v0)(0.)
+1        v2rel;          // v-threshold for traffic quality=1 (in units v0)(1.)
+%###############################################################
+%!! alpha_v0_resmin near 1 (otherwise very curved Qe_free(rho))
+%!! if too low densities in cong after some t decrease tau_res (to 120,60)
+%!! alpha_a_resmin=0.7, alpha_T_resmax=1.6 well!
+
+
+NEU SIND:
+
+0        T_react_span // uniformly distributed T_react (T_react+/-T_react_span)
+===> damit kann man reactionszeiten kontinuierlich verteilen
+
+1        n_Tr_temp_anticipation //integer of T_react temporal anticipation (1)
+===> im hinblick auf untersuchung zur zeitlichen antizipation habe ich
+diesen parameter nach aussen gefuehrt. Ist zu diskutieren, ob das OK ist.
+
+
+Ich habe ein upgrade programm geschrieben, um ein altes proj auf ein
+neues proj upzugraden:
+
+/home/kesting/trafficSim/sources/micUpgradeTool/
+
+(upgedated Oct06)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+PERFORMANCE:
+
+Alle FileHandles fuer Output sind umgestellt: im LAN kostet das oeffnen/schliessen einer
+Datei ziemlich viel zeit (netwerk protokoll etc.!) Durch die umstellung unserer system 
+architektur gab es eine deutliche verlangsamung: die CPU zeit (per time) war nur noch ein bruchteil
+der gesamtzeit....)
+
+es wird nach jeder schreibaktion "geflusht" damit man auch mit CTRL-C abbruch die vollstaendige
+information behaehlt und zwischendurch plotten kann... die filehandles werden erst im deconstruktor 
+explizit geschlossen.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+(e) Good to know:
+
+(1) upstreamboundary -> const int NVEH_DELAY_EXCLUDED=10; //hack for vehicle upstream inflow 
+
+(2)  RAMP_VEL_REDUCEFACTOR=0.6; //!!! VDT  0.5 (martin) 0.5 .. 0.7
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+(f) Baustellen:
+
+(1) Kerner.cpp noch nicht implementiert aber vorbereitet. Martin1 hat
+ja eine vorlage in /home/treiber/trafficSim/sources/mic_jun02/sim/
+
+
+(3) TrajectoryLOS.cpp ist eine quick hack klasse, die ich fuer das LOS
+projekt gestrickt habe. wenn man die funktionalitaet nochmal braucht,
+lohnt es sich mal ein wenig draufzuschauen.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+(g) Libraries in /home/kesting/trafficSim/sources/lib
+
+Ich habe RandomUtils.cpp hinzugefuegt und general.cpp etwas
+erweitert. Wichtig ist vielleicht dass ich die myRand() von general in
+RandomUtils gesteckt habe, so dass ich alte mic versionen nun
+beschweren. Man muss einfach RandomUtils.h includen.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+(h) Optimierungspotenziale:
+
+Intel compiler fuer 32 bit architektur vorhanden???
+
+Der intel compiler ist eigentlich der hammer. bringt ca. 40%
+performance verbesserung. ich zoegere aber noch etwas weil ich neulich
+einen sehr perfiden fehler gefunden habe in der sstream klasse. leider
+hat steffen diesen fehler nie verfolgt. ausserdem bekomme ich keine
+infos ueber eine neue compiler version, den stand der libraries
+etc. von steffen, so dass ich unter diesen umstaenden erstmal beim gcc
+bleibe. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ENDE
+
+
+

@@ -1,0 +1,259 @@
+Erweiterungen im mic von Arne (Mai-Juli 2005)
+=================================================
+
+vorrede: habe durch langes draufgucken auf den code auch ein paar
+kleinigkeiten gesehen, die aber durch ein abgleich der quellen sowieso
+stattfinden. ich habe grosses interesse an einem
+versionsverwaltungsprogramm. aber damit nerve ich steffen schon
+ziemlich lange...
+
+===================================================================
+(i) Random seed eingefuehrt:
+
+Dazu ist in ./lib/general.cpp die methode 
+
+void setRandomSeed()
+
+neu, die -- einmal aufgerufen -- den seed fuer den pseudo-random
+generator zufaellig setzt.
+
+Aktiviert wird der random-seed durch die neue zeile im *.proj-file:
+
+0	 test_output   = {off,on}  #alte, letzte zeile
+1	 random_seed   = {0=off,on} #neu (arne)
+
+und ggf. gleich in ProjectParameters global ausgefuehrt.
+alte projekte sind per default ohne random seed, d.h. deterministisch 
+(zumindest fuer die gleiche compilierte mic version).
+
+Beispiel projekt: VLA.proj
+==========================================================
+
+(ii) VLA-Modell
+
+Modell VLA.cpp implementiert. 
+Modell Nr. 8 
+
+basiert auf einem basismodell (v.a. IDM getestet) und wirkt mit einem
+faktor auf (T,a,b) innerhalb eines fest vorgegebenen Bereichs, der im
+*.VLA1 file eingestellt werden muss!
+
+Beispielprojekt: VLA.proj
+
+mit VLA1 file:
+
+%#################################################################
+% Parameters of VLA-ACC model based on IDM
+% Arne 22-4-2005
+%
+% (i) number of base model
+%
+% (ii) IDM parameter factors for (T, a, b) for ACC driving behaviour
+% in bottleneck state
+%
+% (iii) Bottleneck position given as external parameter
+%
+%#################################################################
+%
+0       choice_basemodel // {0=IDM, 1=VW, (to be tested) (and no further implemented)}
+%
+0.66    (1.5:0.9)alpha_T_VLA = VLA-matrix factor for time headway
+1.0     2.0     alpha_a_VLA = VLA-matrix factor for max acceleration
+1.0     0.5     alpha_b_VLA = VLA-matrix factor for desired deceleration
+%
+8500     start position of VLA bottleneck traffic state (in m)
+13000   end position of VLA bottleneck traffic state (in m)
+%
+
+
+
+=========================================================================
+
+(iii) accumData output
+
+Fuer das VWT paper (/home/kesting/papers/VWT_proceeding/sim) habe ich
+eine methode in RoadSection.cpp implementiert, die einige daten im
+append-mode rausschreibt.
+
+In Main.cpp wird deshalb am ende der Simulationszeitschleife der
+aufruf vorgenommen:
+
+if(true){
+   roadsec->writeAccumulatedData(nt);
+ }
+
+Damit konnte ich systematisch akkumulierte reisezeiten in einem file
+sammeln und auswerten. kostet keine performance. kann auch einfach
+ausgeschaltet werden, da immer eine datei erzeugt wird mit namen
+
+*.accumData
+
+z.zt. mit inhalt:
+
+#simT(h)         VLA(%)  accumTT(h)      accumFuel(l)    accumCf         accumJerk
+3.61             0.000   1068.183        7662.616        368850.920      15821.082
+
+Siehe auch Beispiel projekt: VLA.proj 
+
+bzw. /home/kesting/papers/VWT_proceeding/sim 
+mit einem netten perl skript
+was die schleife der mic aufrufe und systematisch die input-files
+manipuliert (siehe dort README_VLA) 
+
+==========================================================================
+
+(iv) FloatingCars.cpp 
+
+hatte einen fehler: da es fest auf den array-index bezogen war.  in
+simulationen mit onramp gibt es shift im vehicle-array und damit
+spruenge in fcd trajektorien, weil die daten fuer das naechste
+fahrzeug rausgeschrieben werden....
+
+ich habe jetzt eine Vehicle.ID eingefuehrt und lass jetzt die
+fahrzeugdaten nach den IDs rausschreiben. zur vermeidung einer suche
+merkt man sich natuerlich den alten index und schaut erstmal da
+nach. da es nur onramps gibt, sucht man entsprechend in der
+"richtigen" richtung weiter um fuendig zu werden, wenn mal ein index
+nicht mehr stimmt. 
+
+Die einscher-projekte hatten zunaechst einen fehler, weil ich einen
+kompletten durchlauf durch das array mit einer fehlermeldung
+abgeschlossen habe zum entwickeln. mir war nicht bewusst dass man auch
+fahrzeuge entfernt (dann kann man ja lange suchen). jetzt klappt es
+ohne probleme, weil nach einem durchlauf die erfolglose suche beendet
+wird. Getestet habe ich diese methode noch nicht fuer RingRoad (aber
+dort sollte FCD output auch nicht so sehr von interesse ein.)
+
+
+(v) Comfort and Jerk
+================================================================
+in RoadSection habe ich zwei neue variablen
+
+ accum_acc=0;
+ accum_jerk=0;
+
+eingefuehrt.
+
+die methode 
+
+void RoadSection::write_DrivingComfort(int it)
+
+berechnet einen zu definierenden Komfort aus beschleunigung (hier:
+quadrat) und jerk! aber das ist noch vom inhalt her "experimentell" ;-)
+
+das ganze ist analog zu TravTimes und FuelConsumption(it):
+
+ //ARNE:
+ if((mac_output) && (it%ndtout_2D==0)){ 
+   write_DrivingComfort(it);
+ }
+ 
+
+bisher habe ich noch kein richtiges (d.h. fuer ein projekt
+verwendetes) beispielprojekt, aber folgendes ist noch "todo"
+
+(i) das komfort mass ist ja noch nicht endgueltig definiert. ich
+schlage vor dass wir fuer den TGF-artikel eine entsprechende
+definition vorstellen und entsprechend mit simulationen
+auswerten. fraglich ist z.zt. ob der jerk eine gut definierte groesse
+ist in der mikrosimulation und ob man es mit der acc (quadrat?) in ein
+gemeinsames mass ziehen sollte.
+
+(ii) programmtechnisch: martin meinte, dass man ggf. diese groesse in
+den output zur fuel consumption reinnimmt. es spricht einiges dafuer,
+zumal man diese groesse vermutlich auch immer im zusammenhang mit dem
+treibstoffverbrauch sehen kann. das ist im rahmen des TGF-papers auch
+noch zu klaeren!
+
+(iii) man kann auch checken was man explizit ausschliessen muss (z.b. rampenbereiche)
+
+(iv) eventuell auch mal checken ob es reicht alle ndtout_2D zu messen
+oder in jedem timestep. habe ich aber schonmal gemacht und es ist
+"erwartungstreu" solange man die grossen ausreisser durch
+reintropfende fahrzeuge ausschliesst!
+
+====> Beispielprojekt noch offen. ein anfang ist zumindest der VWT beitrag in
+
+/home/kesting/papers/VWT_proceeding/sim
+
+
+(vi) Trajectory.cpp fuer LOS arbeit
+================================================================
+Fuer das LOS-Projekt
+
+/home/kesting/projekte/LOS
+
+habe ich (relativ schnell) eine klasse TrajectoryLOS.cpp geschrieben,
+die fuer jedes Fahrzeug LOS relevante groessen aus seiner trajektorie
+bestimmt.  Damit nicht ewig viel rausgeschrieben wird, habe ich
+quick-hack maessig eine zweite buchhaltung eingefuehrt, die fuer jedes
+fzg. in jedem dt upgedatetet wird. (die TrajectoryLOS.h definition
+enthaelt auch noch eine FCD Unterklasse!)
+
+Die auswertung kostet entsprechende performance ist im moment nur per hand
+ aktivierbar:
+
+in RoadSection.cpp:
+
+ //arne: 
+  //trajLOS = new TrajectoryLOS(projectName, dt);
+und
+  //arne:
+  //das kostet zeit, da jedes fahrzeug einmal in eine datei appended wird!!!
+  //  trajLOS->update(tstart+it*dt, veh, imin, imax);
+
+Achtung: 
+
+Als beispielprojekt verweise ich erstmal auf das entsprechende LOS projekt.
+
+dort ist eine mic-version unter mic/ "eingefroren". (siehe dort auch
+README_arne) 
+
+Unter sim/ gibt es zwei projekte (siehe die ausfuehrliche doku dazu)
+
+output ist z.b.
+
+sim/TSG.tseries_los
+
+mit dem Inhalt:
+
+#unreliable data at beginning from init. conditions...
+#start: x0=3000.000 m, end: x1=14000.000 m
+#comfort defined as averaged squared acc --> <(acc)^2>)(m/s^2)^2 ----> vermutlich FALSCH....
+#t(h)            tt(min)         comf(m/s^2)^2   dummy    invTTC (1/s)   <fuelCons>(l)
+0.0033   7.1367          0.00051370      0.0000          0.0000000       0.986829        1.011455
+0.0063   6.9867          0.00060176      0.0000          0.0000000       0.998082        1.017702
+0.0094   6.8350          0.00061572      0.0000          0.0000000       1.010395        1.018388
+0.0125   6.6867          0.00062846      0.0000          0.0000000       1.023596        1.018816
+0.0155   6.5400          0.00059704      0.0000          0.0000000       1.037211        1.019245
+0.0186   6.3900          0.00029760      0.0000          0.0000000       1.050330        1.002164
+0.0215   6.2517          0.00053397      0.0000          0.0000093       1.063249        1.020597
+
+
+Zum schluss noch ein paar bemerkungen zu dieser erweiterung:
+
+*** achtung, sowas ist natuerlich immer unschoen: quellcode an zwei
+*** verschiedenen stellen. ich habe jetzt erstmal im
+*** mic-entwicklungspfad die aktuellste version aus dem
+*** (abgeschlossenen) projekt (28.7.2005) kopiert. aber es gab
+*** inzwischen ein update in Consumption, so dass sich der cstr. oder
+*** so geaendert hat.
+
+*** ausserdem ist das
+*** quick-hack fuer die speziell benutzten projekte. da gab es
+*** probleme an der auffahrt, die man explizit ausschliessen
+*** musste. am rand eventuell auch. also ist hier der quellcode die
+*** relevante docu. die uebertragung auf ein generisches projekt
+*** wuerde vermutlich ein wenig mehr (file-input) verlangen....
+
+*** es kann auch noch inkonsistenzen geben was das komfortmass
+*** angeht. das wurde ja zum schluss nochmal geaendert. die daten sind
+*** soweit okay, aber die kommentarzeilen sind ev. falsch...
+
+*** das LOS projekt hat auch noch auswertung von FCD fuer jeden
+*** dt-zeitschritt. diese auswertung basiert auf dem car_xxx output
+*** und arbeit mit den gleichen programm wie die rekonstruierten FCD
+*** aus dem ASM feld. hier ist auch noch die projekt doku heranzuziehen.
+
+===============================================================================
+

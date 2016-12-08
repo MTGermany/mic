@@ -1,0 +1,351 @@
+Arne April/Mai (11-5-2005)
+------------------------------------------------------------------------------
+Detector etc vorher von Martin abgeglichen, also aktuelleste version!
+
+VDTgen.cc habe ich umbenannt in VDT.cc und einige alte klassenfiles in
+./old/ verbannt.
+
+Human.cc habe ich in HDM.cc umbenannt, aber nicht das generische Basismodel
+konzept vom VDT uebertragen, weil da zuviel mit dme IDM gemacht wird,
+was sich so leicht nicht uebertragen laesst.
+
+Wir sollten noch ueberlegen, ob man den memory effect als basismodell implementiert
+oder wiederum als spezialfall des HDM laesst. ersteres waere flexibler,
+da auch auf andere modelle eher erweiterbar als das ganze HDM.....
+
+Und dann habe ich eine "Grosstat" getan, naemlich alle Files (cc und h) 
+bezueglich der Header aktualiesiert. (Wir haben ja deprecated headers benutzt)
+
+quintessenz:
+das war strstream, was jetzt sstream ist (die klasse aendert sich von
+ istrstream in istringstream!) das ist fuer die InOut.cc faellig gewesen!
+Und natuerlich das gleiche fuer ../lib/general.cc 
+
+jetzt kann man wieder ohne "-no-Deprecated" compilieren, siehe NEUES makefile !!!
+dass makefile ist uebrigens auch generalueberholt!
+ich habe jetzt die include-direktive -I ins make gepackt, damit es nicht
+im quellcode "../lib/InOut.h" steht. das ist nicht geschickt! Mit -I schaut der compiler 
+nach headern in diesen dirs
+
+Dann wird in den h-files nur das unbedingt benoetigte included.
+die Deklarationen brauchen natuerlich mehr, weil in ihnen ja standard-routinen
+aufgerufen werden. man sollte als test jede einzelne klasse separat kompilieren
+koennen!
+
+
+///////////////////////////////////////////////////////////////////////
+(i) Comfort ist eine methode analog zu travelTimes
+
+ich habe erstmal zwei methoden angelegt:
+
+void RoadSection::write_DrivingComfort_Avg(int it, bool writeOutput){
+void RoadSection::write_DrivingComfort(int it){
+
+in beiden wird ueber alle veh gemittelt!
+
+die erste wird in jedem update schritt aufgerufen,
+und schreibt alle ndtout_2D raus. es wird also zeitlich gemittelt!
+
+die andere mittelt nur ueber die veh beim zeitpunkt des rausschreibens!
+
+Beides passt aber noch nicht so ganz von der definition her!
+das ist alles noch etwas inhaltlich schraeg!!! 
+
+ich mache hier erstmal schlusss um (i) das coding abzuschliessen
+und (ii) den comfort mit dir zu diskutieren.
+
+====> ENTWICKLUNG
+
+///////////////////////////////////////////////////////////////////////
+
+HIER MEINE IMPLEMENTIERUNG VOM VLA-Modell:
+
+// Instructions for implementing new model:
+// (1) copy NewModel.[cc,h] to Actualmodel.cc.[cc,h]
+//     and globally replace "newmodel" => <actualmodel>
+//     in both new files
+
+==> VLA.cc, VLA.h  fuer "VLA-ACC-Modell"
+
+analog zu VDTgen.cc mit choice_basemodel als modellparameter!
+aber bisher nur fuer IDM(=0) als Basismodell entwickelt!
+
+Habe IDM und VW als Basismodelle implementiert (da ist ja klar wie VLA 
+wirken soll). 
+
+Beim VW passieren aber unfaelle --> die sind zu checken !!!
+(habe dafuer die Crash-Meldung in RoadSection.cc um ModelNumber/SetNumber erweitert)
+
+Vorschlag: vielleicht sollte man das VW umbenennen in CAH bzw. ein
+weiteres CAH modell einfuehren, denn das VW-Modell ist etwas zu
+ueberfrachtet ... ich musste auch fuer das PTV projekt einiges
+rausschmeissen.
+
+(By the way: Warum wird der Init-Process der modelle zweimal durchlaufen????)
+
+
+// (2) Create new simulation project (cpinp newmodel testmodel),
+//     change model param files newmodel.NEW1, newmodel.NEW2 to appropr
+//     names (e.g., testmodel.MOD1, testmodel.MOD2) and
+//     adapt parameters of these files to actual params of actual model
+
+project: sim/VLA_ramp.*
+parameter: sim/VLA_ramp.VLA1
+
+auch mit v0 probieren als bottleneck:
+sim/VLA_flowCons.*
+
+VLA1 ist mit VW als basismdell und VLA2 ist mit IDM als basismodell
+
+BLOED ist natuerlich dass das bottleneck im modell-file drin steht
+==> damit ist das projekt fehleranfaellig....
+eventuell sollte man das Rampen-file || alpha_v0  auswerten???? --> TO DISCUSS!
+
+==========> Rampen-Fzg machen grossen Jerk!! und manchmal auch grosse acc
+Was machen? diese Fzg. im ersten update ausschliessen????
+---> ist separat zu untersuchen bzw. jerk ev. kein gutes mas.
+VW mit jerk begrenzung....
+
+
+
+// (3) Implement cstr, get_modelparams, accSimple and acc in Actualmodel.cc
+//     (calc_eq() and all other methods should work unchanged!)
+
+Mit basismodel sehr elegant.
+
+ABER: analog zu alpha_T braucht VLA auch alpha_a und alpha_b !!!
+muss deshalb alle acc-Funktionsdefinitionen  um diese beiden parameter erweitern!!!
+Habe ich in allen modellen gemacht. Benutzt wird es natuerlich nur VLA ...
+
+
+// (4) Introduce new model in the array of vehicles by editing Heterogen.[cc,h]
+//     don't forget to define vars+#include the new model class in Heterogen.h
+//     and to adapt the method Heterogen.getExtension(..)
+
+Type:  8=VLA 
+
+
+// (5) Also edit model numbers in simulation file newmodel.heterog
+//     and newmodel.ICsingle accordingly;
+//     update doku of models in sim files (sim/ directory), e.g., by
+//     perl -i -p -e 's/ 100=NewModel/5=HSM, 100=NewModel/g' *.heterog
+
+okay, bisher nur in VLA_ramp.heterog
+(wenn gruenes licht von Martin, dann kann man das allgemein machen)
+
+// (8) actualize script cpinp  (which cpinp => edit => search "for model in")
+
+TODO --> martins task
+
+
+/////////////////////////////////////////////////////////////////////////////////
+
+interessanterweise hast du reduceFactor auf 0.5 fuer die rampe
+gesetzt. Waere das mal ein factor fuer eine konstante oder sogar fuer
+einen von aussen veraenderlichen parameter? z.b. in *.rmps wuerde sich
+anbieten. (allerdings sollte man default nehmen koennen was das
+projekt keinen wert setzt, damit man kompatibel bleibt) --- nur eine
+idee.
+
+
+/////////////////////////////////////////////////////////////////////////////////
+
+Und dann habe ich noch rumgespielt mit "ant" (another neat tool, noch nicht im Image) 
+und habe mir von Anders eien "build.xml" geben lassen.
+Aber es ist nicht so schnell wie make und funktioniert auch gerade mal wieder nicht
+wg. des -I. Es geht aber wenn alles in einem Verzeichnis liegt.
+
+/////////////////////////////////////////////////////////////////////////////////
+
+//warum so ???? wg. "cast" auf double ???
+static double sqrarg; --> gibt warung auf unused variable
+#define SQR(a) ((sqrarg=(a))==0.0 ? 0.0 : sqrarg*sqrarg)
+==> habe einfach #define SQR(a) ((a)*(a)) definiert,
+
+//////////////////////////////////////////////////////////////////////////////
+
+PROFILING -->
+
+altes mic:
+real    0m27.127s
+user    0m15.740s
+sys     0m1.053s
+
+neues mic:
+real    0m22.836s
+user    0m12.194s
+sys     0m0.797s
+
+habe aufruf in upstream_boundary geaendert: statt object het
+wird "nur" referenz &het uebergeben!
+
+Profiling: siehe ~/info/profiling
+
+habe es dann auch noch "const Heterogen &" definiert, was 
+aber ein bisschen das "const spiel" in Heterog nach sich zog:
+http://www.volkard.de/vcppkold/das_constspiel.html
+
+ich habe getExtension methode umgeschrieben, weil die einen pointer
+zurueckgegeben hat und eine warung verursacht hat (verstaendlicherweise).
+ jetzt muss der aufrufende speicherplatz mitbringen.
+
+//////////////////////////////////////////////////////////////////////////////
+// AB HIER VERSUCHT UNTER MICROSOFT ZU KOMPILIEREN:
+//////////////////////////////////////////////////////////////////////////////
+Habe die "cc" files in "cpp" umbenannt.
+das ist MicroSoft kompatibler....(der kennt alles ausser "cc")
+
+(spielerei bzw. weil andere makefiles vermutlich "cc" suchen:
+ habe in der ../lib zwei symlinks (ln -s InOut.cpp InOut.cc angelegt 
+--- das ist alles noch nicht erprobt)
+
+//////////////////////////////////////////////////////////////////////////////
+
+habe main.cpp in Main.cpp umbenannt. damit alle klassen mit grossen 
+buchstaben... :-)
+
+weitere ideen: modelle mit drei grossbuchstaben?
+HumanSchreck --> HSM ???
+VelDiffModel --> VDM ???
+VW           --> CAH !!! (nur CAH und ev. jerk???)
+
+//////////////////////////////////////////////////////////////////////////////
+FPE.cpp:
+(Warung vom MicroSoft compiler!)
+this->roadLen=proj.xmax-proj.xmin; //Achtung, roadLen war als bool definiert!!!
+habe ich in double umgeschrieben
+
+//////////////////////////////////////////////////////////////////////////////
+
+Problem mit static const double unter MS. Darf nicht in class-definition verwendet werden !!!
+
+Weder in klassendefinition noch in methoden der klasse! 
+(der neue standard sagt zwar dass static const auch in klassendefinition erlaubt ist,
+aber der microsoft compiler meckert zumindest bei doubles!)
+
+habe Consumption mit "initializeConstants" ausgestattet
+ANSI conform ist wohl nur static const int 
+
+generische loesung: --> loesung: statische Attribute werden von aussen
+initialisiert (global in Methodendefinitionen) (siehe Fluct.cpp)
+
+Z.B. FLuct.cpp
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+Wenn Methode unmittelbar in klasse definiert ist,
+dann ist die automatisch inline --> habe maxsmooth in VW.h
+so gemacht, weil Microsoft inline bloed fand.
+
+--> das ist der trick: VW.h benutzt inline,was VC nicht versteht und
+mit bloeder meldung daherkommt (vielleicht auch nur im DEBUG mode)
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+Was mir noch auffaellt: Das numerische detail haengt von optimierugs einstellung ab!
+Ohne -O und mit -O gab es leichte unterschiede. 
+Aber auch auf Ithanium und Pentium.
+
+es tritt auch beim alten code auf  !!!!
+
+STOPP: hier noch ein "schocker": habe das Projekt A8_FAS10_vGears.proj
+aus dem sim/ genommen und habe festgestellt dass die TravelTime mit der
+BC choice_BCdown ==2 nicht funktionieren kann....
+habe das projekt mit ==1 reproduziert bekommen --> in ==2 wird imin nicht 
+veraendert, so dass die veh einfach drin bleiben und weiterfahren....
+damit erhoeht sich die reisezeit konstant.... TO CHECK, aber inhaltlich!
+hat mit diesem compiler problem zum glueck nichts zutun!
+
+WEITER:
+Das -O darf die numerik NICHT veraendern (testprogramm mit 10^8 additionen von 
+zufallszahlen)
+
+===> also weitersuchen
+Was mich wahnsinnig macht ist beim projekt sim/VDT_OVM.proj
+dass anhaengig von -O/nicht O einmal ndtout_3D=1199 (mit O) und einmal
+ndtout_3D=1200 (ohne O) rauskommt. das ist mir nur aufgefallen weil es 
+immer rausgeschrieben wird als t=119.9 bzw. t=120
+
+Das ist zum verrueckwerden!
+
+
+OK: 
+numerisch kritisch sind nicht die rundungen durch die fluctuation etc,
+sondern die spruenge in der anzahl der fahrzeuge:
+
+--> Upstream-Boundary: dort habe ich eine rundung eingefuehrt:
+
+   bool boundaryIsFree = ( roundDouble(sFree,2) > sFreeMin );
+
+--> ramp: dort ist die krit. bedingung:
+
+   mergeOK = ( round(maxdist) > (lvehMerge+2.0*MINSPACE_MERGE_M) );
+
+(mist, windows kennt round nicht--> to check)
+habe ein round ohne nachkommastellen eingefuehrt, weil fluktuationen ziemlihc an maxdist ruetteln
+
+Dann habe ich noch gefunden, dass in constants.h der schalter
+const int DROP_NONENTERING_RAMP_VEHICLES = 0;//nun false
+auf true setzt war, weshalb die kritische bedingung auch noch zu schwerwiegenden
+aenderungen gefuehrt hat. habe den schalter jetzt auf FALSE gesetzt!!!!!!!
+
+Ich habe auch roundDouble auf myRand() angewendet!
+
+ABER DAS IST IMMER NOCH NICHT hinreichend!!! 
+das resultat fuer das projekt: speedtest_VDT:
+
+(1) ohne fluct und ohne rmps --> speedtest_VDT ist OK (wobei einmal x[imin] sind auch geaendert hat!)
+
+(2) mit rmps ohne fluct  --> schon plus/minus ein auto !!!!
+
+(3) mit rmps und mit fluct: --> auch anders!!!
+
+====> ZU KLAEREN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+/////////////////////////////////////////////////////////////////////////////
+general.h:
+inline functions for min/max etc habe ich wieder rausgenommen wg. dieser -O geschichte
+
+ausserdem neu in general.cpp: myRand() fuer G(0,1) um konsistent zu sein
+
+//////////////////////////////////////////////////////////////////////////////
+Der segmentation fault wg. zu wenig stack
+laesst sich leicht beheben:
+
+//hier dynamisch --> damit kein segmentation fault wg. zu geringem stack!
+ RoadSection* roadsec = new RoadSection(projectName, proj);
+
+UND DAMIT klappt auch das Windows!
+aber es stuerzt jetzt an anderen stellen ab!!!!
+da muss mal also auch mal genau gucken!!!!
+Und zwar wenn man mit new die RoadSection erzeugt --> Object zu gross???
+Er kommt gar nicht in den constructor rein...
+
+HABE FOLGENDE IDEE:
+RoadSection ist zu "gross" --> zuviele statische objekte.
+als ich die RoadSection auskommentiert habe, dann hat es geklappt.
+
+
+OKAY, habe auch die RoadSection-Objekte dynamisch gemacht!
+jetzt laeuft es auch unter  windows 
+
+OKAY, was habe ich gemacht:
+
+(*) es gibt nur noch ein Fluct in Main, was an Boundary und VehicleDrop uebergeben wird
+In Main wird das proj und fluct object angelegt und die bleiben die ganze laufzeit bestehen!
+Habe aus einiges Klassen die Var *proj rausgenommen weil nur (dt oder tstart) abgefragt werden.
+(nebenbei noch einen fehler "<=n_ramps" gefunden, obwohl nur "<n_ramps"
+
+(*) pointer mit const absichern????
+
+(*) klappt alles ohne probleme....
+
+//////////////////////////////////////////////////////////////////////////////
+
+(int)(#) cast durch static_cast<int>(#) ersetzt
+
+//////////////////////////////////////////////////////////////////////////////
+profiling hat ergeben dass intxp in Roadsection->update zu teuer ist.
+habe eine bemerkung im code gemacht.

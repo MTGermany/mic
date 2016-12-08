@@ -1,0 +1,45 @@
+
+(mt 5-3-07)
+Simulationen (bisher ~/trafficSim/sources/mic/sim) nun unter
+~/trafficSim/sources/mic_sim/
+Ausserdem jedes Projekt in eigenes Dir. unter mic_sim verschoben
+
+
+(mt 5-3-07)
+
+Handhabung von svn: ./src/README_svn
+
+
+update,status,submit etc kann von irgendwo in der "working copy"
+aufgerufen werden, also z.B. hier oder in ./src/
+Ausserhalb gibt's Fehlermeldung oder "ignoring ." Meldung
+Wird anscheinend durch die .svn dirs geregelt: Jedes subdir hat sein
+eigenes .svn/
+
+Alle Subdirs werden automatisch mit beruecksichtigt, jedoch nicht parent dirs
+(bei z.B. commit in ./src wird z.B. ./README nicht beruecksichtigt, bei
+commit hier (trunk)  aber ./src/*
+
+
+# arne, 5-3-07
+# heute...
+
+# README contains a description of the project and a brief description
+# of the source code which can be found in this directory tree,
+
+# bin contains the binaries (if any) of the sources; a separate
+# subdirectory exists for each platform supported e.g. in the case of
+# HartRAO this will be linux and sun4,
+
+# doc contains all documentation related to this project e.g. white
+# papers, users guide, porting guides, man pages etc.,
+
+# lib contains all libraries generated and maintained by the project;
+# a separate subdirectory exists for each platform supported e.g. in
+# the case of HartRAO this will be linux and sun4,
+
+# src is used for storing all source files; the golden rule is ``one
+# source file for all platforms supported'', differences between
+# platforms are managed by conditional statements,
+#
+# arne ende

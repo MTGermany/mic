@@ -1,0 +1,5 @@
+(aug13)
+
+in Ordner OVM_Euler_RK4_separateMain/
+liegt separates funktionierendes Main-File fuer Euler und RK4 fuer
+OVM. Sehr einfach, aber effektiv und es funzt! (einfach g++ OVM.cc => a.out)

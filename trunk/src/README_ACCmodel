@@ -1,0 +1,93 @@
+
+Code
+====
+
+
+  //######################################################
+  //  (mt nov09)
+  // Verallgemeinerung der  vereinfachten Formulierung auf exaktes Einhalten
+  // von s0+vT im Gleichgewicht fuer v<=v0fuer acc2=acc ohne Jerk
+  // gnu und eps in
+  //  ~/trafficSim/sources/mic_sim/modelACC/analytics_IDM_IIDM_ACC.gnu
+  //######################################################
+
+  double z=sstar/max(s,0.01);
+  double accEmpty=a*(1- pow((v/v0), ((v<v0) ? delta : 1))  );
+  double accPos=accEmpty*(1.- pow(z, min(2*a/accEmpty, 100.))  );
+  double accInt=-a*(z*z-1);
+
+  double accIDMnew=(v<v0) 
+    ?  (z<1) ? accPos : accInt 
+    :  (z<1) ? accEmpty : accInt+ accEmpty;
+ 
+    
+  double acc2New2=(accIDMnew>accCAHNew)
+    ? accIDMnew
+    : (1-cool)*accIDMnew + cool*( accCAHNew+b*tanh((accIDMnew-accCAHNew)/b));
+
+  // (mt nov09) activate if new formulation WITH IDMnew wanted
+
+  acc2=acc2New2; //!!
+  //acc2=accIDMnew; //!!
+
+
+
+Bemerkungen
+==========
+
+Mixing (double acc2New2= ...) 
+genauso wie bei (neuem) Mixing mit konventionellem IDM (double acc2New= ...)
+
+
+Das genau Abstandshaltende IDM ist definiert durch
+  double accIDMnew=(v<v0) 
+    ?  (z<1) ? accPos : accInt 
+    :  (z<1) ? accEmpty : accInt+ accEmpty;
+
+Fuer konventionelle Faelle ist nur v<v0 wesentlich: Dann
+
+accIDMnew=(z<1) ? accPos : accInt 
+
+accInt=a*(1-z*z) mit z=s^*/s wie beim normalen IDM, aber freier
+Beschleunigungsanteil vollstaendig ausgeblendet
+=> accIDMnew=accInt=0 falls z=>1 bzw. s=>s*
+
+accPos=accEmpty*(1.- pow(z, min(2*a/accEmpty, 100.))  );
+die min-Funktion nur wegen Pathologien beim "Tripelpunkt" v=>v0,z=>1
+also im Wesentlichen 
+accPos=accEmpty (1-z^{2*a/accEmpty}),accEmpty=a*(1- (v/v0)^{\delta})
+
+bzw.
+accPos aufgebaut wie accInt mit a=>accEmpty, Exponent 2=>2*a/accEmpty
+
+Stetigkeit:
+=======
+
+Stetige Diffbarkeit bzgl z, also bzgl. s:
+============================
+
+accInt:
+a'_I(z)=-2za,
+
+accPos:
+a'_P(z)=-a_E(2a/a_E) z^{2a/a_E-1}
+ = -2za z^{2(a/a_E-1)}
+
+Da dies fuer z=>1 gegen  -2za geht, ist accIDMnew(z) bei z=1 stetig diffbar
+
+Au\3erdem
+lim\limits_{z\to 0}a_P(z)=a_E
+
+=> freie Beschleunigung konsistent!
+
+
+lim\limits_{v\to v_0}a_P=0 
+=> Wunschgeschwindigkeit konsistent
+
+lim\limits_{z\to 1} a_P=0
+=> s=s^*=s0+vT im Gleichgewicht konsistent
+
+
+
+
+

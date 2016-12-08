@@ -1,0 +1,85 @@
+
+ACHTUNG: Entwicklung- und versions-Historie in README
+
+(29.01.04)
+wieder nan-Fehler bei Human.cc in Bosch-Simulation carfollowBosch!!
+
+ok (Dec 03)
+Renormalisierung von s0,T nun korrekt von Arne iomplementiert
+
+ok(14.11.03)
+implementiert, aber stdev_dv!=0 klappt in Zus.-hang mit HDM nicht!
+vermultich sorgen Inkonsistenzen wie dv>0 obwohlv=0 zu nan-Werten
+
+OK! Der nan-Fehler taucht auf, wenn in Human.cc bei der Berechnung
+von accTwoVehInt negative Geschwindigkeiten oder Null-Abstaende
+auftauchen. Ich hatte diesen Bug auch. Es stellte sich raus, dass er durch
+die Fluktuationen verursacht wurde, die die Fehlerabfang-Routinen auf
+negative geschw. etc. umgingen.
+
+(14.11.03)
+(! nur moegl. Aenderung!)
+lveh ist in den Mikromodellen vergraben. Ist aber Auto-Eigenschaft 
+Bis jetzt: abgel. MikroModel-Cstr -> Laenge -> Vehicle.lveh ueber 
+model.get_length()
+=>
+Vehicle cstr mit lveh und Modellen Laenge beim Cstr als Param
+uebergeben
+Problm: Wie/Woher lveh lesen: Vermutlich doch besser, so zu lassen
+(Diskutieren!)
+
+(14.11.03)
+Konsistente Implementierung der Fz Laenge: Abstaende nur noch
+bestimmen mit getPos() und getBackPos() des Fahrzeugs
+!! nun getPos() =  front pos!!
+
+
+27.10.03: Input vom Vortrag von Peter Wagner
+##########################################################
+(1) Stochastizitaet systematisch implementieren:
+
+dv/dt=a(s,v,dv)            // v=tats. Geschw
+ds/dt=(s-sreal)/tau_s +xi(t)  // s=subjecktiver Abst
+dsreal/dt=v_prev-v            // sreal=tats. Abstand
+<xi>=0, <xi xi>=Q delta_ab delta(t-t')
+
+Neue Parameter:
+
+ tau_s=60 s
+ Q    =0.1 m^2/s
+
+
+(2) Beschleunigungs-Schwellen explizit siomulieren:
+a(t)=a(t-dt) falls (|a(t-dt)-aIDM(t)|< ac)&&(t-t0)<tc
+    =aIDM += da   sonst
+
+Neue Parameter
+
+tc=10s
+ac=0.3 m/s^2
+da=0.1 m/s^2
+
+
+Oktober 2003: Fluktuationen systematisch implementieren!
+########################################################
+
+Input: 
+ - VW.cc -> isFluct: Flukt. von srel und dv
+ - FPE.cc -> accSimple: generischer stoch Anteil in dv/dt 
+ - IDMM.fluct (Daten)
+
+Implementierung:
+(1) Generische Vehicle-bezogene Fluktuationen in Vehicle.cc
+  => muss micromodel->calc_acc umdefinieren, mit s[] als Input!)
+   - von a direkt (delta-korr.)
+   - von a via Schwellwerte (Input vom Vortrag von Peter Wagner)
+   - von s via Dirk's Vorschlag nach Vortrag von Peter Wagner
+  => definiere (statische) Komp. Fluct fluct in jedes Vehicle
+     und implementiere angelegtes Fluct.cc und IDMM.fluct (Daten) mit Leben
+(2) spezifische Fluktuationen durch Messfehler etc => in spezifischen
+   Mikromodellen ohne eigenes Datenfile!
+
+
+
+
+

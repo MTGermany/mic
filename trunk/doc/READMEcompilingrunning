@@ -1,0 +1,39 @@
+Einige Tricky Fehler
+###################
+
+Achtung!! nun in ~/info/cc
+
+###################
+Compilieren
+Laufzeit
+Ursachen
+
+Compilieren
+###########
+
+Compiler erkennt Variable nicht, obwohl ordnungsgemaess
+deklariert/definiert => Ursache (3)
+
+Compiler meldet abstrusen Synaxfehler, obwohl alles in Ordnung scheint
+=>(3)
+
+Fehler beim Linken => (1)-(3)
+
+
+Laufzeit
+########
+
+Programm verabschiedet sich mit Zugriffsfehler => (4)-(6)
+Programm verabschiedet sich mit Linkfehler => (5)
+
+Ursachen
+#########
+
+(1) Methode zwar deklariert (im .h File), aber nicht definiert
+    (relat. leicht an Fehlermeldung ersichtlich)
+(2) Einbinden einiger .o Files im Makefile fehlern
+(3) Einbinden einiger Header im Quellcode (.h oder .cc Files) fehlen
+(4) ulimit -s unlimited vergessen
+(5) Header geaendert, ohne alle Objektfiles zu loeschen (rm *.o; make)
+(6) und natuerlich klassische Fehler wie Bereichueberschreitung,
+    verirrte Pointer etc, aber die sollte man eigentlich kennen
