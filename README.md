@@ -1,7 +1,8 @@
 # mic
 
 a small versatile effectively single-lane microscopic traffic flow
-simulator. Merges are modelled in a very simple way just by adding
+simulator for model tests. Merges are modelled in a very simple way
+just by adding 
 vehicles into the largest gap inside the merging region with the
 inflow specified in a .rmp<n> file (see below)
 
