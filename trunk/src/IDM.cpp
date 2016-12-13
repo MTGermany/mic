@@ -32,7 +32,7 @@ IDM::IDM(const char fname[])
   // rhomax = 1./lveh; // in get_modelparams
   calc_eq();
 
-  // <MT 2016 action points> 
+  // <MT 2016 action points; controlled by bmax<0> 
   useActionPoints=false;
   if(bmax<0){
     useActionPoints=true;

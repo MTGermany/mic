@@ -37,6 +37,8 @@
 //     perl -i -p -e 's/100=NewModel/17=PCF,100=NewModel/g' */*.heterog
 //     perl -i -p -e 's/100=NewModel/17=PCF,100=NewModel/g' */*/*.heterog
 //     (apr 2011,may2012,aug2014,dec2016: works again, now time tested!)
+//     (if too much:)
+//     perl -i -p -e 's/17=PCF\,17=PCF/17=PCF/g' */*.heterog */*/*.heterog
 // (6) Incorporate new model in makefile (include Actualmodel.o)
 // (7) actualize script cpinp  (which cpinp => edit => search "for model in")
 //     and diffProjects.sh 

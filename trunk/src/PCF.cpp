@@ -126,7 +126,14 @@ double PCF::accSimple(double s, double v, double dv,
   // random numbers in [-0.5 ... 0.5] have variance=1/12
   // myRand()=((double) (rand()/((double) RAND_MAX+1.)) - 0.5);
   double sqrt12=sqrt(12.);
-  double r1 = sqrt12*(myRand()-0.5); 
+  double rUni = sqrt12*(myRand()-0.5); // uniform, E(X)=0, Var(X)=1
+  double rGauss=0;                     // Gaussian, E(X)=0, Var(X)=1
+  for (int ir=0; ir<12; ir++){
+    rGauss += myRand()-0.5;
+  }
+
+  double r1=rGauss;
+  //double r1=rUni;
 
   // instance of free-flow displacement xi \sim N(mu,sigma^2)
 
