@@ -237,7 +237,9 @@ void Vehicle::updatePosVel()
     if(v<0){ v=0; acc=0;}
   }
 
-  // MT dec16 Gipps model position updated with new speed
+  // MT dec16 Gipps model position updated with new speed 
+  // (separate block because of runtime)
+
   else if(modelNumber==10){
     if(v<0){ v=0;} 
     if(vel_isExternallyControlled){
@@ -248,6 +250,21 @@ void Vehicle::updatePosVel()
       : -0.5 * SQR(v)/acc; 
     x+=advance;
     v+=dt*acc;
+    if(v<0){ v=0; acc=0;}
+  }
+
+  // MT dec16 Laval's parsmionious CF model (PCF model)
+  // (separate block because of runtime)
+
+  else if(modelNumber==17){
+    if(vel_isExternallyControlled){
+      acc=(vOld-v)/dt;
+    }
+    double advance = (acc*dt >= -v)
+      ? dt * v + 0.5*acc*SQR(dt) // =dt*(v+acc*dt)=dt*vNew
+      : -0.5 * SQR(v)/acc; 
+    x+=advance;
+    v=advance/dt;
     if(v<0){ v=0; acc=0;}
   }
 

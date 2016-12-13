@@ -30,7 +30,8 @@
                     // Physica A  391, Issue 11, p. 3129-3139.
 #include "ADAS.h" // advanced driver assistance systems model (TU Delft) (2012)
 #include "NH.h"   // "Non-hypothetical" model with oscillations Treiber/Jun-Fan (2014)
-#include "CACC.h"   // Model 16: Cooperative ACC (MT 2015-02)
+#include "CACC.h" // Model 16: Cooperative ACC (MT 2015-02)
+#include "PCF.h"  // Model 17: Parsimonious CF model of Laval 10.1016/j.trb.2014.09.004
 
 #include "NewModel.h" 
 
@@ -41,7 +42,7 @@ class CyclicBuffer;
 
 // modelNumber ={0=IDM,1=VW,2=Human, 3=OVM, 4=FPE, 5=humanSchreck,
 //       6=VDT,7=VDIFF, 8=Kerner, 9=CDDA, 10=Gipps,
-//      11=KernerCA, 12=PT model, 13=ASGM, 14=ADAS, 15=NH, 16=CACC, 100=NewModel}
+//      11=KernerCA, 12=PT model, 13=ASGM, 14=ADAS, 15=NH, 16=CACC, 17=PCF, 100=NewModel}
 // type=line number in .heterogen file of the project!
 
 class Heterogen
@@ -103,6 +104,7 @@ class Heterogen
   ADAS adasRef[NTYPEMAX+1];
   NH nhRef[NTYPEMAX+1];
   CACC caccRef[NTYPEMAX+1];
+  PCF pcfRef[NTYPEMAX+1];
 
   //  NewModel  newmodelRef[NTYPEMAX+1];
   // MicroModel* p_modelRef[NTYPEMAX+1]; 

@@ -188,6 +188,13 @@ Heterogen::Heterogen(const char projectName[], ProjectParams* const proj)
 	  p_model = pCACC;
       }
       
+      else if(modelNumber==17){
+	  //martin 2016-12: PCF model of Laval et al.
+	  pcfRef[itype]= PCF(param_file,proj->get_dt());
+	  PCF* pPCF = new PCF(param_file,proj->get_dt()); 
+	  p_model = pPCF;
+      }
+      
       else if(modelNumber==100){
 	  // Template model
 
@@ -326,6 +333,7 @@ void Heterogen::getExtension(int itype, char* extension) const{
     else if(modelNumber[itype]==14){sprintf(modelName,"ADAS");} //ADAS
     else if(modelNumber[itype]==15){sprintf(modelName,"NH");} //NH model
     else if(modelNumber[itype]==16){sprintf(modelName,"CACC");}
+    else if(modelNumber[itype]==17){sprintf(modelName,"PCF");}
     else if(modelNumber[itype]==100){sprintf(modelName,"NEW");}
     else{sprintf(modelName,"ToBeImplemented");}
     sprintf(extension,"%s%i", modelName, setNumber[itype]);
@@ -432,6 +440,10 @@ MicroModel* Heterogen::new_pmodel(int itype) const{
   else if(modelNumber==16){
     CACC* pCACC = new CACC(caccRef[itype]); 
     p_model=pCACC;
+  }
+  else if(modelNumber==17){
+    PCF* pPCF = new PCF(pcfRef[itype]); 
+    p_model=pPCF;
   }
   else if(modelNumber==100){
     NewModel* pNewModel = new NewModel(newmodelRef[itype]); 

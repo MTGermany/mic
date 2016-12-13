@@ -11,10 +11,13 @@
 //      perl -i -p -e 's/newmodel/actualmodel/g' <files>
 //      perl -i -p -e 's/NewModel/ActualModel/g' <files>
 // (1a) add new files to the version control:
-//       svn add <files> 
-// (2) Create new simulation project (in sim directory newmodel/ ):
+//       git add <files> 
+// (2) Create new simulation project (in mic-sim directory ):
+//       cp -r newmodel/newmodel_clean testmodel
+//       cd testmodel
 //       cpinp newmodel_ramp testmodel_ramp
 //       cpinp newmodel_startStopLSA testmodel_startStopLSA
+//       rm newmodel*
 //     change model param files newmodel.NEW1, newmodel.NEW2 to appropr
 //     names (e.g., testmodel.MOD1, testmodel.MOD2) and 
 //     adapt parameters of these files to actual params of actual model
@@ -30,15 +33,15 @@
 //     don't forget to define vars+#include the new model class in Heterogen.h
 //     and to adapt the method Heterogen.getExtension(..)
 // (5)  update doku of ALL models
-//     in sim files (~/trafficSim/sources/mic_sim/ ), e.g., by 
-//     perl -i -p -e 's/100=NewModel/16=CACC,100=NewModel/g' */*.heterog
-//     perl -i -p -e 's/100=NewModel/16=CACC,100=NewModel/g' */*/*.heterog
-//     (apr 2011,may2012,aug2014: works again, now time tested!)
+//     in sim files (~/trafficSim/mic_sim/ ), e.g., by 
+//     perl -i -p -e 's/100=NewModel/17=PCF,100=NewModel/g' */*.heterog
+//     perl -i -p -e 's/100=NewModel/17=PCF,100=NewModel/g' */*/*.heterog
+//     (apr 2011,may2012,aug2014,dec2016: works again, now time tested!)
 // (6) Incorporate new model in makefile (include Actualmodel.o)
-// (7) rm *.o before recompiling (always do this if *.h changed!)
-
-// (8) actualize script cpinp  (which cpinp => edit => search "for model in")
+// (7) actualize script cpinp  (which cpinp => edit => search "for model in")
 //     and diffProjects.sh 
+// (8) rm *.o (make clean) before recompiling (always do this if *.h changed!)
+
 
 #include "MicroModel.h"
 #include "CyclicBuffer.h"

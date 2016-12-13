@@ -475,7 +475,7 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
     double sigma_dv    = 0.1;    // 0, 0.1(m/s)
     double sigma_v     = 0.1;    // 0, 0.1(m/s)
  
-    // equal-distributed random variables with mu=0, sigma=1
+    // uniformly-distributed random variables with mu=0, sigma=1
     // random numbers in [-0.5 ... 0.5] have variance=1/12
     
     double sqrt12=sqrt(12.);
