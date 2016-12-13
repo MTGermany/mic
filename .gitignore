@@ -1,0 +1,26 @@
+# user-defined ignores (avoid committing large files)
+
+*.swp
+
+## Core latex/pdflatex auxiliary files:
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+
+## generated object files
+*.o
+
+## generated files 
+*_ger.html
+*_ger.js
+*~
+int
+
+## old (before git)
+trunk/src/save/
+trunk/src_jan14/
+trunk/src_old/
