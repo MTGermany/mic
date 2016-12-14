@@ -170,12 +170,12 @@ void FloatingCars::write(Vehicle veh[], int imin, int imax, int it, double dtout
 	    && iveh_actual >= imax - NVEH_DELAY_EXCLUDED
 	    && veh[iveh_actual].getPos() < DX_DELAY_EXCLUDED_M) {
 	  fprintf(FH_cars[ifloat],
-		  "# iveh>imax-10=>no HDM delay! %6.3f\t%6.2f\t%6.3f\t%6.3f\t%6.3f\t%6.3f\t%3i\t%8.3f\t%6.3f\t\t%6.3f\n",
+		  "# iveh>imax-10=>no HDM delay! %6.3f\t%6.2f\t%6.3f\t%6.3f\t%6.4f\t%6.3f\t%3i\t%8.3f\t%6.3f\t\t%6.3f\n",
 		  t, x, v, a, s, dv, 
 		  gear, instFuel, cumFuel[ifloat], comfort[ifloat]);
 	} else {
 	  fprintf(FH_cars[ifloat],
-		  "%6.3f\t%6.2f\t%6.3f\t%6.3f\t%6.3f\t%6.3f\t%3i\t%8.3f\t%6.3f\t\t%6.3f\n",
+		  "%6.3f\t%6.2f\t%6.3f\t%6.3f\t%6.4f\t%6.3f\t%3i\t%8.3f\t%6.3f\t\t%6.3f\n",
 		  t, x, v, a, s, dv, 
 		  gear, instFuel, cumFuel[ifloat], comfort[ifloat]);
 	}
