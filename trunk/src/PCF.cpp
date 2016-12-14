@@ -64,6 +64,7 @@ void PCF::get_modelparams(const char fname[]){
 
   inout.getvar(fp,&tau); // speed relax time free accel (=1/beta in Laval)
   inout.getvar(fp,&Q);   // acceleration noise [m^2/s^3](=sigma^2 in Laval)
+  inout.getvar(fp,&choice_model);   // 0=orig, 1=noise also if interaction
 
   fclose(fp);
 
@@ -141,13 +142,16 @@ double PCF::accSimple(double s, double v, double dv,
   double muSimple=v*dt+0.5*(v0loc-v)*SQR(dt)/tau; 
   double mu=v0loc*dt-(1-exp(-dtDivTau))*tau*(v0loc-v); // exact
   double sig2=0.5*Q*pow(tau,3)*( exp(-dtDivTau)*(4-exp(-dtDivTau)) +2*dtDivTau-3);
-  double xiFree=mu+sqrt(sig2)*r1;
+  double xiNoise=sqrt(sig2)*r1;
+  double xiFree=mu+xiNoise;
 
   // interaction displacement 
   // xiInt=xl(t+dt-T)-lveh -x(t) approx s(t)+vl*(dt-T)
+  // original: w/o noise; choice_model=1: with same noise as xiFree
 
+  bool noiseInt=(choice_model==1);
   double vl=v-dv;
-  double xiInt=max(s-s0+vl*(dt-Tloc), 0.);
+  double xiInt=max(s-s0+vl*(dt-Tloc), 0.)+((noiseInt) ? 1 : 0)*xiNoise;
 
   // final PCF displacement formula
 

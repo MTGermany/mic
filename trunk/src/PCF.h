@@ -36,6 +36,7 @@ class PCF: public MicroModel
   double s0;
   double tau; 
   double Q;
+  int choice_model;
 
 
   // PCF state variables (elapsed times, old values,
