@@ -116,7 +116,8 @@ void PCF::calc_eq(){
 //######################################
 
 double PCF::accSimple(double s, double v, double dv,
-			   double alpha_v0, double alpha_T, int it, double dt){
+		      double alpha_v0, double alpha_T,
+		      double x, int it, int iveh, double dt){
 
 
   double bmax=100; // crucial!! artifacts if arbitrary deceleration allowed!
@@ -126,9 +127,8 @@ double PCF::accSimple(double s, double v, double dv,
   // uniformly-distributed random variables with mu=0, sigma=1
   // random numbers in [-0.5 ... 0.5] have variance=1/12
   // myRand()=((double) (rand()/((double) RAND_MAX+1.)) - 0.5);
-  double sqrt12=sqrt(12.);
-  double rUni = sqrt12*(myRand()-0.5); // uniform, E(X)=0, Var(X)=1
-  double rGauss=0;                     // Gaussian, E(X)=0, Var(X)=1
+  //double rUni =sqrt(12.)*(myRand()-0.5); // uniform, E(X)=0, Var(X)=1
+   double rGauss=0;                     // Gaussian, E(X)=0, Var(X)=1
   for (int ir=0; ir<12; ir++){
     rGauss += myRand()-0.5;
   }
@@ -141,12 +141,14 @@ double PCF::accSimple(double s, double v, double dv,
   double dtDivTau=dt/tau;
   double muSimple=v*dt+0.5*(v0loc-v)*SQR(dt)/tau; 
   double mu=v0loc*dt-(1-exp(-dtDivTau))*tau*(v0loc-v); // exact
-  double sig2=0.5*Q*pow(tau,3)*( exp(-dtDivTau)*(4-exp(-dtDivTau)) +2*dtDivTau-3);
+  double sig2=0.5*Q*pow(tau,3)*( exp(-dtDivTau)*(4-exp(-dtDivTau))
+				 +2*dtDivTau-3); // variance displacement
   double xiNoise=sqrt(sig2)*r1;
   double xiFree=mu+xiNoise;
 
   // interaction displacement 
   // xiInt=xl(t+dt-T)-lveh -x(t) approx s(t)+vl*(dt-T)
+  // see PCF.README
   // original: w/o noise; choice_model=1: with same noise as xiFree
 
   bool noiseInt=(choice_model==1);
@@ -158,15 +160,19 @@ double PCF::accSimple(double s, double v, double dv,
   double xi=min(xiFree, xiInt);
   double a_wanted=2*(xi-v*dt)/SQR(dt);
 
-  if(it<2){
-    cout <<"in PCF.accSimple: s="<<s<<" v="<<v<<" dv="<<dv<<endl
-	 <<" dt="<<dt<<" dtDivTau="<<dtDivTau
-	 <<" mu="<<mu<<" muSimple="<<muSimple<<endl
+  if(false){
+    //if((iveh<=2)&&(it<10)){
+    cout <<"\nin PCF.accSimple: t="<<it*dt<<" old x="<<x
+	 <<" old s="<<s<<" old v="<<v<<" old dv="<<dv<<endl
+	 <<"  dt="<<dt<<" dtDivTau="<<dtDivTau
+	 <<" mu="<<mu<<" muSimple="<<muSimple
       //<<" v0*dt="<<(v0loc*dt)
       //<<" (1-exp(-dtDivTau))*tau*="<<(1-exp(-dtDivTau))<<endl
 	 <<" sig2="<<sig2<<endl
-	 <<" r1="<<r1<<" xiFree="<<xiFree<<" xiInt="<<xiInt<<" xi="<<xi
-	 <<" a_wanted="<<a_wanted<<endl;
+	 <<"  r1="<<r1<<" xiFree="<<xiFree<<" xiInt="<<xiInt<<" xi="<<xi
+	 <<" new acc="<<max(a_wanted, -bmax)
+      //<<" a_wanted="<<a_wanted
+         <<endl;
   }
   //else{exit(-1);}
 
@@ -187,6 +193,7 @@ double PCF::acc(int it, int iveh, int imin, int imax,
     //#############################################################
 
 
+  double x= cyclicBuf->get_x(iveh); 
   double s= cyclicBuf->get_s(iveh); //xveh[iveh-1]-xveh[iveh]-lveh[iveh-1]
   double v= cyclicBuf->get_v(iveh); //vveh[iveh];
   double dv= v - cyclicBuf->get_v(iveh-1);//vveh[iveh];
@@ -195,8 +202,8 @@ double PCF::acc(int it, int iveh, int imin, int imax,
   //#############################################################
   // actual PCF formula
   //#############################################################
-  
-  return  accSimple(s,v,dv,alpha_v0, alpha_T, it, dt);
+  //cout <<"\nbefore PCF.acc: t="<<it*dt<<" iveh="<<iveh<<" x="<<cyclicBuf->get_x(iveh)<<" v="<<v<<endl;
+  return  accSimple(s,v,dv,alpha_v0, alpha_T, x, it, iveh, dt);
   
 }
 

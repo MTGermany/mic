@@ -9,29 +9,30 @@
 
 #include "Fluct.h"
 
-#include "IDM.h"
+#include "IDM.h" // Model 0: Intelligent-Driver Model (IDM)
 #include "VW.h"
-
 #include "HDM.h" // Model 2: Human Driver Model
+
 #include "OVM.h"
 #include "FPE.h"
 #include "HumanSchreck.h"
 #include "VDT.h"
 #include "VDIFF.h"  // Full velocity difference model
 #include "Kerner.h" // Model 8: Kerner's continuous micromodel
-#include "CDDA.h"   // Helbing/Treiber,
+#include "CDDA.h"   // Model 9: Helbing/Treiber,
                     // continuous deceleration-delayed-acceleration model 
                     // arxiv.org/pdf/physics/0507178
 
-#include "Gipps.h"  // Model 10
-#include "KernerCA.h"  // KKW model
-#include "PTmodel.h"  // prospect-theoretic model
-#include "ASGM.h"   //  Tian, Treiber et al, average space gap (CA) model (2011)
-                    // Physica A  391, Issue 11, p. 3129-3139.
-#include "ADAS.h" // advanced driver assistance systems model (TU Delft) (2012)
-#include "NH.h"   // "Non-hypothetical" model with oscillations Treiber/Jun-Fan (2014)
+#include "Gipps.h"    // Model 10: Simplified Gipps b=B
+#include "KernerCA.h" // Model 11: KKW model
+#include "PTmodel.h"  // Model 12: prospect-theoretic model
+#include "ASGM.h"     // Model 13: Tian, Treiber et al, average space gap (CA) model
+                      // Physica A  391, Issue 11, p. 3129-3139 (2011).
+#include "ADAS.h" // Model 14: advanced driver assistance systems model (TU Delft) (2012)
+#include "NH.h"   // Model 15: "Non-hypothetical" model Treiber/Jun-Fan (2014)
 #include "CACC.h" // Model 16: Cooperative ACC (MT 2015-02)
 #include "PCF.h"  // Model 17: Parsimonious CF model of Laval 10.1016/j.trb.2014.09.004
+#include "LCM.h"  // Model 18: Longitudinal COntrol Model, see LCM.README
 
 #include "NewModel.h" 
 
@@ -86,7 +87,7 @@ class Heterogen
   
   Fluct fluctRef[NTYPEMAX+1]; 
 
-  IDM idmRef[NTYPEMAX+1];
+  IDM idmRef[NTYPEMAX+1]; 
   VW  vwRef[NTYPEMAX+1];
   HDM hdmRef[NTYPEMAX+1];
   VDT vdtRef[NTYPEMAX+1];
@@ -105,6 +106,7 @@ class Heterogen
   NH nhRef[NTYPEMAX+1];
   CACC caccRef[NTYPEMAX+1];
   PCF pcfRef[NTYPEMAX+1];
+  LCM lcmRef[NTYPEMAX+1];
 
   //  NewModel  newmodelRef[NTYPEMAX+1];
   // MicroModel* p_modelRef[NTYPEMAX+1]; 

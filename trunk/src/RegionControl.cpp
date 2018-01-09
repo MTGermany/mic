@@ -154,14 +154,23 @@ RegionControl::RegionControl(char* projectName,
 //###################### set control ##########
 
 void RegionControl::update(Vehicle  veh[], int imin, int imax, double time){
+
+  //bool test=(regionIndex==2); // regionIndex as in ctrlRegions file
+  //bool test=true;
+  bool test=false;
+
   this->time=time;
+
   if(inTimeInterval(time)){
+    if(test){
+      cout <<"\n  in RegionControl.update: t="<<time
+	   <<" regionIndex="<<regionIndex<<endl;
+    }
 
-      //################################
-      // ctrl single vehicles
-      //################################
+    //############################################
+    // ctrl single vehicles
+    //############################################
 
-    // new instance of ExternalControl created one in RoadSection (see if(regionCtrlExists){..})
     if(useSingle){
       vehicleJustFound=false;
       if(!vehicleFound){
@@ -172,8 +181,9 @@ void RegionControl::update(Vehicle  veh[], int imin, int imax, double time){
 	    vehicleFound=true;
 	    vehicleJustFound=true;
 	    // initialize control
-	    cout <<"RegionControl.update: event-oriented single-vehicle control:"
-	    <<" found single vehicle index "<<ivehSingle<<" at x="
+	    cout <<"RegionControl.update: "
+		 <<" event-oriented single-vehicle control since xmax<xmin:"
+		 <<endl<<" found single vehicle index "<<ivehSingle<<" at x="
 	    <<veh[ivehSingle].getPos()<<endl;
 	  }
 	}
@@ -181,82 +191,95 @@ void RegionControl::update(Vehicle  veh[], int imin, int imax, double time){
       }
     }
 
-    //################################
-    // real region control
-    //################################
+    //#############################################
+    // real region control (useSingle=false)
+    //#############################################
 
-    bool relevantForSomeVeh // not applicable for useSingle!
-      =(!isUpstream(veh[imin+1].getPos())) //!! min+1, not min
-      && (!isDownstream(veh[imax].getPos())); //!! imax-1 vs. imax
 
-    if(relevantForSomeVeh&&(!useSingle)){
+    bool relevantForSomeVeh 
+      =(!useSingle)                        // not applicable for useSingle!
+      && (!isUpstream(veh[imin].getPos())) // first vehicle not upstream
+      && (!isDownstream(veh[imax].getPos())); // last vehicle not downstream
+
+    if(relevantForSomeVeh){
       //if(ctrlByAcc()){writeInfo(); }
       
-      bool upstream=false;// start with imin=most downstream	  
-      bool downstream=true;
-      int iveh=imin+1; //!! min+1, not min
+      bool downstream=false;// start with imax=most upstream	  
+      int iveh=imax;
 
-        //bool test=(regionIndex==2);
-      bool test=false;
-      while(  (iveh<=imax)&&downstream){//!! imax-1 vs. imax
+      cout <<"RegionControl.update: in real region control"<<endl;
+      while( (iveh>=imin)&&(!downstream)){
 	if(test){
 	  cout <<"t="<<time<<" iveh="<<iveh
 	       <<" xmin="<<xmin<<" xmax="<<xmax
-	       <<" x="<<veh[iveh].getPos()<<endl;
+	       <<" x="<<veh[iveh].getPos()
+	       <<" isUpstream="<<isUpstream(veh[iveh].getPos())
+	       <<" isDownstream="<<isDownstream(veh[iveh].getPos())
+	       <<" inSpaceInterval="<<inSpaceInterval(veh[iveh].getPos())
+	       <<endl;
 	}
 	if(inSpaceInterval(veh[iveh].getPos())){
-
+	  setControl(veh[iveh]); // now at downstream boundary
 	  if(test){
-	    cout <<" inSpaceInterval!"<<endl;
-	    cout <<"t="<<time<<" iveh="<<iveh
-	       <<" xmin="<<xmin<<" xmax="<<xmax
-	       <<" x="<<veh[iveh].getPos()<<endl;
-	  }
-	  
-	  downstream=false;
-	  iveh=max(iveh-1,0);
-	  resetControl(veh[iveh]); // now at downstream boundary
-	  if(test){
-	        cout <<"downstream boundary reached for vehicle "<<iveh+1
-		<<" reset regionControl for vehicle "<<iveh
+	        cout <<"set regionControl for vehicle "<<iveh
 		     <<" at x= "<< veh[iveh].getPos()<<endl;
 	  }
 	}
-	iveh++;
 
-      }
+	// deactivate control for vehicle just having left the ctrl region
 
-      while ( (iveh<=imax)&&(!upstream)){ //!! imax-1 vs. imax
-	setControl(veh[iveh]);
-	if(!isInRegion(veh[iveh].getPos(),time)){
-	  upstream=true;
+	double maxDisplacementPerTimestep=50*proj.get_dt();
+	downstream=isDownstream(veh[iveh].getPos());
+	if(downstream&&(veh[iveh].getPos()<xmax+maxDisplacementPerTimestep)){
+	  resetControl(veh[iveh]);
 	  if(test){
-	    cout <<" upstream index reached for vehicle "<<iveh
-		 <<" at x="<<veh[iveh].getPos()<<endl;
-	    //writeInfo();
+	        cout <<"reset regionControl for vehicle "<<iveh
+		     <<" at x= "<< veh[iveh].getPos()<<endl;
 	  }
-
 	}
-	iveh++;
-      }
 
-    }//relevantForSomeVeh&&( !singleVeh)
+	iveh--;
+      }
+    }//relevantForSomeVeh
+
+    if(test){cout<<"end of actual RegionControl.update loop"<<endl<<endl;}
+
   }//inTimeInterval(time)
 
-  // check if control time interval just endet => if so, reset everything
-  if((!useSingle) && (time>tmax) &&(time<tmax+1.5*proj.get_dt())){
-    cout <<"RegionControl, reginIndex="<<regionIndex
-	 <<" Control has just ended!"<<endl;
-    for (int iveh=imin; iveh<=imax; iveh++){ //!! min+1, not min, imax-1 vs. imax
-      resetControl(veh[iveh]);
-      //cout <<"t="<<time<<": resetControl of vehicle at "<<veh[iveh].getPos()<<endl;
-    }
-  }
 
-  // remove control for previous-to-last(otherwise veh with v=0 stuck forever)
-  resetControl(veh[imin+1]);
+  //#############################################
+  // check if control time interval just ended 
+  // => if so and real region control (useSingle=false), 
+  // reset every vehicle inside space interval of ctrl region
+  //#############################################
+
+  if((!useSingle) && (time>tmax) &&(time<tmax+1.1*proj.get_dt())){
+
+    if(test){cout <<" t="<<time<<" region control time for regionIndex"
+		  <<regionIndex <<" just ended!"<<endl;
+    }
+
+    for (int iveh=imin; iveh<=imax; iveh++){ 
+      // addtl. test to avoid side effects with other region ctrls 
+      // taking place simultaneously
+      if(inSpaceInterval(veh[iveh].getPos())){ 
+        resetControl(veh[iveh]);
+	if(test){cout <<" reset control of veh "<<iveh
+		      <<" at x="<<veh[iveh].getPos()<<endl;
+	}
+      }
+    } 
+    if(test){cout<<"end of test for temporal end of regionControl"<<endl<<endl;}
+
+  } // check if control time interval just ended 
+
   
 }// end update
+
+
+
+
+
 
 void RegionControl::setControl(Vehicle& veh){
   if(useSpeedlimit){veh.setSpeedlimit(getSpeedlimit(veh.getPos()));}

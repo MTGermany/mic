@@ -217,13 +217,14 @@ void Vehicle::calcAcc(int it, int iveh, int imin, int imax,
 void Vehicle::updatePosVel()
 {
   
-  //cout <<"Vehicle.updatePosVel: getModelNumber()="<<getModelNumber()<<endl;
+  //cout <<"Vehicle.updatePosVel: modelNumber="<<modelNumber<<endl;
   // increment first s; then increment s with NEW v (2th order: -0.5 a dt^2)
 
   xOld=x;
   vOld=v;
 
-  if((modelNumber!=4)&&(modelNumber!=10)&&(!isCAvehicle)){ // beim FPE-Model v<0 zulassen!
+  if((modelNumber!=4)&&(modelNumber!=10)&&(modelNumber!=17)
+     &&(!isCAvehicle)){ // beim FPE-Model v<0 zulassen!
     if(v<0){ v=0;} 
     // bug fix 2015-02-02
     if(vel_isExternallyControlled){
@@ -253,7 +254,7 @@ void Vehicle::updatePosVel()
     if(v<0){ v=0; acc=0;}
   }
 
-  // MT dec16 Laval's parsmionious CF model (PCF model)
+  // MT feb17 Laval's parsmionious CF model (PCF model)
   // (separate block because of runtime)
 
   else if(modelNumber==17){
@@ -266,6 +267,12 @@ void Vehicle::updatePosVel()
     x+=advance;
     v=advance/dt;
     if(v<0){ v=0; acc=0;}
+    if(false){ // .PCF1 set=follower in test simulation
+    //if(setNumber==1){ // .PCF1 set=follower in test simulation
+      cout <<"  Vehicle.updatePosVel():"
+	   <<" advance="<<advance<<" new x="<<x<<" new v="<<v
+	   <<endl;
+    }
   }
 
 

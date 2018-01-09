@@ -2,7 +2,7 @@
 #define NewModel_H
 
 // overview of actually implemented models: 
-// Heterpgen.h and corresponding <Model>.cpp files
+// Heterogen.h and corresponding <Model>.cpp files
 
 // Instructions for implementing new model:
 // (1) copy NewModel.[cpp,h] to Actualmodel.cpp.[cpp,h]
@@ -10,7 +10,8 @@
 //     in both new files:
 //      perl -i -p -e 's/newmodel/actualmodel/g' <files>
 //      perl -i -p -e 's/NewModel/ActualModel/g' <files>
-// (1a) add new files to the version control:
+// (1a) create NewModel.README file (references, variants)
+// (1b) add new files to the version control:
 //       git add <files> 
 // (2) Create new simulation project (in mic-sim directory ):
 //       cp -r newmodel/newmodel_clean testmodel
@@ -18,7 +19,7 @@
 //       cpinp newmodel_ramp testmodel_ramp
 //       cpinp newmodel_startStopLSA testmodel_startStopLSA
 //       rm newmodel*
-//     change model param files newmodel.NEW1, newmodel.NEW2 to appropr
+//     change model param files newmodel.NEW1, newmodel.NEW2 (or IDM[12]) to appropr
 //     names (e.g., testmodel.MOD1, testmodel.MOD2) and 
 //     adapt parameters of these files to actual params of actual model
 // (3) Implement cstr, get_modelparams, accSimple and acc in Actualmodel.[cpp,h]
@@ -34,11 +35,12 @@
 //     and to adapt the method Heterogen.getExtension(..)
 // (5)  update doku of ALL models
 //     in sim files (~/trafficSim/mic_sim/ ), e.g., by 
-//     perl -i -p -e 's/100=NewModel/17=PCF,100=NewModel/g' */*.heterog
-//     perl -i -p -e 's/100=NewModel/17=PCF,100=NewModel/g' */*/*.heterog
+//     perl -i -p -e 's/100=NewModel/18=LCM,100=NewModel/g' */*.heterog */*/*.heterog
 //     (apr 2011,may2012,aug2014,dec2016: works again, now time tested!)
-//     (if too much:)
-//     perl -i -p -e 's/17=PCF\,17=PCF/17=PCF/g' */*.heterog */*/*.heterog
+//     (if too much (ex):)
+//     perl -i -p -e 's/18=LCM\,18=LCM/18=LCM/g' */*.heterog */*/*.heterog
+//     (if too little (ex):)
+//     perl -i -p -e 's/16=CACC\,18=LCM/16=CACC,17=PCF,18=LCM/g' */*.heterog */*/*.heterog
 // (6) Incorporate new model in makefile (include Actualmodel.o)
 // (7) actualize script cpinp  (which cpinp => edit => search "for model in")
 //     and diffProjects.sh 

@@ -52,7 +52,8 @@ class PCF: public MicroModel
 
   // implements also speedlimit if applicable; it for debugging purposes
   double accSimple(double s, double v, double dv, 
-		   double alpha_v0, double alpha_T, int it, double dt); 
+		   double alpha_v0, double alpha_T, 
+		   double x, int it, int iveh, double dt);
 
 };
 
