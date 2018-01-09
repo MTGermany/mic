@@ -178,10 +178,6 @@ int main(int argc, char* argv[]) {
  //#####################################################
 
  cout<<"Main: main simulation loop starts ....\n";
- if(true){
-   setRandomSeed();
-   cout <<"Setting random seed (disable in Main.cpp for testing)"<<endl;
- }
 
  for (int it=1; it<=nt; it++){
    //cout <<"before writeAll: it="<<it<<" nt="<<nt<<endl;

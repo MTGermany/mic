@@ -202,6 +202,13 @@ Heterogen::Heterogen(const char projectName[], ProjectParams* const proj)
 	  p_model = pLCM;
       }
       
+     else if(modelNumber==19){
+          //martin 2018-01: IDM with brownian motion
+          bidmRef[itype]= BIDM(param_file,proj->get_dt());
+          BIDM* pBIDM = new BIDM(param_file,proj->get_dt()); 
+          p_model = pBIDM;
+      }
+ 
       else if(modelNumber==100){
 	  // Template model
 
@@ -342,6 +349,7 @@ void Heterogen::getExtension(int itype, char* extension) const{
     else if(modelNumber[itype]==16){sprintf(modelName,"CACC");}
     else if(modelNumber[itype]==17){sprintf(modelName,"PCF");}
     else if(modelNumber[itype]==18){sprintf(modelName,"LCM");}
+    else if(modelNumber[itype]==19){sprintf(modelName,"BIDM");}
     else if(modelNumber[itype]==100){sprintf(modelName,"NEW");}
     else{sprintf(modelName,"ToBeImplemented");}
     sprintf(extension,"%s%i", modelName, setNumber[itype]);
@@ -456,6 +464,10 @@ MicroModel* Heterogen::new_pmodel(int itype) const{
   else if(modelNumber==18){
     LCM* pLCM = new LCM(lcmRef[itype]); 
     p_model=pLCM;
+  }
+  else if(modelNumber==19){
+    BIDM* pBIDM = new BIDM(bidmRef[itype]); 
+    p_model=pBIDM;
   }
   else if(modelNumber==100){
     NewModel* pNewModel = new NewModel(newmodelRef[itype]); 
