@@ -1,0 +1,39 @@
+
+(August 2017)
+
+Referenz:
+
+Laval, J. A., Toth, C. S., Zhou, Y., 2014. A parsimonious model for the formation of oscillations in car-following models.
+Transportation Research Part B: Methodological 70, 228–238.
+
+
+Implememtierung: model_type=17
+
+(1) Emulierung der "exakten" diskreten Updaterule in dieser Referenz:
+
+  * dt in <prj>.proj  = T in <proj>.PCF*
+
+  * PCF.cpp: displacement xi calculated as in reference, then acc
+    "reverse engineered" from ballistic update  as double
+    a_wanted=2*(xi-v*dt)/SQR(dt) 
+
+ (2) Umformulierung (Naeherung oder exakt?) der Newell-Interaktion:
+
+     Newell: x(t)=xl(t-tau) - leff   [leff=1/k=1/maxDensity]
+                 =xl(t-tau) - lveh - s0
+
+=> interaction displacement xiInt
+     xiInt = x(t+dt)-x(t)
+           = xl(t+dt-tau)-lveh-s0-x(t)   [tau=T]
+           = xl(t+dt-T)-lveh-s0-x(t) 
+           = xl(t)-lveh-s0-x(t) + (xl(t+dt-T)-xl(t))
+           = s(t)-s0+vl(t)*(dt-T)  
+
+     [Notice that this requires lvehl=lveh; notice that old speed
+      is used which is no var in Newell; may lead to
+      second-order errors => avoided if dt=T!]
+
+
+ (3) Varianten ohne (=Original) und mit Noise auch im Interaktionsmodus:
+
+     <proj>.PCF*: choice_model={0=original,1=always acc noise}

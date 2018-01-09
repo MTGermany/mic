@@ -1,0 +1,20 @@
+modelNumber=19
+IDM with Brownian Motion (BIDM)
+~/papers/2016_JunFang_stochastic/
+
+includes 2D-IDM and BIDM with speed adaptation
+
+components:
+
+(1) IDM as basic model with T3 as desired time gap
+
+(2) indifference region for s(v,dv) in [sstar(v,dv;T1), sstar(v,dv;T2)
+
+(3) stochasticity in form of Brownian acceleration (not speed!)
+    only in the indifference region 
+
+(4) optionally speed adaptation term=FVDM-like sensitivity to dv
+    only in the indifference region 
+
+
+
