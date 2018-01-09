@@ -39,6 +39,7 @@
 //     (apr 2011,may2012,aug2014,dec2016: works again, now time tested!)
 //     (if too much (ex):)
 //     perl -i -p -e 's/19=BIDM\,19=BIDM/19=BIDM/g' */*.heterog */*/*.heterog
+//     perl -i -p -e 's/18=BIDM/19=BIDM/g' */*.heterog */*/*.heterog
 //     (if too little (ex):)
 //     perl -i -p -e 's/17=PCF\,19=BIDM/17=PCF,18=LCM,19=BIDM/g' */*.heterog */*/*.heterog
 // (6) Incorporate new model in makefile (include Actualmodel.o)
