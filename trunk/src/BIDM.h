@@ -25,7 +25,7 @@ class BIDM: public MicroModel
 	     const CyclicBuffer* const cyclicBuf);
 
   double accSimple(double s, double v, double dv, // implement also speedlimit
-		   double alpha_v0, double alpha_T); 
+		   double alpha_v0, double alpha_T, bool logging); 
 
   //void setSpeedlimit(double v0){this->speedlimit=v0;} //In MicroModel.h
 

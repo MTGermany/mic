@@ -117,7 +117,7 @@ void BIDM::calc_eq(){
       if(false) cout << endl;
 
       for (int it=1; it<=itmax; it++){
-        double acc = accSimple(s,v_it,0,1,1);
+        double acc = accSimple(s,v_it,0,1,1,false);
         double dtloc = dtmax*v_it/v0 + dtmin; // it. step in [dtmin,dtmax]
 
 	// actual relaxation 
@@ -151,7 +151,7 @@ void BIDM::calc_eq(){
 //######################################
 
 double BIDM::accSimple(double s, double v, double dv,
-			   double alpha_v0, double alpha_T){
+		       double alpha_v0, double alpha_T, bool logging){
 
 
   double bmax=9; // crucial!! artifacts if arbitrary deceleration allowed!
@@ -171,17 +171,29 @@ double BIDM::accSimple(double s, double v, double dv,
 
   if(inIndifferenceZone){
     double sqrt12=sqrt(12.);
-    double r1 = sqrt12*myRand(); // ((double) (rand()/((double) RAND_MAX+1.)) - 0.5);
-    accWanted=accOld+sqrt(A*r1*dt)-lambda*dv;
+    double r1 = sqrt12*(myRand()-0.5); // myRand \sim G(0,1)
+    if(logging){cout <<" myRand-0.5="<<r1/sqrt12
+		     <<" sqrt(A*dt)*r1="<<sqrt(A*dt)*r1<<endl;}
+    //accWanted=accOld+sqrt(A*dt)*r1-lambda*dv; // random walk acc
+    accWanted=0+sqrt(A/dt)*r1-lambda*dv; // random walk v
   }
   else{
     accWanted=a*(1.- pow((v/v0loc),4)-SQR(sstar/s) );
   }
 
-  accOld=accWanted;
-  
+  accWanted=max(accWanted, -bmax);
 
-  return max(accWanted, -bmax);
+  if(logging){
+    cout <<" s="<<s<<" v="<<v<<" dv="<<dv<<endl
+	 <<" sstar1="<<sstar1<<" sstar2="<<sstar2
+	 <<" inIndiff="<<inIndifferenceZone
+	 <<"  accWanted="<<accWanted<<" accOld="<<accOld
+	 <<endl;
+  }
+
+  accOld=accWanted;
+ 
+  return accWanted;
 }
 
 
@@ -208,7 +220,10 @@ double BIDM::acc(int it, int iveh, int imin, int imax,
   // actual BIDM formula
   //#############################################################
   
-  return  accSimple(s,v,dv,alpha_v0,alpha_T);
+  //bool logging=(iveh==2);
+  bool logging=false;
+  if(logging){cout <<"in BIDM: iveh="<<iveh<<endl;}
+  return  accSimple(s,v,dv,alpha_v0,alpha_T,logging);
   
 }
 
