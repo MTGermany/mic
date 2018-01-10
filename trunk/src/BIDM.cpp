@@ -174,8 +174,10 @@ double BIDM::accSimple(double s, double v, double dv,
     double r1 = sqrt12*(myRand()-0.5); // myRand \sim G(0,1)
     if(logging){cout <<" myRand-0.5="<<r1/sqrt12
 		     <<" sqrt(A*dt)*r1="<<sqrt(A*dt)*r1<<endl;}
-    //accWanted=accOld+sqrt(A*dt)*r1-lambda*dv; // random walk acc //!!!
-    accWanted=0+sqrt(A/dt)*r1-lambda*dv; // random walk v //!!!
+    accWanted=accOld+sqrt(A*dt)*r1-lambda*dv; // random walk acc //!!!
+    //accWanted=0+sqrt(A/dt)*r1-lambda*dv; // random walk v //!!!
+
+    accWanted=min(a, max(accWanted, -b)); //!! b, not bmax, only in indiff zone
   }
   else{
     accWanted=a*(1.- pow((v/v0loc),4)-SQR(sstar/s) );
