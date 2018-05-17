@@ -32,8 +32,9 @@
 #include "NH.h"   // Model 15: "Non-hypothetical" model Treiber/Jun-Fan (2014)
 #include "CACC.h" // Model 16: Cooperative ACC (MT 2015-02)
 #include "PCF.h"  // Model 17: Parsimonious CF model of Laval 10.1016/j.trb.2014.09.004
-#include "LCM.h"  // Model 18: Longitudinal COntrol Model, see LCM.README
+#include "LCM.h"  // Model 18: Longitudinal Control Model, see LCM.README
 #include "BIDM.h" // Model 19: IDM with Brownian motion (BIDM) 2016_JunFang_stochastic/
+#include "LACC.h" // Model 20: Linear ACC Model, see LACC.README
 
 #include "NewModel.h" 
 
@@ -45,7 +46,7 @@ class CyclicBuffer;
 // modelNumber ={0=IDM,1=VW,2=Human, 3=OVM, 4=FPE, 5=humanSchreck,
 //       6=VDT,7=VDIFF, 8=Kerner, 9=CDDA, 10=Gipps,
 //      11=KernerCA, 12=PT model, 13=ASGM, 14=ADAS, 15=NH, 16=CACC, 
-//      17=PCF, 18=LCM, 19=BIDM, 100=NewModel}
+//      17=PCF, 18=LCM, 19=BIDM,  20=LACC, 100=NewModel}
 // type=line number in .heterogen file of the project!
 
 class Heterogen
@@ -110,6 +111,7 @@ class Heterogen
   PCF pcfRef[NTYPEMAX+1];
   LCM lcmRef[NTYPEMAX+1];
   BIDM bidmRef[NTYPEMAX+1];
+  LACC laccRef[NTYPEMAX+1];
 
   //  NewModel  newmodelRef[NTYPEMAX+1];
   // MicroModel* p_modelRef[NTYPEMAX+1]; 

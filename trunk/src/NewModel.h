@@ -2,9 +2,10 @@
 #define NewModel_H
 
 // overview of actually implemented models: 
-// Heterogen.h and corresponding <Model>.cpp files
+// Heterogen.h and corresponding <Model>.cpp and sometimes <Model>.README files
 
 // Instructions for implementing new model:
+// (0) pull from git repository
 // (1) copy NewModel.[cpp,h] to Actualmodel.cpp.[cpp,h]
 //     and globally replace "newmodel" => <actualmodel>
 //     in both new files:
@@ -18,6 +19,7 @@
 //       cd testmodel
 //       cpinp newmodel_ramp testmodel_ramp
 //       cpinp newmodel_startStopLSA testmodel_startStopLSA
+//       cpinp newmodel_ring testmodel_ring
 //       rm newmodel*
 //     change model param files newmodel.NEW1, newmodel.NEW2 (or IDM[12]) to appropr
 //     names (e.g., testmodel.MOD1, testmodel.MOD2) and 
@@ -35,18 +37,20 @@
 //     and to adapt the method Heterogen.getExtension(..)
 // (5)  update doku of ALL models
 //     in sim files (~/trafficSim/mic_sim/ ), e.g., by 
-//     perl -i -p -e 's/100=NewModel/19=BIDM,100=NewModel/g' */*.heterog */*/*.heterog
+//     perl -i -p -e 's/100=NewModel/20=LACC,100=NewModel/g' */*.heterog */*/*.heterog
 //     (apr 2011,may2012,aug2014,dec2016: works again, now time tested!)
+
 //     (if too much (ex):)
 //     perl -i -p -e 's/19=BIDM\,19=BIDM/19=BIDM/g' */*.heterog */*/*.heterog
 //     perl -i -p -e 's/18=BIDM/19=BIDM/g' */*.heterog */*/*.heterog
 //     (if too little (ex):)
 //     perl -i -p -e 's/17=PCF\,19=BIDM/17=PCF,18=LCM,19=BIDM/g' */*.heterog */*/*.heterog
+
 // (6) Incorporate new model in makefile (include Actualmodel.o)
 // (7) actualize script cpinp  (which cpinp => edit => search "for model in")
 //     and diffProjects.sh 
 // (8) rm *.o (make clean) before recompiling (always do this if *.h changed!)
-
+// (9) push to git repository
 
 #include "MicroModel.h"
 #include "CyclicBuffer.h"
