@@ -141,7 +141,9 @@ double LACC::accSimple(double s, double v, double dv,
 			   double alpha_v0, double alpha_T){
 
 
+  double amax=3; // to restrict accelerations if vopt_withFVDEM-v large
   double bmax=9; // crucial!! artifacts if arbitrary deceleration allowed!
+  double rmax=150; // maximum range for detecting objects<=>leaders
   double v0loc=alpha_v0*v0; //generic parameter
   double Tloc=alpha_T*T;  //generic parameter
   double a_wanted=0;
@@ -149,11 +151,12 @@ double LACC::accSimple(double s, double v, double dv,
 
   // LACC acceleration 
 
-  double vopt_noUpper=max(0., (s-s0)/Tloc);
+  double seff=(s<=rmax) ? s : 1e6; // no detection = leader very far away
+  double vopt_noUpper=max(0., (seff-s0)/Tloc);
   double vopt_withFVDEM=min(v0, vopt_noUpper+lambda/alpha*(vl-v));
   a_wanted=alpha*(vopt_withFVDEM - v);
 
-  return max(a_wanted, -bmax);
+  return min(amax, max(a_wanted, -bmax));
 }
 
 //#############################################################
