@@ -1,17 +1,104 @@
 # mic
 
 a small versatile effectively single-lane microscopic traffic flow
-simulator for model tests. Merges are modelled in a very simple way
+simulator for model developments and tests, or as a core in
+calibration routines. Merges are modelled in a very simple way
 just by adding 
 vehicles into the largest gap inside the merging region with the
-inflow specified in a .rmp<n> file (see below)
+inflow specified in a `.rmp<n>` file (see below). Everything is text
+based, there is no GUI.
 
 ## Compiling
 
-This simulator uses c++
-on a linux system, just enter "make mic" in the subdirectory /trunc/src/
+Assume that you are on a linux system and gnu g++ is
+implemented, go to ```trunk/src/``` 
+and just enter 
+
+```
+make -f makefile_withLibs mic
+```
+When using another compiler, change the makefile
+accordingly.
 
 ## Running the Simulation
+
+The simulations are organized into `projects`. Each project has a
+variable number of input and output files to be explained below. Just
+run a simulation by calling
+
+```
+mic <project>
+```
+
+## The mic project
+
+The most important project files are included in sample projects in 
+`./simulations/<model>/`, e.g., `./simulations/IDM/`, and
+distinguished by their extension. Every line beginning with `%` or `#`
+is interpreted as a comment line.
+
+### input files
+
+* `.proj`  The top-level input file controlling and specifying the
+  simulation project. The only file which must be present in every
+  project. The order is **fixed** (I did not want to bother with xml
+  parsing). Its entries are the following 
+
+  * `choice_BCup`: Upstream boundary conditions. These can be
+    controlled by a file `.BCup` (choice_BCup=0), extrapolate the
+    situation near the inflow (choice_BCup=1), or periodic
+    (choice_BCup=3). If a simulation with a fixed number of vehicles
+    should be run, enter the "zero" condition (choice_BCup=3). There
+    are also other special-purpose options. 
+
+  * `choice_BCdown`: The same for the downstream boundary. As for the
+    upstream condition, the only
+    option requiring a file is choice_BCdown=0. The equivalent of
+    "zero" inflow is "free" outflow (setting 2) meaning, the first driver just
+    sees a free infinite road in front of her or him
+
+  * `choice_init`: Initial conditions. You can define the initial
+    position, speed, and 
+    type of every vehicle by setting choice_init=0 together with a
+    specification file `.ICsingle`. You can also define macroscopic
+    initial conditions by specifying the initial density (setting 2)
+    or density and flow (setting 3). If only the density is chosen,
+    the flow will be calculated according to the (population-averaged)
+    fundamental diagram.
+
+  * The numerical parameters tmax, xmax, and dt are
+    self-explaining. If you just want a simulation of a few vehicles
+    with no boundaries, select choice_BCup=choice_BCdown=2,
+    choice_init=0, and a very long road (large xmax).
+
+  * `dtout_FCD` Sampling time (inverse sampling rate) of floating-car
+    records which will be written for specified vehicles if the input
+    file `.floatcars` exists.
+
+  * `dtout_tseries` Sampling time for other time series such as
+    stationary detector data (written for specified locations if the
+    file `.detectors` exists), cross sections (written for specified
+    locations if the file `.x` exists), instantaneous travel times and
+    driving comfort (written if in this project file the flag
+    `travelTime_output` =1),
+    global instantaneous fuel consumption, and others.
+
+  * `dxout_3D`, `dtout_3D`, `dnout_3D` Other output filters. Setting
+    `dnout_3D` to values greater than 1 is useful if wanting to
+    display trajectory data of big spatiotemporal simulation ranges
+
+  * `distr_v0_T` automatically introduces some heterogeneity into each
+    vehicle type by the specified relative ranges. For example, if we
+    have IDM and ACC vehicles with a time gap of 2 s and 1 s,
+    respectively, and `distr_v0_T=0.2`, then the time gaps will vary
+    from vehicle to vehicle in the ranges [1.6 s, 2.4 s], and [0.8 s,
+    1.2 s], respectively. Notice that this randomness is fixed for
+    each vehicle at vehicle generation time. If you want acceleration
+    noise for each vehicle over time, add the input file `.fluct` to
+    the project.
+
+* `.BCup` Specification of the upstream boundary conditions if
+  `choice_BCup=0` in the `.proj` file.
 
 
 ## Numerical Integration

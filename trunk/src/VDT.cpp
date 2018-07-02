@@ -19,7 +19,7 @@ using namespace std;
 #include "IDM.h"
 #include "HDM.h"
 #include "OVM.h"
-#include "VDIFF.h"
+#include "FVDM.h"
 #include "CyclicBuffer.h"
 
 
@@ -96,7 +96,7 @@ void VDT::initialize(const char projName[], int setNumber, double dt){
   if(choice_basemodel==0)     {sprintf(baseNameRaw,"IDM");}
   else if(choice_basemodel==2){sprintf(baseNameRaw,"HDM");}
   else if(choice_basemodel==3){sprintf(baseNameRaw,"OVM");}
-  else if(choice_basemodel==7){sprintf(baseNameRaw,"VDIFF");}
+  else if(choice_basemodel==7){sprintf(baseNameRaw,"FVDM");}
   else{
     cerr <<" VDT.initialize: error: no basemodel available for "
 	 <<" choice_basemodel="<<choice_basemodel<<endl;
@@ -120,7 +120,7 @@ void VDT::initialize(const char projName[], int setNumber, double dt){
     p_basemodel=new OVM(baseName);
   }
   else if(choice_basemodel==7){
-    p_basemodel=new VDIFF(baseName);
+    p_basemodel=new FVDM(baseName);
   }
   else{
     cerr <<" VDT.initialize: error: not all available models initialized!"

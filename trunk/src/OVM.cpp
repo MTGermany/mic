@@ -157,7 +157,7 @@ double OVM::accSimple(double s, double v, double alpha_T)
     // performance: could tanh(-beta) calc. in Cstr. if necessary
     //vopt = max( 0.5*v0*( tanh((s-s0)/l_intLoc-betaLoc) - tanh(-betaLoc)), 0.);
 
-    //<martin mai08>: OVM/VDIFF nun so skaliert, dass v0 tats Wunschgeschw
+    //<martin mai08>: OVM/FVDM nun so skaliert, dass v0 tats Wunschgeschw
     double v0Prev   = v0/(1.+tanh(betaLoc));
     vopt =max(v0Prev*( tanh((s-s0)/l_intLoc-betaLoc) - tanh(-betaLoc)), 0.);
     a_wanted = (vopt-v)/tau;

@@ -1,21 +1,21 @@
-#ifndef VDIFFMODEL_H
-#define VDIFFMODEL_H
+#ifndef FVDMMODEL_H
+#define FVDMMODEL_H
 
 
 #include "MicroModel.h"
 class CyclicBuffer;
 
 
-class VDIFF: public MicroModel
+class FVDM: public MicroModel
 {
 
  public:
   
-  VDIFF(){;}
+  FVDM(){;}
 
-  VDIFF(const char projectName[]);
+  FVDM(const char projectName[]);
 
-  //virtual ~VDIFF(){;}
+  //virtual ~FVDM(){;}
 
   double acc(int it, int iveh, int imin, int imax,
 	     double alpha_v0, double alpha_T,
@@ -24,7 +24,7 @@ class VDIFF: public MicroModel
   double accSimple(int choice_variant,
 		   double s, double v, double dv, double alpha_T); 
   void setSpeedlimit(double v0){//<martin mai08>
-    cout <<"Warning: VDIFF.setSpeedlimit not yet implemented!"<<endl;
+    cout <<"Warning: FVDM.setSpeedlimit not yet implemented!"<<endl;
   }
 
 
@@ -59,4 +59,4 @@ class VDIFF: public MicroModel
 
 };
 
-#endif // VDIFFMODEL_H
+#endif // FVDMMODEL_H

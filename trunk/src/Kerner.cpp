@@ -94,7 +94,7 @@ void Kerner::initialize(const char projName[], int setNumber, double dt){
   //todo
   //  else if(choice_basemodel==2){sprintf(baseNameRaw,"HDM");}
   //  else if(choice_basemodel==3){sprintf(baseNameRaw,"OVM");}
-  //  else if(choice_basemodel==7){sprintf(baseNameRaw,"VDIFF");}
+  //  else if(choice_basemodel==7){sprintf(baseNameRaw,"FVDM");}
   else{
     cerr <<" Kerner.initialize: error: no basemodel available for "
 	 <<" choice_basemodel="<<choice_basemodel<<endl;

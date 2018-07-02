@@ -1,0 +1,8 @@
+%t(s)	Q(veh/h/lane)
+%0	0
+%2000	0        # 2880=48 min, 8 min nachdem in gnuplot  t=0 gestellt
+2000	550
+2000	550
+2400	550
+2400	550
+

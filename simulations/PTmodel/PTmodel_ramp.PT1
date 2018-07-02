@@ -1,0 +1,23 @@
+##########################################################
+# Parameters  of the PT model
+###########################################################
+%  
+7	 lveh	= vehicle length (m)
+%
+33.33	 v0	= Desired velocity (m/s)
+10	 tauOVM	= velocity relaxation time (s) of the freeflow part (or use a!)
+%
+2	wm	= weighting factor of negative PT generalized utilities
+1	a0	= crossover acceleration constant=>decreasing sensitivity
+0.2	gamma	= sensitivity exponent: PT generalized
+%		 utility propto +/- acc^gamma if |acc/a0| >>1
+100000	wc	 = weighting of crashes per unit PT utility
+4	taumax	= max. time horizon for evaluating crash risk
+0.08	alpha	= velocity uncertainty variation coeff. (for determ. crash risk)
+%
+5	beta	= logit uncertainty parameter (1/beta=acc uncertainty/a0)
+20	tauCorr	= Correlation time of acceleration/estimation errors
+%
+10	bmax	= max. PT deceleration 
+3	s0            = min. bumper-to-bumper distance (m)     
+%

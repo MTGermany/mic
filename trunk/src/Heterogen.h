@@ -17,7 +17,7 @@
 #include "FPE.h"
 #include "HumanSchreck.h"
 #include "VDT.h"
-#include "VDIFF.h"  // Full velocity difference model
+#include "FVDM.h"  // Full velocity difference model
 #include "Kerner.h" // Model 8: Kerner's continuous micromodel
 #include "CDDA.h"   // Model 9: Helbing/Treiber,
                     // continuous deceleration-delayed-acceleration model 
@@ -44,7 +44,7 @@
 class CyclicBuffer;
 
 // modelNumber ={0=IDM,1=VW,2=Human, 3=OVM, 4=FPE, 5=humanSchreck,
-//       6=VDT,7=VDIFF, 8=Kerner, 9=CDDA, 10=Gipps,
+//       6=VDT,7=FVDM, 8=Kerner, 9=CDDA, 10=Gipps,
 //      11=KernerCA, 12=PT model, 13=ASGM, 14=ADAS, 15=NH, 16=CACC, 
 //      17=PCF, 18=LCM, 19=BIDM,  20=LACC, 100=NewModel}
 // type=line number in .heterogen file of the project!
@@ -96,7 +96,7 @@ class Heterogen
   VDT vdtRef[NTYPEMAX+1];
   HumanSchreck humanSchreckRef[NTYPEMAX+1];
   OVM  ovmRef[NTYPEMAX+1];
-  VDIFF vdiffRef[NTYPEMAX+1];
+  FVDM vdiffRef[NTYPEMAX+1];
   FPE  fpeRef[NTYPEMAX+1];
   Kerner kernerRef[NTYPEMAX+1];
   CDDA cddaRef[NTYPEMAX+1];

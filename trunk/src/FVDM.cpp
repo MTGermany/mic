@@ -1,5 +1,5 @@
-#ifndef VDIFFMODEL_CC
-#define VDIFFMODEL_CC
+#ifndef FVDMMODEL_CC
+#define FVDMMODEL_CC
 // c
 #include <stdio.h>
 #include <math.h>
@@ -13,11 +13,11 @@ using namespace std;
 //own
 #include "general.h"
 #include "InOut.h"
-#include "VDIFF.h"
+#include "FVDM.h"
 #include "CyclicBuffer.h"
 
 
-VDIFF::VDIFF(const char fname[])
+FVDM::FVDM(const char fname[])
 { 
   initializeMicroModelVariables();  //arne -> init variables from MicroModel
   modelNumber=7;
@@ -30,11 +30,11 @@ VDIFF::VDIFF(const char fname[])
   rhoQmax=0; 
 
 
-  cout << "\nin VDIFF file Cstr: fname= "<<fname<<endl;
+  cout << "\nin FVDM file Cstr: fname= "<<fname<<endl;
   get_modelparams(fname);
   // rhomax = 1./lveh; // in get_modelparams
   calc_eq();
-  cout <<"End VDIFF file Cstr: Test: rhomax="<<rhomax
+  cout <<"End FVDM file Cstr: Test: rhomax="<<rhomax
        <<" get_veq(0.02)="<<get_veq(0.02)<<endl;
 
 }
@@ -44,7 +44,7 @@ VDIFF::VDIFF(const char fname[])
 // parameters according to L.C. Davis, Physica A 319, 557 (2003)
 
 //################################################################
-void VDIFF::get_modelparams(const char fname[]){
+void FVDM::get_modelparams(const char fname[]){
 //################################################################
   FILE *fp;
   InOut inout;
@@ -74,7 +74,7 @@ void VDIFF::get_modelparams(const char fname[]){
 
 
 //################################################################
-void VDIFF::calc_eq()
+void FVDM::calc_eq()
 //################################################################
 
     // Calculates equilibrium velocity of OVM and OVM with finite s0
@@ -89,7 +89,7 @@ void VDIFF::calc_eq()
 
 {
 
-  if(false){cout << "\nin VDIFF.calc_eq()"<<endl;}
+  if(false){cout << "\nin FVDM.calc_eq()"<<endl;}
 
    // Find equilibrium velocities veqtab[ir] with simple relaxation
     // method: Just model for homogeneous traffic solved for 
@@ -130,17 +130,17 @@ void VDIFF::calc_eq()
 	}
       }
       veqtab[ir] = v_it;
-      cout <<"VDIFF.calc_eq(): veqtab[ir]="<<veqtab[ir]<<endl;
+      cout <<"FVDM.calc_eq(): veqtab[ir]="<<veqtab[ir]<<endl;
 
     }
 
     calc_rhoQmax();  // Qmax, rhoQmax 
-} // VDIFF::calc_eq()
+} // FVDM::calc_eq()
 
 
 
 //######################################
-// acceleration of the VDIFF=full velocity difference model FVDM.
+// acceleration of the FVDM=full velocity difference model FVDM.
 // Argument parameters:
 
 // s=net distance (m),
@@ -153,7 +153,7 @@ void VDIFF::calc_eq()
 //   5,6 =FVDM with Delta v/s instead of Delta v and original/triang OV function
 //######################################
 
-double VDIFF::accSimple(int choice_variant,
+double FVDM::accSimple(int choice_variant,
 			double s, double v, double dv, double alpha_T){
   //  cout <<" lambda="<<lambda<<endl;
 
@@ -165,14 +165,14 @@ double VDIFF::accSimple(int choice_variant,
 
   if(l_intLoc<1e-6){l_intLoc=1e-6;}
 
-  // VDIFF acceleration
+  // FVDM acceleration
 
   // standard OVM function
   // performance: could tanh(-beta) calc. in Cstr. if necessary
   //vopt(s)  = v0Prev *( tanh((s-s0)/l_int-beta) + tanh(beta)-0.1/s)
 
   if((choice_variant==0) || (choice_variant==3) || (choice_variant==5)){
-    //<martin mai08>: OVM/VDIFF nun so skaliert, dass v0 tats Wunschgeschw
+    //<martin mai08>: OVM/FVDM nun so skaliert, dass v0 tats Wunschgeschw
     double v0Prev   = v0/(1.+tanh(betaLoc));
     vopt =max(v0Prev*( tanh((s-s0)/l_intLoc-betaLoc) - tanh(-betaLoc)), 0.);
     if (false){
@@ -201,7 +201,7 @@ double VDIFF::accSimple(int choice_variant,
       ? min((s-s0)/Tmin, v0) : 0;
   }
  
-  // full VDIFF  acceleration
+  // full FVDM  acceleration
 
   if (choice_variant<=1){
     a_wanted = (vopt-v)/tau - lambda * dv;
@@ -211,7 +211,7 @@ double VDIFF::accSimple(int choice_variant,
     a_wanted=min(a_wanted, 5.);
   }
   
-  // original  VDIFF model mt jan2010
+  // original  FVDM model mt jan2010
   else if((choice_variant==3) || (choice_variant==4)){
     a_wanted = (vopt-v)/tau - lambda * ((dv>0) ? dv : 0);
   }
@@ -244,7 +244,7 @@ double VDIFF::accSimple(int choice_variant,
 
 //#########################################################
 
-double VDIFF::acc(int it, int iveh, int imin, int imax,
+double FVDM::acc(int it, int iveh, int imin, int imax,
 		  double alpha_v0, double alpha_T,
 		  const CyclicBuffer* const cyclicBuf)
 {
@@ -253,7 +253,7 @@ double VDIFF::acc(int it, int iveh, int imin, int imax,
   // Local dynamical variables
   //#############################################################
   
-	//arne mai07, reaction time for VDIFF
+	//arne mai07, reaction time for FVDM
   //double s  = cyclicBuf->get_s(iveh);
   //double v  = cyclicBuf->get_v(iveh);
   //double dv = v- cyclicBuf->get_v(iveh-1);
@@ -265,7 +265,7 @@ double VDIFF::acc(int it, int iveh, int imin, int imax,
 	
   if(false)
     {
-      cout<<"VDIFF.acc: s="<<s<<" v="<<v<<" dv="<<dv
+      cout<<"FVDM.acc: s="<<s<<" v="<<v<<" dv="<<dv
           <<" accSimple="<<accSimple(choice_variant,s,v,0,alpha_T)<<endl;
     }
 
@@ -274,5 +274,5 @@ double VDIFF::acc(int it, int iveh, int imin, int imax,
 
 
 
-#endif // VDIFFMODEL_CC
+#endif // FVDMMODEL_CC
 

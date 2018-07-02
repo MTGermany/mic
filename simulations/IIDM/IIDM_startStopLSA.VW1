@@ -1,0 +1,21 @@
+\begin{verbatim}
+############################################
+# Parameters  of the VW model
+############################################
+8        lveh   = vehicle length (m)
+%
+15       v0            = Desired velocity (m/s) 35.56
+1      T             = savety time distance (s)
+2       s0            = min. bumper-to-bumper distance (m)
+0        s1            = s1*sqrt(v/v0) term in sstar
+4       delta         = Acceleration exponent
+1.5        a             = acceleration (m/s^2)
+1.5        b             = comfortable braking deceleration (m/s^2)
+9        bmax          = max. deceleration (m/s^2) (blocking wheels)
+%
+0	 cool          = coolness factor (0=IDM, 1=VW model)
+100	 jerk          = comfortable jerk (m/s^3)
+4	 b_crit        = critical deceleration (b<b_crit<bmax)
+\end{verbatim}
+
+

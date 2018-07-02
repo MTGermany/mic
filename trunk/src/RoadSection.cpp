@@ -571,7 +571,7 @@ void RoadSection::initialize(int choice_init)
     //     (continuous for car 1, convergence confirmed!)
     // (e) with acc=min(0.5*(k1[j]+2*k2[j]+2*k3[j]+k4[j])/6, -1e-8) consistent+OK
 
-    // IIDM, IDMM, VDIFF, PTmodel OK, 
+    // IIDM, IDMM, FVDM, PTmodel OK, 
     // ACC differences between Ballistic and default, HDM not OK (is explained)!
 
     // if setAcc(0) not done if v<0, ACC OK and RK4 with less artifacts

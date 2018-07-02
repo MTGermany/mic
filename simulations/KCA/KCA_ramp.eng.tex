@@ -1,0 +1,80 @@
+%########################################################
+% skeletons fuer latex2e documente
+% AUSFUEHRLICHERE Version: skeletonAusfuehrlich.tex (dec04)
+%########################################################
+\documentclass[12pt,a4paper]{scrartcl}  
+%\documentclass[twocolumn,showpacs,preprintnumbers,amsmath,amssymb]{revtex4}
+%\documentclass[preprint,showpacs,preprintnumbers,amsmath,amssymb]{revtex4}
+%\documentclass[a4paper]{foils}
+     % Praesentation a la "Powerpoint", vgl. ~/prosperPraesentation/          
+%\documentclass[tu,colorBG,slideColor,pdf]{prosper} 
+
+\usepackage{graphicx} % definiert \includegraphics[width=???mmm]{eps Bild}
+\usepackage{lscape} % provides landscape environment; OK for figs+text(mai05)
+
+
+
+\usepackage{eurosym}  %Euro-Symbol: \euro{Zahl} oder euro{}
+\usepackage[latin1]{inputenc} % dann kann auch ü direkt übersetzt werden!
+\usepackage[dvips]{color}     %Definiert \definecolor und 
+                              % red,yellow,green,blue,black,gray,white
+
+\usepackage{hyperref} 
+%                  Internet-Link: \href{http://www.WasAuchImmer.html}
+%                  {\blue{\underline{TextDesLinks} }}
+%                  Lokaler Link: \hyperlink{targetName}{TextDesLinks}
+%                  Link-Target: \hypertarget{targetName}
+%                  Achtung: lokale Links funktionieren z Z nicht
+%  Info: \myHyperlink{http..}{Linktext}
+
+\usepackage{cite} % z.B. Refs 1,2,3,5 werden zu [1-3,5]  zusammengefasst
+
+%\textheight220mm
+%\textwidth150mm
+%\oddsidemargin0mm
+%\topmargin0mm
+%\parindent0mm
+
+\providecommand{\textfraction}{0.2}  % Figures: At least 20% text at each page
+
+\input{defs}          % includes auch ``colors.st''
+
+\usepackage{graphicx}
+\usepackage[latin1]{inputenc}
+
+
+%\usepackage{eurosym}  %Euro-Symbol: \euro{Zahl} oder euro{}
+
+\providecommand{\itemNS}[1]{\item #1 \\[-18mm]}
+
+
+
+%##########################################################
+
+\begin{document}
+\subsection*{Projekt KCA_ramp}
+%\includegraphics[width=0.5\textwidth]{KCA_ramp_rho3d.eng.eps}
+\includegraphics[width=\textwidth]{KCA_ramp_v3d.eng.eps}
+\includegraphics[width=0.5\textwidth]{KCA_ramp_fund1.eng.eps}
+\includegraphics[width=0.5\textwidth]{KCA_ramp_fund2.eng.eps}
+\includegraphics[width=0.5\textwidth]{KCA_ramp_fund3.eng.eps}
+\newpage
+%\fig{0.7\textwidth}{KCA_ramp_v_x6000.eng.eps}
+\fig{0.7\textwidth}{KCA_ramp_v_x12000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_v_x20000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_v_x24000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_v_x28000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_v_x30000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_v_x32000.eng.eps}
+
+\newpage
+\fig{0.7\textwidth}{KCA_ramp_Q_x12000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_Q_x20000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_Q_x24000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_Q_x28000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_Q_x30000.eng.eps}\vspace{-10mm}
+\fig{0.7\textwidth}{KCA_ramp_Q_x32000.eng.eps}
+
+\end{document}
+%###########################################################
+

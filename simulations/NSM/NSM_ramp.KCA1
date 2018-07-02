@@ -1,0 +1,22 @@
+##########################################################
+#  modelnumber 11
+# Parameters  of Kerner's CA: Kerner's Buch S. 411
+# cell unit = 0.5 m; time unit tau=1 s ! 
+#=> multiply space units by factor 0.5 in gnuplot!
+###########################################################
+%  
+1	 lveh   = d=vehicle length (cell units)
+%
+5	 v0            = Desired velocity (cell units/time unit)
+2.	 k	    = Multiplikator fuer sync-Abstand D=lveh+k*v*tau(2.55)
+0.2	 pb0            = "Troedelwahrsch." for standing vehicles (0.425)
+0.2	 pb1            = "Troedelwahrsch." for moving vehicles
+0.2	 pa1            = "Beschl.=Anti-Troedelwahrsch." falls v<vp
+0.052	 pa2	   = "Beschl.=Anti-Troedelwahrsch." falls v>=vp
+14	 vp	   = Geschw., ab der weniger "anti-getroedelt" wird
+0.35	 lambda	   = merging criterium: OK, falls Nettoluecken nach
+%                                  merge > 1/2*lambda*v
+1	nagelSchreck = boolean var: 0=KCA, 1=original Nagel-Schreckenberg M
+%	                  if=1, then chose 
+%		  lveh=1, v0=2 or 5, pb0=pb1=pb (if Barlovic, pb0<pb1)
+%		  lambda the same, rest irrelevant.

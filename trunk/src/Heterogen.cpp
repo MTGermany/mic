@@ -115,9 +115,9 @@ Heterogen::Heterogen(const char projectName[], ProjectParams* const proj)
 	  p_model = pvdt;
 	}
       else if(modelNumber==7)
-	{ // VDIFF (old name:VelDiffModel)
-	  vdiffRef[itype]= VDIFF(param_file); //OK
-	  VDIFF* pvdiff = new VDIFF(param_file); 
+	{ // FVDM (old name:VelDiffModel)
+	  vdiffRef[itype]= FVDM(param_file); //OK
+	  FVDM* pvdiff = new FVDM(param_file); 
 	  //p_modelRef[itype]= pvdiff;
 	  p_model=pvdiff;
 	}
@@ -344,7 +344,7 @@ void Heterogen::getExtension(int itype, char* extension) const{
     else if(modelNumber[itype]==4){sprintf(modelName,"FPE");}
     else if(modelNumber[itype]==5){sprintf(modelName,"HSM");} //HumanSchreck
     else if(modelNumber[itype]==6){sprintf(modelName,"VDT");}
-    else if(modelNumber[itype]==7){sprintf(modelName,"VDIFF");}
+    else if(modelNumber[itype]==7){sprintf(modelName,"FVDM");}
     else if(modelNumber[itype]==8){sprintf(modelName,"KER");} //todo
     else if(modelNumber[itype]==9){sprintf(modelName,"CDDA");}
     else if(modelNumber[itype]==10){sprintf(modelName,"GIP");} //Gipps
@@ -426,7 +426,7 @@ MicroModel* Heterogen::new_pmodel(int itype) const{
     p_model=pvdt;  
   }
   else if(modelNumber==7){
-    VDIFF* pvdiff = new VDIFF(vdiffRef[itype]); 
+    FVDM* pvdiff = new FVDM(vdiffRef[itype]); 
     p_model=pvdiff;    
   }
   else if(modelNumber==8){

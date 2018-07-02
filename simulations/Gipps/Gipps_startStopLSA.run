@@ -1,0 +1,7 @@
+if mic Gipps_startStopLSA; 
+  then echo sim successful; 
+  else echo "sim failed"; exit -1;
+fi
+Gipps_startStopLSA.eng.plot
+
+
