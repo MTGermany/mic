@@ -10,11 +10,22 @@
 *.fls
 *.out
 *.toc
+*.dvi
 
 ## generated object files
 *.o
 
-## generated files 
+## generated simulation files by running mic
+*.car*
+*.dat
+*.micdat
+*.x[0-9]*
+*.fund*
+*.ps
+*.eps
+*.tt
+
+## generated general files 
 *_ger.html
 *_ger.js
 *~

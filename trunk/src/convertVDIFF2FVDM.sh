@@ -17,6 +17,7 @@ for dir in `find . -type "d"`; do
   echo "going to $dir..";
   mmv "*VDIFF*" "#1FVDM#2";
   for f in `find . -name "*FVDM*"`; do perl -i -p -e 's/VDIFF/FVDM/g' $f; done
+  perl -i -p -e 's/VDIFF/FVDM/g' *.heterog
   cd $baseDir;
 done
 
