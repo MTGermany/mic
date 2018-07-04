@@ -12,6 +12,14 @@ using namespace std;
 #include "InOut.h"
 #include "Consumption.h"
 
+
+
+double testFuel(double v){
+  //return ((v<28.9)&&(v>28.1));// signal v=28.8713 // mt jun18
+  return false;
+}
+
+
 // MT 2015: .engineData1 and .carData1 necessary for fuel consumption! 
 // analytic consumption not implemented??
 
@@ -322,26 +330,8 @@ double Consumption::getFuelFlow(double v, double acc, double jerk, int gear,
     //if(fmot<fmin){fmot=fmin;} // mt mar07: auskommentiert!
 
     specCons=getSpecificConsumption(fmot,pe); // m^3 Benzin/(Ws)
+    fuelFlow=specCons*max(powMechEl+0.5*pe_gear*fmot*vol, 0.);
 
-    // ### Test
-    if(false){
-      //if((acc<0)&&(v>11)&&(v<13)&&(gear==5) ){// mt mar07
-
-      fuelFlow=specCons*max(powMechEl+0.5*pe_gear*fmot*vol, 0.); 
-
-      cout<<"\nJante-Arbeitspunkt: v_kmh="<<(3.6*v) 
-          <<" acc="<<acc<<" gear="<<gear<<endl
-	  <<"  fmot="<<static_cast<int>(60*fmot)<<"/min,"
-	  <<" fmin="<<(60*fmin)
-	  <<" pe="<<(pe*1e-5)<<"hPa,"
-	  <<" pe_el="<<(pe_el*1e-5)<<"hPa,"
-	// <<" pe_gear="<<(pe_gear*1e-5)<<"hPa,"
-	  <<" specific cons="<<(specCons/tabSpeccons2LiterPerSec)<<"g/kWh"
-	  <<"\n  max(powMechEl+powMotFrict,0)="
-          <<(max(powMechEl+0.5*pe_gear*fmot*vol, 0.))
-	  <<" fuelFlow="<<fuelFlow
-	  <<endl;
-    }
 
   } // end if useEngineDataSheet
 
@@ -388,7 +378,7 @@ double Consumption::getFuelFlow(double v, double acc, double jerk, int gear,
     // checks
 
     if(false){
-      cout <<"getFuelFlow: v="<<v<<" acc="<<acc<<" gear="<<gear
+      cout <<"getFuelFlow analytic: v="<<v<<" acc="<<acc<<" gear="<<gear
 	   <<" useEngineDataSheet="<<useEngineDataSheet<<" specCons="<<specCons
 	   <<" power="<<max(powMechEl+0.5*pe_gear*fmot*vol, 0.)
 	   <<" fuelFlow="<<fuelFlow<<endl;
@@ -451,13 +441,30 @@ double Consumption::getFuelFlow(double v, double acc, double jerk, int gear,
 
   //####################################################################
   //  Test
+  // !!! BUG DOS sometimes; solved by replacing "+=" by own variable
+  // in RoadSection.write_FuelConsumption; see BUG DOS there
   //####################################################################
 
-  if(false){
-    cout <<"  getFuelFlow: Alt1: specCons="<<specCons<<" powMechEl="<<powMechEl
-       <<" powEl="<<powEl<<" 0.5*pe_gear*fmot*vol="<<(0.5*pe_gear*fmot*vol)
-       <<"\n   FuelFlow="<<fuelFlow
-       <<endl;
+ 
+  if(testFuel(v)){
+ 
+      //if((acc<0)&&(v>11)&&(v<13)&&(gear==5) ){// mt mar07
+
+
+      cout<<"\nIn core Consumption.getFuelFlow: v="<<v
+          <<" acc="<<acc<<" gear="<<gear<<endl
+	  <<"  fmot="<<static_cast<int>(60*fmot)<<"/min,"
+	  <<" fmin="<<(60*fmin)
+	  <<" pe="<<(pe*1e-5)<<"hPa,"
+	  <<" pe_el="<<(pe_el*1e-5)<<"hPa,"
+	// <<" pe_gear="<<(pe_gear*1e-5)<<"hPa,"
+	  <<" specific cons="<<(specCons/tabSpeccons2LiterPerSec)<<"g/kWh"
+	  <<"\n  max(powMechEl+powMotFrict,0)="
+          <<(max(powMechEl+0.5*pe_gear*fmot*vol, 0.))
+	  <<" fuelFlow="<<fuelFlow
+	  <<" l/100km="<<(1e5*fuelFlow/v)
+	  <<endl;
+      //exit(-1);
   }
 
   return fuelFlow;
@@ -510,6 +517,18 @@ double Consumption::getFuelFlowFixedGearscheme(double v, double acc, double jerk
          <<", acc="<<acc<<"):\n "
 	       <<" this (v,acc) cannot be reached with gear "<<gearFixed<<"!\n"
 	       <<" schalte runter!\n";
+  }
+
+  //if(testFuel(v)){
+  if(false){
+
+    //if(true){
+    cout <<" in Consumption.getFuelFlowFixedGearscheme:"<<endl
+	 <<" v="<<v<<" acc="<<acc<<" jerk="<<jerk<<endl
+	 <<" gearFixed="<<gearFixed
+	 <<" useEngineDataSheet="<<useEngineDataSheet
+	 <<" fuelFlow="<<fuelFlow<<endl;
+    //exit(-1);
   }
   return fuelFlow;
 }

@@ -24,6 +24,13 @@ using namespace std;
 #include "RandomUtils.h"
 
 
+
+
+double testFuelRoadSec(double v){
+  return ((v<28.9)&&(v>28.1));// signal v=28.8713 // mt jun18
+  //return false;
+}
+
 //#######################################################################
 // constructor
 //######################################################################
@@ -1525,10 +1532,9 @@ void RoadSection::writeAll(int it)
     }
   
  
-  if(calcFuelConsumption && (it%ndtout_2D==0) )
-    {
-      write_FuelConsumption(it);
-    }
+  if(calcFuelConsumption && (it%ndtout_2D==0) ){
+    write_FuelConsumption(it);
+  }
 } // writeAll
 
 
@@ -1547,32 +1553,76 @@ void RoadSection::write_FuelConsumption(int it)
   const double vmin      = 5; // minimal velocity (m/s) assumed for travtime
   double travtime_s = 0; // instantaneous travtime (s)
 
-  if(it==0)
-    {
+  if(it==0){
       accum_fuel_l=0;
       it_prev_fuel=0;
-    }
-  for (int i=imin+1; i<imax; i++)
-    {
+  }
+
+  for (int i=imin+1; i<imax; i++){
       double dist = veh[i-1].getPos() - veh[i].getPos();
       double v=max(veh[i].getVel(), vmin);
       travtime_s += dist/max(v,vmin);
       double acc=veh[i].getAcc();
       double jerk=veh[i].getJerk();
-      fuelRate_lInvs 
-	// !!! Optimal-oekonom. Fahren
-	// += 1000*fuelConsumption.getMinFuelFlow(v,acc,gear,useEngineDataSheet);
-	// !!! Fahren mit festem Gang
-	+= 1000*fuelConsumption->getFuelFlowFixedGearscheme(v,acc,jerk,gear,useEngineDataSheet);
-    }
+
+      double fuelFlow=0; // BUG DOS if not defined directly but by "+="
+      bool fixedScheme=true; //!!
+
+      // fixed-gear scheme
+
+      if(fixedScheme){
+        fuelFlow=fuelConsumption->getFuelFlowFixedGearscheme
+	  (v,acc,jerk,gear,useEngineDataSheet);
+      }
+
+      // optimal-gear scheme
+
+      else{
+	fuelFlow=fuelConsumption->getMinFuelFlow
+	  (v,acc,jerk,gear,useEngineDataSheet);
+      }
+
+      fuelRate_lInvs += fuelFlow;
+
+
+      // inner test
+
+      if(false){
+      //if(testFuelRoadSec(v)){
+
+
+
+	cout <<"\nInner loop RoadSection.write_FuelConsumption: iveh="<<i
+	     <<" v="<<v<<" acc="<<acc
+	  // <<" jerk="<<jerk
+             <<endl
+	     <<" gear="<<gear<<" useEngineDataSheet="<<useEngineDataSheet
+             <<" fixedScheme="<<fixedScheme<<endl
+	     <<" fuelFlow="<<fuelFlow
+	     <<endl;
+
+      }
+  }
   accum_fuel_l += fuelRate_lInvs*dt*(it-it_prev_fuel);
+
+  // test
+
+  if(false){
+  //if(true){
+
+
+    cout <<"RoadSection.write_FuelConsumption: it="<<it
+         <<" it_prev_fuel="<<it_prev_fuel
+         <<" fuelRate_lInvs="<<fuelRate_lInvs
+         <<" accum_fuel_l="<<accum_fuel_l<<endl;
+  }
+
   it_prev_fuel=it;
 
 	
   sprintf(out_fname,"%s.fuel",projectName);
   
-  if (FH_fuel==0)
-    {
+  if (FH_fuel==0){
 			FH_fuel = fopen(out_fname,"w");
 			filecheck(FH_fuel, out_fname);
       fprintf(FH_fuel, "# t(min) \t fuelRate(l/s) \t accum_fuel(l)\t ntot\t travtime(s)\n");
