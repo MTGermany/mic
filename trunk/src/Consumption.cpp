@@ -123,7 +123,7 @@ void Consumption::initializeConstants(){
   LIMIT_SPEC_CONS =600*tabSpeccons2LiterPerSec; // 900=3-4 times the minimum
 
 
-  // !! wegen Plot-Buchhaltung mind Faktor 100 notwendig!
+  // ! wegen Plot-Buchhaltung mind Faktor 100 notwendig!
   POW_ERROR      =1e7; // 10000 KW 
   FUELFLOW_ERROR =POW_ERROR *LIMIT_SPEC_CONS;
 
@@ -155,7 +155,7 @@ void Consumption::readCarData(const char* carDataName){
   inout.getvar(fp,&mu0);
   inout.getvar(fp,&mu1);
   inout.getvar(fp,&powEl);
-  inout.getvar(fp,&phi[0]); // !!! evtl. ohne "&"
+  inout.getvar(fp,&phi[0]); // ! evtl. ohne "&"
   inout.getvar(fp,&phi[1]);
   inout.getvar(fp,&phi[2]);
   inout.getvar(fp,&phi[3]);
@@ -292,7 +292,7 @@ double Consumption::getSpecificConsumption(double f, double pe){
   // gear=0 ("Idle gear"), 1 (first gear),2,3,...
 // if gear=1 and motor rpm Idle or below, gear 0 assumed as well
 // central method!
-//##################################### //!!!
+//##################################### //
 double Consumption::getFuelFlow(double v, double acc, double jerk, int gear, 
 				bool useEngineDataSheet){
 
@@ -337,7 +337,7 @@ double Consumption::getFuelFlow(double v, double acc, double jerk, int gear,
 
 
   //####################################################################
-  //!!! MT mar15 simplified analytic formula
+  //!! MT mar15 simplified analytic formula
   //####################################################################
 
   else{ // simplified analytic formula for specific Consumption without Jante
@@ -441,7 +441,7 @@ double Consumption::getFuelFlow(double v, double acc, double jerk, int gear,
 
   //####################################################################
   //  Test
-  // !!! BUG DOS sometimes; solved by replacing "+=" by own variable
+  // BUG DOS sometimes; solved by replacing "+=" by own variable
   // in RoadSection.write_FuelConsumption; see BUG DOS there
   //####################################################################
 
@@ -480,7 +480,7 @@ double Consumption::getMinFuelFlow(double v, double acc, double jerk,
   //####################################################################
 
   double fuelFlow=FUELFLOW_ERROR;
-  for (int testgear=5; testgear>0; testgear--){ // direction reversed!!!
+  for (int testgear=5; testgear>0; testgear--){ // direction reversed!
     double fuelFlowGear=getFuelFlow(v,acc,jerk,testgear,useEngineDataSheet);
     if(fuelFlowGear<fuelFlow){
       gear=testgear;
@@ -662,7 +662,7 @@ void Consumption::update(double v, double acc, double jerk){
   this->acc=acc;
   travelledDistance += v*dt;
 
-  // select gear !!
+  // select gear !
 
   double dvgear=5;
   int gear=static_cast<int>(v/dvgear) + 1;

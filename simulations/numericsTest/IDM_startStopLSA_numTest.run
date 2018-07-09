@@ -1,0 +1,9 @@
+if mic IDM_startStopLSA_numTest; 
+  then echo "OK"; 
+  else echo "simulation failed!"; exit -1;
+fi
+if(makeNumTest.sh IDM_startStopLSA_numTest IDM_startStopLSA_numRef 10);
+  then IDM_startStopLSA_numTest.plot;
+fi
+
+

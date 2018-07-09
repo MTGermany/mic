@@ -326,27 +326,81 @@ some specific controls as follows:
 
 ### Fuel consumption module
 
-* `.engineData<n>`, `.carData<n>` and `.fuel*`  Input and output data
-  of the physics-based modal fuel consumption module 
+`mic` uses a physics-based modal consumption model specifying the
+consumption rate (liters per time) as a function of speed and
+acceleration and car-and engine-specific properties such as mass, cd
+value, specific consumption (liters/kWh) or characteristic engine
+maps, and more. It is activated if a a file `.carData1` is part of the
+project. In the example project
+`simulations/fuelConsumption/fuel_IDM_ramp`, you can copy several
+examples, e.g., `Passat_118.carData`, to `fuel_IDM_ramp.carData1` to
+run the fuel module on this vehicle during the simulation.
+
+* `.carData1` Activates the module and contains main characteristics
+  of the vehicle and its engine
+
+* `.engineData1` Provides an additional characteristic map. Notice
+  that the provided examples are somewhat outdated, so it is possobly
+  better to use the analytical approximation which is used if an
+  `.engineData1` file is not provided.
+
 
 
 
 ## Numerical Integration
 
-For our purposes, it
-turned out that following _ballistic scheme_ is most efficient in
-terms of computation load for a given precision. Its pseudo-code for
-an update of the speeds _speed_ and positions _pos_ over a fixed time interval _dt_ reads
+By default, `mic` uses the _ballistic scheme_ with following pseudo-code:
 
-_speed(t+dt)=speed(t)+acc(t)*dt,_
+```
+speed(t+dt)=speed(t)+acc(t)*dt;
+pos(t+dt)=pos(t)+speed(t)*dt+1/2*acc(t)*dt^2;
+```
 
-_pos(t+dt)=pos(t)+speed(t)*dt+1/2*acc(t)*dt^2_,
-
-where _acc(t)_ is the acceleration calculated by the car-following model
+where `acc(t)` is the acceleration calculated by the car-following model
 at the (old) time t.
 
-However, other update schemes (simple Euler, Trapezoid, or 4th-order
-Runge-Kutta are implemented as well.
+Although technically of first consistency order, it turned out to be
+the best overall choice in terms of robustness and precision for a
+given computation load. Specifically, it is significantly more
+performant than simple Euler (where the `1/2*acc(t)*dt^2` is omitted
+in the positional update). 
+
+However, for simple simulations without lane changes (reducing any
+scheme to first order), the second-order Trapezoidal method, or even
+the fuorth-order Runge-Kutta (RK4) is superior although the latter two
+require two or four calculations of the acceleration function per time
+step, respectively. 
+
+To test the numerics, I have provided an example project
+`IDM_startStopLSA_numTest` at `simulations/numericsTest/ 
+
+This (and any other project) can be run with an additional optional
+parameter specifying the numerical method:
+
+```
+mic <project> <numMethod>
+```
+
+Here, `numMethod` is an integer taking on one of the following integer
+values:
+
+* numMethod=1: Simple Euler
+
+* numMethod=2: Ballistic scheme (the default)
+
+* numMethod=3: Second-order Trapezoid scheme
+
+* numMethod=4: Fourth-order Runge-Kutta
+
+Notice that the indicated order is only realized for smooth processes,
+i.e., without lane changes/vehicle drops at on-ramps.
+
+To test the numerics, just vary the value of the line
+```
+0.2      dt = Discretization in t (s)
+```
+in the .proj file and run the project with different `numMethod` values
+
 
 ## Graphics
 

@@ -146,7 +146,7 @@ print "plotting ./OVM_ramp_fundHarm1.eng.eps"
 ##################################
 plot\
  "OVM_ramp.x12000_det" u (rhoharmFun($5, $4)):(QharmFun($5)) t "-3 km" w p ls 9,\
-  "OVM_ramp.fundFVDM1" u ($1):($4) t "" w l ls 11
+  "OVM_ramp.fundVDIFF1" u ($1):($4) t "" w l ls 11
 
 ##################################
 set out "./OVM_ramp_fundvHarm1.eng.eps"
@@ -154,7 +154,7 @@ print "plotting ./OVM_ramp_fundvHarm1.eng.eps"
 ##################################
 plot\
  "OVM_ramp.x12000_det" u (rhoharmFun($5, $4)):(Qfun($2)) t "-3 km" w p ls 9,\
-  "OVM_ramp.fundFVDM1" u ($1):($4) t "" w l ls 11
+  "OVM_ramp.fundVDIFF1" u ($1):($4) t "" w l ls 11
 
 
 
@@ -172,7 +172,7 @@ print "plotting ./OVM_ramp_fund_Q_vs_QdivV.eng.eps"
 ##################################
 plot\
  "OVM_ramp.x12000_det" u (rhofun($2, $3)):(Qfun($2)) t "-3 km" w p ls 9,\
-  "OVM_ramp.fundFVDM1" u ($1):($4) t "" w l ls 11
+  "OVM_ramp.fundVDIFF1" u ($1):($4) t "" w l ls 11
 
 
 ################################## ... using harmonic speed
@@ -181,7 +181,7 @@ print "plotting ./OVM_ramp_fund_Q_vs_QdivVH.eng.eps"
 ##################################
 plot\
  "OVM_ramp.x12000_det" u (Qfun($2)/vharmFun($4)):(Qfun($2)) t "-3 km" w p ls 9,\
-  "OVM_ramp.fundFVDM1" u ($1):($4) t "" w l ls 11
+  "OVM_ramp.fundVDIFF1" u ($1):($4) t "" w l ls 11
 
 ################################## ... using harmonic flow AND harmonic speed
 set out "./OVM_ramp_fund_QH_vs_QHdivVH.eng.eps"
@@ -189,7 +189,7 @@ print "plotting ./OVM_ramp_fund_QH_vs_QHdivVH.eng.eps"
 ##################################
 plot\
  "OVM_ramp.x12000_det" u (QharmFun($5)/vharmFun($4)):(QharmFun($5)) t "-3 km" w p ls 9,\
-  "OVM_ramp.fundFVDM1" u ($1):($4) t "" w l ls 11
+  "OVM_ramp.fundVDIFF1" u ($1):($4) t "" w l ls 11
 
 ################################## ... using harmonic flow AND arithmetic speed
 set out "./OVM_ramp_fund_QH_vs_QHdivV.eng.eps"
@@ -197,7 +197,7 @@ print "plotting ./OVM_ramp_fund_QH_vs_QHdivV.eng.eps"
 ##################################
 plot\
  "OVM_ramp.x12000_det" u (QharmFun($5)/$3):(QharmFun($5)) t "-3 km" w p ls 9,\
-  "OVM_ramp.fundFVDM1" u ($1):($4) t "" w l ls 11
+  "OVM_ramp.fundVDIFF1" u ($1):($4) t "" w l ls 11
 
 #... using harmonic speed but harmonic flow ONLY for the density definition!
 ################################## 
@@ -206,7 +206,7 @@ print "plotting ./OVM_ramp_fund_Q_vs_QHdivVH.eng.eps"
 ##################################
 plot\
  "OVM_ramp.x12000_det" u (QharmFun($5)/vharmFun($4)):(Qfun($2)) t "-3 km" w p ls 9,\
-  "OVM_ramp.fundFVDM1" u ($1):($4) t "" w l ls 11
+  "OVM_ramp.fundVDIFF1" u ($1):($4) t "" w l ls 11
 
 
 
@@ -236,14 +236,14 @@ plot\
  "OVM_ramp.x10000_macro" u 3:5 t "-5 km" w p ls 4,\
  "OVM_ramp.x12000_macro" u 3:5 t "-3 km" w p ls 2,\
  "OVM_ramp.x14000_macro" u 3:5 t "-1 km" w p ls 1,\
- "OVM_ramp.fundFVDM1" u ($1):($4) t "IDM Model" w l ls 11
+ "OVM_ramp.fundVDIFF1" u ($1):($4) t "IDM Model" w l ls 11
 ##################################
 set out "./OVM_ramp_fundTrue1.eng.eps"
 print "plotting ./OVM_ramp_fundTrue1.eng.eps"
 ##################################
 plot\
  "OVM_ramp.x12000_macro" u 3:5 t "-3 km" w p ls 9,\
-  "OVM_ramp.fundFVDM1" u ($1):($4) t "" w l ls 11
+  "OVM_ramp.fundVDIFF1" u ($1):($4) t "" w l ls 11
 
 ##################################
 set out "./OVM_ramp_QV.eng.eps"
@@ -283,7 +283,7 @@ plot\
  "OVM_ramp.x10000_macro" u 5:4 t "-5 km" w p ls 4,\
  "OVM_ramp.x12000_macro" u 5:4 t "-3 km" w p ls 2,\
  "OVM_ramp.x14000_macro" u 5:4 t "-1 km" w p ls 1,\
- "OVM_ramp.fundFVDM1" u ($4):($3) t "IDM Model" w l ls 11
+ "OVM_ramp.fundVDIFF1" u ($4):($3) t "IDM Model" w l ls 11
 
 
 ##################################
@@ -337,7 +337,7 @@ plot\
  "OVM_ramp.x10000_macro" u 3:4 t "-5 km" w p ls 4,\
  "OVM_ramp.x12000_macro" u 3:4 t "-3 km" w p ls 2,\
  "OVM_ramp.x14000_macro" u 3:4 t "-1 km" w p ls 1,\
- "OVM_ramp.fundFVDM1" u ($1):($3) t "IDM Model" w l ls 11
+ "OVM_ramp.fundVDIFF1" u ($1):($3) t "IDM Model" w l ls 11
 
 
 

@@ -1542,7 +1542,6 @@ void RoadSection::writeAll(int it)
 void RoadSection::write_FuelConsumption(int it)
 //###################################################################
 {
-  bool useEngineDataSheet=true;
   int gear;  // is reference to optimal gear in getMinFuelFlow
 
   static int it_prev_fuel;

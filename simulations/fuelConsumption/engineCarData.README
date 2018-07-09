@@ -1,0 +1,21 @@
+Template data files in subdir engineCarData:
+
+<vehName>.carData
+<vehName>.engineData
+ 
+copy a pair of them or just the .carData file to
+
+<projName>.carData1
+<projName>.engineData1 (optional)
+
+since these are called per default 
+(RoadSection.cpp: get_fueldata("1"))
+
+Only .carData1 existing => analytic formula for characteristic map
+also .engineData1 existing => use tabulated char map of this file
+
+
+Basis: ~/trafficSim/mic_sim/fuel_carEngineReferences/
+
+
+
