@@ -37,7 +37,7 @@
 //     and to adapt the method Heterogen.getExtension(..)
 // (5)  update doku of ALL models
 //     in sim files (~/trafficSim/mic_sim/ ), e.g., by 
-//     perl -i -p -e 's/100=NewModel/20=LACC,100=NewModel/g' */*.heterog */*/*.heterog
+//     perl -i -p -e 's/100=NewModel/21=NDM,100=NewModel/g' */*.heterog */*/*.heterog
 //     (apr 2011,may2012,aug2014,dec2016: works again, now time tested!)
 
 //     (if too much (ex):)

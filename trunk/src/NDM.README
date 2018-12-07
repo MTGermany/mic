@@ -1,0 +1,17 @@
+Necessary Driving Model (NDM) according to 
+Andresen, E., Chraibi, M., Seyfried, A., & Huber, F. (2013,
+May). Basic driving dynamics of cyclists. In Simulation of Urban
+MObility User Conference (pp. 18-32). Springer, Berlin, Heidelberg. 
+
+The NDM is originally formulated in terms of difference equations for the speed (Andresen et al.,
+692014) which, in the limit of update times t tending to zero, is equivalent to a coupled differential
+equation with the acceleration function
+
+dv/dt=(v0-v)/tau * theta(s-d(v)) - min(dec1+dec2, bmax)
+d(v)=s0+v*T
+dec1=min(0.5*dv^2/(s-s0), bmax)*theta(dv)
+dec2=( (s-d(v))/d(v))^2 if (s<=d(v)) AND (dv>0), 0 otherwise
+
+
+
+

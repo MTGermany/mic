@@ -35,6 +35,7 @@
 #include "LCM.h"  // Model 18: Longitudinal Control Model, see LCM.README
 #include "BIDM.h" // Model 19: IDM with Brownian motion (BIDM) 2016_JunFang_stochastic/
 #include "LACC.h" // Model 20: Linear ACC Model, see LACC.README
+#include "NDM.h" //  Model 21: Necessary Decel Model, see NDM.README
 
 #include "NewModel.h" 
 
@@ -46,7 +47,7 @@ class CyclicBuffer;
 // modelNumber ={0=IDM,1=VW,2=Human, 3=OVM, 4=FPE, 5=humanSchreck,
 //       6=VDT,7=FVDM, 8=Kerner, 9=CDDA, 10=Gipps,
 //      11=KernerCA, 12=PT model, 13=ASGM, 14=ADAS, 15=NH, 16=CACC, 
-//      17=PCF, 18=LCM, 19=BIDM,  20=LACC, 100=NewModel}
+//      17=PCF, 18=LCM, 19=BIDM,  20=LACC, 21=NDM, 100=NewModel}
 // type=line number in .heterogen file of the project!
 
 class Heterogen
@@ -112,6 +113,7 @@ class Heterogen
   LCM lcmRef[NTYPEMAX+1];
   BIDM bidmRef[NTYPEMAX+1];
   LACC laccRef[NTYPEMAX+1];
+  NDM ndmRef[NTYPEMAX+1];
 
   //  NewModel  newmodelRef[NTYPEMAX+1];
   // MicroModel* p_modelRef[NTYPEMAX+1]; 

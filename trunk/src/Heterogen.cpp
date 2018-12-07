@@ -215,6 +215,13 @@ Heterogen::Heterogen(const char projectName[], ProjectParams* const proj)
           LACC* pLACC = new LACC(param_file,proj->get_dt()); 
           p_model = pLACC;
       }
+
+     else if(modelNumber==21){
+          //martin 2018-12: Necessary Deceleration Model (NDM) Andresen et al
+          ndmRef[itype]= NDM(param_file,proj->get_dt());
+          NDM* pNDM = new NDM(param_file,proj->get_dt()); 
+          p_model = pNDM;
+      }
  
       else if(modelNumber==100){
 	  // Template model
@@ -358,6 +365,7 @@ void Heterogen::getExtension(int itype, char* extension) const{
     else if(modelNumber[itype]==18){sprintf(modelName,"LCM");}
     else if(modelNumber[itype]==19){sprintf(modelName,"BIDM");}
     else if(modelNumber[itype]==20){sprintf(modelName,"LACC");}
+    else if(modelNumber[itype]==21){sprintf(modelName,"NDM");}
     else if(modelNumber[itype]==100){sprintf(modelName,"NEW");}
     else{sprintf(modelName,"ToBeImplemented");}
     sprintf(extension,"%s%i", modelName, setNumber[itype]);
@@ -480,6 +488,10 @@ MicroModel* Heterogen::new_pmodel(int itype) const{
   else if(modelNumber==20){
     LACC* pLACC = new LACC(laccRef[itype]); 
     p_model=pLACC;
+  }
+  else if(modelNumber==21){
+    NDM* pNDM = new NDM(ndmRef[itype]); 
+    p_model=pNDM;
   }
   else if(modelNumber==100){
     NewModel* pNewModel = new NewModel(newmodelRef[itype]); 
