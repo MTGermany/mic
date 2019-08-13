@@ -1,0 +1,13 @@
+(aug19)
+ACHTUNG!!
+aus irgendeinem Grund war InOut.cpp lokal im Dir anstelle in lib und
+lib hat keine Versionsverwaltung. Kopiere es  hier rein, um die
+mic-Versionsverwaltung zu benutzen. Mehrere heimtueckische Fehler
+
+1. zwar steht im makefile was von include lib, aber, wenn die Files im
+. sind, werden sie bevorzugt
+
+2. das InOut.h vom lib produziert Fehlermeldungen wegen der Template
+isNumber Funktion. Auskommentiert
+
+3. im save/ und extra in saveInOut/ stehen die alten lokalen InOut.cc,.h

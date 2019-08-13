@@ -24,12 +24,7 @@ using namespace std;
 InOut::InOut(){;}
 
 
-
-
-// string as arg does not work as filename. 
-// Use string.c_str() if calling with string
-
-bool InOut::fileExists(const char* fname){ 
+bool InOut::fileExists(const char* fname){
   ifstream  infile (fname, ios::in);
 
   // formulate so cumbersom since nature of infile
@@ -40,64 +35,42 @@ bool InOut::fileExists(const char* fname){
 }
 
 
-// get number of data lines (excluding empty line and comments)
 
-int InOut::getNumberOfDataLines(const char* fname){
+int InOut::getNumberOfLines(const char* fname)
+{
+  cout<<"in InOut.getNumberOfLines:: " << "fname = "<<fname <<endl;
   ifstream  infile (fname, ios::in);
-  if(!infile){
-    cerr << "InOut.getNumberOfDataLines: Error opening file " 
-	 << fname << " for reading" << endl;
-    cout<<" setting number of data lines to -1"<<endl; // exit(-1);
-    return -1;
-  }
-  
-  int i=0;
-  char line[LINEMAX];
-  while ( (infile.getline(line,LINEMAX))  ){
-    if( is_not_white(line,strlen(line)) && is_data_line(line) ){
-      i++;
-    }
-  }
-  infile.close();
-  if(false){
-    cout << "getNumberOfDataLines: file="<<fname
-         <<" number of lines = " <<i<<endl;
-  }
-  return(i);
-}
-
-// get overall number of lines (including empty line and comments)
-
-int InOut::getNumberOfLines(const char* fname){
-  ifstream  infile (fname, ios::in);
-  if(!infile) {
-    cerr << "InOut.getNumberOfLines:Error opening file " 
-	 << fname << " for reading" << endl;
-    cerr<<" setting number of data lines to -1"<<endl; // exit(-1);
-    return -1;
-  }
-  
-  int i=0;
-  char line[LINEMAX];
-  while ( (infile.getline(line,LINEMAX))  ){
-    i++;
-  }
-  infile.close();
-  if(false){
-    cout << "getNumberOfLines: file="<<fname
-         <<" number of lines = " <<i<<endl;
-  }
-  return(i);
-}
-
-
-int InOut::getNumberOfCols(const char* fname){
-  cout<<"in InOut.getNumberOfCols:: " << "fname = "<<fname <<endl;
-  ifstream  infile (fname, ios::in);
-  if(!infile) {
+  if(!infile)
+    {
       cerr << "Error opening file " << fname << " for reading" << endl;
       exit(-1);
-  }
+    }
+  
+  int i=0;
+  char line[LINEMAX];
+  //while ( (infile.getline(line,LINEMAX))  && (is_not_white(line,strlen(line))) )
+  //achtung darf nicht aufhoeren bei leerzeile...
+  while ( (infile.getline(line,LINEMAX))  )
+    {
+      if( is_not_white(line,strlen(line)) && is_data_line(line) )
+	{
+	  i++;
+	}
+    }
+  infile.close();
+  cout << "number of lines = " <<i<<endl;
+  return(i);
+}
+
+int InOut::getNumberOfCols(const char* fname)
+{
+  cout<<"in InOut.getNumberOfCols:: " << "fname = "<<fname <<endl;
+  ifstream  infile (fname, ios::in);
+  if(!infile)
+    {
+      cerr << "Error opening file " << fname << " for reading" << endl;
+      exit(-1);
+    }
   
   char line[LINEMAX];
   bool dataLineReached=false;
@@ -127,81 +100,6 @@ int InOut::getNumberOfCols(const char* fname){
   }
   return(ncol);
 }
-
-// get first line of file (e.g., title)
-
-string InOut::getFirstLine(const char* fname){
-  ifstream  infile (fname, ios::in);
-  if( !infile){
-    cerr << "Critical: InOut.getFirstDataLine: Error opening file " << fname 
-	 << " for reading,"<<endl<<"          returning zero string" << endl;
-    return "";
-  }
-  string line;
-  getline(infile,line);
-  return line;
-}
-
-
-// get first data line of file (e.g., to determine first date)
-
-string InOut::getFirstDataLine(const char* fname){
-  ifstream  infile (fname, ios::in);
-  if( !infile){
-    cerr << "Critical: InOut.getFirstDataLine: Error opening file " << fname 
-	 << " for reading,"<<endl<<"          returning zero string" << endl;
-    return "";
-  }
-
-
-  string line;
-  string output="";
-  bool success=false;
-  while( (!success)&& getline(infile,line)){
-    if(is_data_line(line)){
-      output=line;
-      success=true;
-    }
-  }
-  if(!success){
-    cerr<<"Critical: file " << fname << "has not a single data line"<<endl;
-    return "";
-  }
-  else{
-    return output;
-  }
-}
-
-// get last data line of file (e.g., to determine last date)
-
-string InOut::getLastDataLine(const char* fname){
-  ifstream  infile (fname, ios::in);
-  if( !infile){
-    cerr << "Critical: InOut.getLastDataLine: Error opening file " << fname 
-	 << " for reading,"<<endl<<"          returning zero string" << endl;
-    return "";
-  }
-
-
-  string line;
-  string output="";
-  int nlines=0;
-  while(getline(infile,line)){
-    if(is_data_line(line)){
-      output=line;
-      nlines++;
-    }
-  }
-  if(nlines==0){
-    cerr<<"Critical: file " << fname << "has not a single data line"<<endl;
-    return "";
-  }
-  else{
-    return output;
-  }
-}
-
-
 
 
 
@@ -259,126 +157,8 @@ void  InOut::get_array (char* fname, int & n_array, int array1[]){
   cout << "n_array = " << n_array << endl;
 }
 
-//#######################################################################
-
-// MT 2019-03 get only the last nlast data elements 
-// of column col of file fname
-
-void  InOut::get_col_last (const char* fname, int col, int nlast, 
-			   int & n_array, int array1[]){
-
-  ifstream  infile (fname, ios::in);
-  if( !infile){
-    cerr << "Error opening file " << fname << " for reading" << endl;
-    exit(-1);
-  }
-
-  int ndata=getNumberOfDataLines(fname);
-
-  if(ndata<=nlast){
-    cerr<<"InOut.get_col_last: file "<<fname<<" has only "
-	<<ndata<<" data lines which is <= nlast="<<nlast<<endl
-	<<" providing the whole data column of "<<fname<<endl;
-    get_col(fname, col, n_array, array1, false);
-  }
-
-  else{
-    n_array=nlast;
-    int i=0, count=0;
-    int errcnt=0;
-    char line[LINEMAX];
-    char proforma[LINEMAX]; 
-    while ( (infile.getline(line,LINEMAX))) {
-      if(is_data_line(line)){i++;}
-      if(i>ndata-nlast){
-        prepare_line(line);
-        istringstream linestream (line);
-        for (int icol=1; icol<col; icol++){linestream >> proforma;}
-        linestream >> array1[count];
-
-	//error treatment
-        if (!linestream){
-	  errcnt++;
-	  //cerr<<"error while parsing for double ... i="<<i<<" --> "
-	  //   <<array1[i]<<" set to -999 errcnt="<<errcnt<<endl;
-          array1[count]=-999;
-	}
-	count++;
-      }
-    }
-    infile.close();
-    n_array = count;
-    if(errcnt>0){cerr<<"InOut.get_col: file="<<fname<<" col="<<col
-		     <<": WARNING: not all data were int! Set to -999 in "
-		     <<errcnt<<" cases!"<<endl;
-    }
-  }
-}
-
-
-
-
-//#######################################################################
-
-
-// get column col from file fname 
-// if log=true => log output (which file read etc)
-
-void  InOut::get_col (const char* fname, int col,  int &n_array, int array1[]){
-  get_col (fname, col,  n_array, array1, false);
-}
-
-
-void  InOut::get_col (const char* fname, int col,  int & n_array, int array1[], bool log){
-  ifstream  infile (fname, ios::in);
-  if( !infile){
-    cerr << "Error opening file " << fname << " for reading" << endl;
-    exit(-1);
-  }
-  
-  int i=0;
-  char line[LINEMAX];
-  char proforma[LINEMAX]; 
-
-  int errcnt=0;
-  while ( (infile.getline(line,LINEMAX))) {
-    if(is_data_line(line)){
-      prepare_line(line);
-      istringstream linestream (line);
-      for (int icol=1; icol<col; icol++){linestream >> proforma;}
-      linestream >> array1[i];
-
-	//error treatment: MT dec18
-
-      if (!linestream){
-	  errcnt++;
-	  //cerr<<"error while parsing for double ... i="<<i<<" --> "
-	  //   <<array1[i]<<" set to -999 errcnt="<<errcnt<<endl;
-          array1[i]=-999;
-      }
-
-      i++;
-    }
-  }
-  infile.close();
-  n_array = i;
-  if(log){
-    cout << "InOut.get_col(int): " << "fname = "<<fname 
-         <<" col="<<col<<" n_array = " << n_array << endl;
-  }
-  if(errcnt>0){cerr<<"InOut.get_col: file="<<fname<<" col="<<col
-		   <<": WARNING: not all data were int! Set to -999 in "
-		   <<errcnt<<" cases!"<<endl;
-  }
-
-}
-
-void  InOut::get_col (const char* fname, int col,  int &n_array, double array1[]){
-  get_col (fname, col,  n_array, array1, false);
-}
-
-
-void  InOut::get_col (const char* fname, int col,  int &n_array, double array1[], bool log){
+void  InOut::get_col (const char* fname, int col,  int & n_array, int array1[]){
+  cout << "in InOut.get_col(int array): " << "fname = "<<fname <<endl;
   ifstream  infile (fname, ios::in);
   if( !infile)
   {
@@ -389,41 +169,62 @@ void  InOut::get_col (const char* fname, int col,  int &n_array, double array1[]
   int i=0;
   char line[LINEMAX];
   char proforma[LINEMAX]; 
+  //while ( (infile.getline(line,LINEMAX))  && (is_not_white(line,strlen(line))) )
+  while ( (infile.getline(line,LINEMAX))) 
+  {
+    if(is_data_line(line)){
+      prepare_line(line);
+      istringstream linestream (line);
+      for (int icol=1; icol<col; icol++){linestream >> proforma;}
+      linestream >> array1[i];
+      i++;
+    }
+  }
+  infile.close();
+  n_array = i;
+  cout << "n_array = " << n_array << endl;
+}
+
+void  InOut::get_col (const char* fname, int col,  int &n_array, double array1[]){
+  cout << "in get_col(double array): " << "fname = "<<fname <<endl;
+  ifstream  infile (fname, ios::in);
+  if( !infile)
+  {
+    cerr << "Error opening file " << fname << " for reading" << endl;
+    exit(-1);
+  }
   
-  int errcnt=0;
-  while ( (infile.getline(line,LINEMAX))) {
+  int i=0;
+  char line[LINEMAX];
+  char proforma[LINEMAX]; 
+  //  while ( (infile.getline(line,LINEMAX))  && (is_not_white(line,strlen(line))) )
+  
+  while ( (infile.getline(line,LINEMAX))) 
+    {
 		
       if(is_data_line(line)){
 	prepare_line(line);
+	//if(i<4){cout<<"InOut.line="<<line<<endl;}
 	istringstream linestream (line);
 	for (int icol=1; icol<col; icol++){linestream >> proforma;}
+	//	char ch;
 	linestream>>array1[i];
-
 	//error treatment: arne feb 08
-
+	//testweise !!!
 	if (!linestream){
-	  errcnt++;
-	  //cerr<<"error while parsing for double ... i="<<i<<" --> "
-	  //   <<array1[i]<<" set to -999 errcnt="<<errcnt<<endl;
-          array1[i]=-999;
+	  cerr<<"error while parsing for double ... i="<<i<<" --> "
+              <<array1[i]<<" ... set to 0 ..."<<endl;
+          array1[i]=0;
 	} 
+	//cout<<"i="<<i<<" InOut.array1[i]="<<array1[i]<<" n_array="<<n_array<<endl;
 	i++;
       }
     }
 	
   infile.close();
   n_array = i;
-  if(log){
-    cout << "get_col(double): " << "fname = "<<fname 
-         <<" col="<<col<<" n_array = " << n_array << endl;
-  }
-  if(errcnt>0){cerr<<"InOut.get_col: file="<<fname<<" col="<<col
-		   <<": WARNING: not all data were double! Set to -999 in "
-		   <<errcnt<<" cases!"<<endl;
-  }
+  cout << "InOut.get_col: col="<<col<<" n_array = " << n_array << endl;
 }
-
-
 
 void  InOut::getChar_col (const char* fname, int col, int & n_array, char array1[]){
   cout << "in InOut.getChar_col( char array): " << "fname = "<<fname <<endl;
@@ -449,22 +250,14 @@ void  InOut::getChar_col (const char* fname, int col, int & n_array, char array1
   }
   infile.close();
   n_array = i;
-  //cout << "n_array = " << n_array << endl;
+  cout << "n_array = " << n_array << endl;
 }
 
 
 
 //arne 9-7-07
-//MT2018-12: string as input parameter just does not work!! SUCK!!
-
-
-void InOut::get_col(const char* fname,int col,int & n_array,string array1[]){ 
-  get_col (fname, col,  n_array, array1, false);
-}
-
-void  InOut::get_col (const char* fname, int col,  int & n_array, 
-		      string array1[], bool log){
-
+void  InOut::get_col (const char* fname, int col,  int & n_array, string array1[]){
+  cout << "in InOut.get_col(int array): " << "fname = "<<fname <<endl;
   ifstream  infile (fname, ios::in);
   if( !infile)
   {
@@ -487,14 +280,10 @@ void  InOut::get_col (const char* fname, int col,  int & n_array,
   }
   infile.close();
   n_array = i;
-  if(log){
-    cout << "in InOut.get_col(string array): " 
-	 << "fname = "<<fname<<" col="<<col<<" n_array = "<< n_array<<endl;
-  }
+  cout << "n_array = " << n_array << endl;
 }
 
 
-//###################################################################
 
 
 void  InOut::get_array (char* fname, int & n_array, 
@@ -707,47 +496,6 @@ const double data_col2[], char* name_col1, char* name_col2)
   fclose(outfile);
 } // InOut::write_array
 
-
-
-//<new apr19>
-
-void InOut::write_array (char* fname, int nData, const double data_col1[],
-			 const double data_col2[], 
-			 char* titleString){
-  FILE  *outfile;                  
-  outfile = fopen(fname,"w");
-  if(!outfile){cerr<<"InOut.write_array: Error: file "<<fname
-		   <<" cannot be created or is not writable"<<endl;
-    exit(-1);
-  }
-
-  fprintf(outfile, "#%s\n", titleString);
-  for(int i=0; i<nData; i++){
-    fprintf(outfile, "%f\t%1.4f\n", 
-	    data_col1[i], data_col2[i]);
-  }
-  fclose(outfile);
-} 
-
-void InOut::write_array (char* fname, int nData, const int data_col1[],
-			 const double data_col2[], 
-			 char* titleString){
-  FILE  *outfile;                  
-  outfile = fopen(fname,"w");
-  if(!outfile){cerr<<"InOut.write_array: Error: file "<<fname
-		   <<" cannot be created or is not writable"<<endl;
-    exit(-1);
-  }
-
-  fprintf(outfile, "#%s\n", titleString);
-  for(int i=0; i<nData; i++){
-    fprintf(outfile, "%i\t%1.3f\n", 
-	    data_col1[i], data_col2[i]);
-  }
-  fclose(outfile);
-} 
-
-//</new>
 
 void  InOut::write_array (char* fname, int nData, const int data_col1[],
 const int data_col2[], char* name_col1, char* name_col2)
@@ -1707,18 +1455,9 @@ void InOut::getvar(FILE *fp, long *plong)
   }
 }
 
-
-// transform "csv" into spaces
 void InOut::prepare_line(char line[]){
+  // transform "csv" into spaces
   for (int j=0; j<LINEMAX; j++){
-    if(line[j]==';'){
-      line[j]=' ';
-    }
-  }
-}
-
-void InOut::prepare_line(string & line){
-  for (int j=0; j<int(line.length()); j++){
     if(line[j]==';'){
       line[j]=' ';
     }
@@ -1741,13 +1480,6 @@ bool InOut:: is_data_line(char line[]){
   return  (line[0] != COMMENTCHAR) && 
     (line[0] != COMMENTCHAR2) && 
     (strlen(line)>0) ;
-}
-
-bool InOut:: is_data_line(string line){
-  return  (line[0] != COMMENTCHAR) && 
-    (line[0] != COMMENTCHAR2) && 
-    (!isalpha(line[0])) && // first character of line is not a letter [hack!]
-    (line.length()>0) ;
 }
 
 

@@ -2,31 +2,6 @@
 #define IN_OUT_H
 
 
-
-//#######################################################
-// Check if input of arbitrary type T is a number (int,float, double etc)
-//!!! does not work in the usual InOut.cpp, InOut.h style!! 
-
-/*
-template<typename T>
-bool isNumber(T x){
-   std::string s;
-   std::stringstream ss; 
-   ss << x;
-   ss >>s;
-   if(s.empty() || std::isspace(s[0]) || std::isalpha(s[0])) return false ;
-   char * p ;
-   double result=strtod(s.c_str(), &p);// use only &p of strtod=string2digit, 
-                         // not return val of double => ignore warning
-   if(false){cout<<"Result of strtod="<<result<<endl;}// just stop the whining
-   return (*p == 0) ;
-}
-*/
-
-
-//#######################################################
-
-
 /**
    Provides various helper methods for input and output.  Examples are
    <ul>
@@ -58,13 +33,8 @@ class InOut{
 
   bool fileExists(const char* fname);
 
-  int getNumberOfDataLines(const char* fname);
   int getNumberOfLines(const char* fname);
   int getNumberOfCols(const char* fname);
-
-  string getFirstLine(const char* fname);
-  string getFirstDataLine(const char* fname);
-  string getLastDataLine(const char* fname);
 	
 	
   void  get_array (char* fname, int & n_array, double array1[]);
@@ -77,22 +47,10 @@ class InOut{
   void  get_array (char* fname, int & n_array, 
 		   int array1[], double array2[], double array3[]);
 
-  //MT2018-12: string as filename parameter just does not work!! SUCK!!
-
-  void  get_col_last (const char* fname, int col, int nlast,
-		      int & n_array, int array1[]);
   void  get_col (const char* fname, int col,  int & n_array, int array1[]);
-  void  get_col (const char* fname, int col,  int & n_array, int array1[],
-		 bool log);
   void  get_col (const char* fname, int col,  int & n_array, double array1[]);
-  void  get_col (const char* fname, int col,  int & n_array, double array1[],
-		 bool log);
-  void  get_col (const char* fname, int col,  int & n_array, string array1[],
-		 bool log);
-  void  get_col (const char* fname, int col,  int & n_array, string array1[]);
-
   void  getChar_col (const char* fname, int col,  int & n_array, char array1[]);
-
+  void  get_col (const char* fname, int col,  int & n_array, string array1[]);
 
 
   void  get_array2d (char* fname, 
@@ -118,14 +76,6 @@ class InOut{
   void  write_array (char* fname, int nData, const int data_col1[],
                      const int data_col2[], 
                      char* name_col1, char* name_col2);
-  //<new apr19>
-  void  write_array (char* fname, int nData, 
-                     const double data_col1[],const double data_col2[], 
-                     char* titleString);
-  void  write_array (char* fname, int nData, 
-                     const int data_col1[], const double data_col2[], 
-                     char* titleString);
-  //</new>
   void  write_array (char* fname, int nData, 
                      const double data_col1[],const double data_col2[], 
                      const double data_col3[],
@@ -354,10 +304,8 @@ class InOut{
   static void getvar(FILE *fp, double* pdouble);
 
   int is_not_white(char line[], int nchar);
-  bool is_data_line(char line[]);
-  bool is_data_line(string line);
   void prepare_line(char line[]);
-  void prepare_line(string & line);
+  bool is_data_line(char line[]);
 
 
 };

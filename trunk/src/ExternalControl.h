@@ -19,9 +19,11 @@ class ExternalControl{
 
  private:
   static const int NDATAMAX=10001;
+  int nCtrlFiles;   // number of external control files (should be exactly 1)
   bool useVel;      // prescribe v in generic format (.vlead%i)
   bool useVelBosch; // prescribe v in Bosch format (.vleadBosch%i)
   bool useAcc;      // prescribing acceleration (.brake%i)
+  bool useJump;     // prescribing one-off jumps and speed changes
 
   int vehIndex;   // vehicle index from .leadvehs in RoadSection; 
                   // only informative function here
@@ -33,6 +35,9 @@ class ExternalControl{
   double vel[NDATAMAX];
   double gapBack[NDATAMAX];
   double velBack[NDATAMAX];
+  double s_jump[NDATAMAX];
+  double v_jump[NDATAMAX];
+  double v0_jump[NDATAMAX];
 };
 
 #endif // EXTERNALCONTROL_H

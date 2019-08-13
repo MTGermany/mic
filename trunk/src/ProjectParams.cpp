@@ -67,7 +67,7 @@ ProjectParams::ProjectParams(const char* projectName)
 	
 	
 	//Oct 06:
-	int number_params = inout.getNumberOfLines(in_fname);
+	int number_params = inout.getNumberOfDataLines(in_fname);
 	if(number_params != 16){
 		cerr<<"\nError!!!\n"<<endl;
 		cerr<<"mic input for \""<<in_fname<<"\" requires 16 parameters (upgrade version Oct06) but provided are only "<<number_params<<endl;
