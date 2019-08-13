@@ -1090,47 +1090,49 @@ void RoadSection::update(int it)
     }
 
 
-  // (4b) if(externalCtrlExists)&&ctrlByVel
+  // (4b) if(externalCtrlExists)&&ctrlByVel()
   //  then set some velocities  externally (overriding the BC!)
 
-  if(externalCtrlExists)
-    {
-      for (int iCtrl=0; iCtrl<n_vehControlled; iCtrl++)
-	{
-	  int iveh=i_vehControlled[iCtrl];
-	  if( (iveh>=imin)&&(iveh<=imax) )
-	    {
-	      if(externalControl[iCtrl]->ctrlByVel())
-		{
-		  double vel=externalControl[iCtrl]->getVel(tstart+it*dt);
-		  veh[iveh].setVel(vel);
-		  cyclicBuf->set_v(iveh, vel); //!!
+  // if(externalCtrlExists)&&ctrlByJump()
+  //  then simulate cutins/cutouts by externally moving vehs
 
-		  if(externalControl[iCtrl]->newTargetDetected(tstart+it*dt)){
-		    double oldPos=veh[iveh].getPos();
-		    double newPos=oldPos+externalControl[iCtrl]->getGapBackJump(tstart+it*dt);
-		    veh[iveh].setPos(newPos);	    
-		    cout <<"newTargetDetected! oldPos="<<oldPos
-			 <<" newPos="<<newPos<<endl;
-		  }
-		  if(false && ((it%100)==0) )
-		    {
-		      cout<<"RoadSection.update: external control for vehicle "<<iveh<<": "
-			  <<" t="<<(tstart+it*dt)<<" vel="<<vel
-			  <<" and cyclicBuf="<<cyclicBuf->get_v(iveh)<<endl;
-		    }
-		} 	  
-	    }
+  if(externalCtrlExists){
+    for (int iCtrl=0; iCtrl<n_vehControlled; iCtrl++){
+      int iveh=i_vehControlled[iCtrl];
+      if( (iveh>=imin)&&(iveh<=imax) ){
+
+	// speed control
+
+	if(externalControl[iCtrl]->ctrlByVel()){
+	  double vel=externalControl[iCtrl]->getVel(tstart+it*dt);
+	  veh[iveh].setVel(vel);
+	  cyclicBuf->set_v(iveh, vel); //!!
+
+	  // special treatment for jups in the .Bosch format
+
+	  if(externalControl[iCtrl]->newTargetDetected(tstart+it*dt)){
+	    double oldPos=veh[iveh].getPos();
+	    double newPos=oldPos+externalControl[iCtrl]->getGapBackJump(tstart+it*dt);
+	    veh[iveh].setPos(newPos);	    
+	    cout <<"newTargetDetected! oldPos="<<oldPos
+		 <<" newPos="<<newPos<<endl;
+	  }
 	}
-    }
 
-  if(false)
-    {
+	// jump control
+
+	if(externalControl[iCtrl]->ctrlByJump()){
+	  // extCtrl->jump Umsetzung bei jump times
+      }
+    }
+  }
+
+  if(false){
       cout <<"after (4b): "
 	   <<" imin="<<imin<<" veh[imin].getPos()="<<veh[imin].getPos()
 	   <<" veh[1].getVel()="<<veh[1].getVel()
 	   <<" veh[2].getVel()="<<veh[2].getVel()<<endl;
-    }
+  }
 
 
   // #####################################

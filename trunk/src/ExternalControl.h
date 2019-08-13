@@ -16,6 +16,7 @@ class ExternalControl{
   int get_vehIndex(){return vehIndex;} 
   bool ctrlByVel(){return (useVel||useVelBosch);}
   bool ctrlByAcc(){return useAcc;}
+  bool ctrlByJump(){return useJump;}
 
  private:
   static const int NDATAMAX=10001;
@@ -30,7 +31,7 @@ class ExternalControl{
   int    n_times;
   double times[NDATAMAX];
   double dtData;
-  double tLastTargetEntered;
+  double tLastTargetEntered; // for jumps
   double acc[NDATAMAX];
   double vel[NDATAMAX];
   double gapBack[NDATAMAX];

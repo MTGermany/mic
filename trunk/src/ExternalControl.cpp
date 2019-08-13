@@ -205,7 +205,7 @@ double ExternalControl::getGapBackJump(double time_s){
 } 
 
 bool ExternalControl::newTargetDetected(double time_s){
-  if (!useVelBosch){return false;}
+  if ((!useVelBosch)&&(!useJump)){return false;}
   else{
     double gapBackDiffCrit=5; // minimum 1 vehicle length
     double dtminNewTargets=3;
