@@ -41,7 +41,9 @@ class Vehicle
   // general-purpose
 
   void setVel(double newVel){v=newVel; vel_isExternallyControlled=true; }
+  void setVelJump(double newVel){v=newVel; vel_isExternallyControlled=false; }
   void setPos(double newPos) {x=newPos;}  // front position
+
 
  
  
@@ -68,6 +70,7 @@ class Vehicle
   } 
   void setAlphaV0(double alpha_v0){this->alpha_v0=alpha_v0;}
   void setAlphaT(double alpha_T){this->alpha_T=alpha_T;}
+  double getAlphaV0(){return this->alpha_v0;}
    
   void resetAcc(){acc_isExternallyControlled=false;} //<martin apr08>
   void resetVel(){vel_isExternallyControlled=false;} //<martin apr08>

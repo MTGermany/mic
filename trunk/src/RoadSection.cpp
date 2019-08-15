@@ -857,10 +857,11 @@ void RoadSection::updateRK4(int it){  // Test: standard fourth-order Runge-Kutta
 
 
 //###################################################################
-void RoadSection::update(int it)
+void RoadSection::update(int it){
 //###################################################################
-{ 
 
+  //cout <<"in RoadSection.update before section 0: it="<<it<<endl;
+  double time=tstart+it*dt;
   //############################################################
   // (0) Runtime measurement for tests 
   //############################################################
@@ -886,7 +887,7 @@ void RoadSection::update(int it)
     {
       cout<<"RoadSection.update:"
 	  <<" ndtout_3D="<<ndtout_3D
-	  <<" t=" << (tstart+it*dt)
+	  <<" t=" << (time)
 	  <<" imin="  << imin
 	  <<" imax="  << imax
 	  <<" x[imin]="<<veh[imin].getPos()
@@ -911,7 +912,7 @@ void RoadSection::update(int it)
   int imaxOld=imax;
   
   //imin and imax are called by reference --> changed in boundary update!
-  boundary_up->updateUpstream(veh, imin, imax, het, tstart+it*dt);
+  boundary_up->updateUpstream(veh, imin, imax, het, time);
 
 
   // initialize cyclic buffer for new vehicles
@@ -929,7 +930,7 @@ void RoadSection::update(int it)
     }
   
   //imin and imax are called by reference --> changed in boundary update!
-  boundary_down->updateDownstream(veh, imin, imax, tstart+it*dt);
+  boundary_down->updateDownstream(veh, imin, imax, time);
 
   //############################################################
   // (2a) update CyclicBuffer
@@ -1011,7 +1012,7 @@ void RoadSection::update(int it)
 
   for(int irmp = 0; irmp<n_ramps; irmp++)
     {
-      ramp[irmp]->update(tstart+it*dt, cyclicBuf->get_xp(), cyclicBuf->get_sp(), imin, imax);  
+      ramp[irmp]->update(time, cyclicBuf->get_xp(), cyclicBuf->get_sp(), imin, imax);  
     }
 
   // do actual merges/diverges (parallel update)
@@ -1065,8 +1066,9 @@ void RoadSection::update(int it)
 
   if(!vehDropLift->noVehDroppedOrLifted())
     {
-      vehDropLift->update(veh, imin, imax, tstart+it*dt);
+      vehDropLift->update(veh, imin, imax, time);
     }
+
 
 
   //############################################################
@@ -1090,6 +1092,8 @@ void RoadSection::update(int it)
     }
 
 
+
+
   // (4b) if(externalCtrlExists)&&ctrlByVel()
   //  then set some velocities  externally (overriding the BC!)
 
@@ -1099,33 +1103,50 @@ void RoadSection::update(int it)
   if(externalCtrlExists){
     for (int iCtrl=0; iCtrl<n_vehControlled; iCtrl++){
       int iveh=i_vehControlled[iCtrl];
-      if( (iveh>=imin)&&(iveh<=imax) ){
+      if( (iveh>=imin)&&(iveh<=imax) ){ // imax-imin+1 vehicles
 
 	// speed control
 
 	if(externalControl[iCtrl]->ctrlByVel()){
-	  double vel=externalControl[iCtrl]->getVel(tstart+it*dt);
+	  double vel=externalControl[iCtrl]->getVel(time);
 	  veh[iveh].setVel(vel);
 	  cyclicBuf->set_v(iveh, vel); //!!
 
-	  // special treatment for jups in the .Bosch format
+	  // special treatment for jumps in the .Bosch format
 
-	  if(externalControl[iCtrl]->newTargetDetected(tstart+it*dt)){
+	  if(externalControl[iCtrl]->newTargetDetected(time)){
 	    double oldPos=veh[iveh].getPos();
-	    double newPos=oldPos+externalControl[iCtrl]->getGapBackJump(tstart+it*dt);
+	    double newPos=oldPos+externalControl[iCtrl]->getGapBackJump(time);
 	    veh[iveh].setPos(newPos);	    
 	    cout <<"newTargetDetected! oldPos="<<oldPos
 		 <<" newPos="<<newPos<<endl;
 	  }
 	}
 
-	// jump control
+	// jump control (aug19)
 
 	if(externalControl[iCtrl]->ctrlByJump()){
-	  // extCtrl->jump Umsetzung bei jump times
-      }
-    }
-  }
+	  if(externalControl[iCtrl]->checkNewJump(time)){
+	    if(true){
+	      cout <<"RoadSection.update (4b): external jump ctrl: new jump!"
+		   <<" t="<<time<<endl;
+	      //exit(0);
+	    }
+	    veh[iveh].setVelJump(externalControl[iCtrl]->getVelJump());
+	    veh[iveh].setAlphaV0(externalControl[iCtrl]->getAlphaV0Jump());
+	    double laggap=externalControl[iCtrl]->getGapBackJump(time);
+	    double vehlength=veh[iveh+1].getLength();
+	    if(iveh<imax){
+	      veh[iveh].setPos(veh[iveh+1].getPos()+laggap+vehlength);
+	    }
+	    cout <<"iveh="<<iveh<<" alpha_v0="<<veh[iveh].getAlphaV0()<<endl;
+	  }
+
+	}// jump control
+	  
+      }// iveh in range check
+    }// iCtrl loop
+  }//externalControlExists
 
   if(false){
       cout <<"after (4b): "
@@ -1135,6 +1156,7 @@ void RoadSection::update(int it)
   }
 
 
+
   // #####################################
   // (4c) martin mai08 if(regionCtrlExists)
   //  then influence the vehicles externally in these regions
@@ -1142,7 +1164,6 @@ void RoadSection::update(int it)
 
   //if(false){
   if(regionCtrlExists){
-    double time=tstart+it*dt;
     //cout <<"n_regionsControlled="<<n_regionsControlled<<endl;
     for (int iCtrl=0; iCtrl<n_regionsControlled; iCtrl++){
       //cout <<"\nin RoadSection: Updating region control "<<iCtrl<<" ..."<<endl;
@@ -1214,7 +1235,7 @@ void RoadSection::update(int it)
 	    alpha_v0_global *= alpha_v0_distr[i];
 	    alpha_T_global  *= alpha_T_distr[i];
     }
-    
+  
     //###################################################
     //###################################################
     // (4d1) do calcAcc!!
@@ -1242,7 +1263,7 @@ void RoadSection::update(int it)
       if( (iveh>=imin)&&(iveh<=imax)){
 
         if(externalControl[iCtrl]->ctrlByAcc()){
-	  double acc = externalControl[iCtrl]->getAcc(tstart+it*dt);
+	  double acc = externalControl[iCtrl]->getAcc(time);
 	  if(acc*dt<-veh[iveh].getVel()){
 	    acc=-veh[iveh].getVel()/dt;
   	  }
@@ -1301,11 +1322,10 @@ void RoadSection::update(int it)
 
 
 
-  //######### Test/test/check model acceleration ####################
+  //######### !!! Test/test/check model acceleration ####################
 
-  //if(it<=20)
-  if(false)
-    {
+  //if(it<=20){
+  if(false){
       cout<<"\nRoadSection.update, it="<<it
 	  <<": After calculating accelerations ...imin="<<imin<<" imax="<<imax<<"\n";
       
@@ -1329,6 +1349,8 @@ void RoadSection::update(int it)
 	}
     }
   
+
+
   //############################################################
   // (5) update velocities and positions
   //############################################################
@@ -1348,17 +1370,17 @@ void RoadSection::update(int it)
   //arne: !!!!!!!!!!!!!!!!!!! 
   //das kostet zeit, da jedes fahrzeug einmal in eine datei appended wird!!!
   // muss noch optimiert werden wenn es wieder gebraucht wird ....
-  if(trajLOS) trajLOS->update(tstart+it*dt, veh, imin, imax);
+  if(trajLOS) trajLOS->update(time, veh, imin, imax);
     
 }
+
 
 // #############################################################
 // Generate (intermediate) macro fields from macro IC
 // #############################################################
 
 void RoadSection::generateMacroFields(int choice_init, double rho[], 
-				      double Q[], int nxMacro)
-{
+				      double Q[], int nxMacro){
   double RHOMIN=0.0001;  // (veh/m)
   double VMAX=50;        // (m/s)
   MicroModel* p_referenceModel = het->new_pmodel(0);

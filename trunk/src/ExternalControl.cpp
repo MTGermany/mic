@@ -63,6 +63,8 @@ ExternalControl::ExternalControl(char* projectName,
   this->useAcc=false;
   this->useJump=false;
   this->nCtrlFiles=0;
+  this->i_jump=0; // only relevant if useJump
+  this->newJump=false;
 
    // reading externalControl flow
 
@@ -92,7 +94,6 @@ ExternalControl::ExternalControl(char* projectName,
   // Attention: More than 1 s inconsistency in jump at Set 3!!
 
   sprintf(in_fname,"%s.vleadBosch%i",projectName, number);
-  cout <<"in_fname="<<in_fname<<endl;
   ifstream  infile2 (in_fname, ios::in);
   if(infile2){ 
     nCtrlFiles++;
@@ -143,6 +144,7 @@ ExternalControl::ExternalControl(char* projectName,
   sprintf(in_fname,"%s.jump%i",projectName, number);
   ifstream  infile4 (in_fname, ios::in);
   if(infile4){ 
+    cout <<" ExternalCtrl Cstr: leading veh with jumps"<<endl;//exit(0);
     nCtrlFiles++;
     useJump=true;
     InOut inout;
@@ -154,7 +156,21 @@ ExternalControl::ExternalControl(char* projectName,
     }
     inout.get_col(in_fname, 2, n_times, s_jump);
     inout.get_col(in_fname, 3, n_times, v_jump);
-    inout.get_col(in_fname, 4, n_times, v0_jump);
+    inout.get_col(in_fname, 4, n_times, alpha_v0_jump);
+
+    // add a last artificial line to simplify bookkeeping
+
+    n_times++;
+    times[n_times-1]=1e9; // longer than any sim time (hack but OK)
+    s_jump[n_times-1]=s_jump[n_times-2];
+    v_jump[n_times-1]=v_jump[n_times-2];
+    alpha_v0_jump[n_times-1]=alpha_v0_jump[n_times-2];
+
+    if(false) for (int i=0; i<n_times; i++){
+      cout <<"times="<<times[i]<<" s_jump="<<s_jump[i]
+	   <<" v_jump="<<v_jump[i]<<" alpha_v0_jump="<<alpha_v0_jump[i]<<endl;
+    }
+
   }
 
   // more than one or not a single file 
@@ -175,51 +191,79 @@ ExternalControl::ExternalControl(char* projectName,
     exit(-1);
   }
 
-}
+} // ExternalControl constructor
 
    
 
-double ExternalControl::getAcc(double time_s){
+double ExternalControl::getAcc(double time_s){ // useAcc
   return( intpextp(times, acc, n_times, time_s));
 } 
 
-double ExternalControl::getVel(double time_s){
+double ExternalControl::getVel(double time_s){ // useVel or useVelBosch
   return (useVelBosch) 
     ? intp(vel, n_times, time_s, 0, 0.1*n_times)
     : intpextp(times, vel, n_times, time_s);
 } 
 
-double ExternalControl::getGapBack(double time_s){
+double ExternalControl::getVelJump(){ // discrete, not interpol. as otherwise
+  return (useJump) ? v_jump[i_jump] : 0;
+} 
+
+double ExternalControl::getAlphaV0Jump(){
+  return (useJump) ? alpha_v0_jump[i_jump] : 0;
+} 
+
+
+double ExternalControl::getGapBackJump(double time_s){// Bosch or jumps
+  return (useVelBosch) 
+    ? getGapBack(time_s+dtData)-getGapBack(time_s-dtData)
+    : (useJump) ? s_jump[i_jump] : 0;
+} 
+
+double ExternalControl::getGapBack(double time_s){ // only Bosch
   return (useVelBosch) 
     ? intpextp(times, gapBack, n_times, time_s) : 0;
 } 
 
-double ExternalControl::getVelBack(double time_s){
+double ExternalControl::getVelBack(double time_s){ // only Bosch
   return (useVelBosch) 
     ? intpextp(times, velBack, n_times, time_s) : 0;
 } 
 
-double ExternalControl::getGapBackJump(double time_s){
-  return (useVelBosch) 
-    ? getGapBack(time_s+dtData)-getGapBack(time_s-dtData) : 0;
-} 
 
 bool ExternalControl::newTargetDetected(double time_s){
-  if ((!useVelBosch)&&(!useJump)){return false;}
-  else{
+  if (useVelBosch){
     double gapBackDiffCrit=5; // minimum 1 vehicle length
     double dtminNewTargets=3;
     double gapBackDiff=getGapBackJump(time_s)
       +2*dtData*(getVel(time_s)-getVelBack(time_s));
-    if((gapBackDiff>gapBackDiffCrit)&&(time_s-tLastTargetEntered>dtminNewTargets)){
+    if((gapBackDiff>gapBackDiffCrit)
+       &&(time_s-tLastTargetEntered>dtminNewTargets)){
       tLastTargetEntered=time_s;
       return true;
     }
     else return false;
   }
+  else return useJump&&newJump;
 }
 
-// in .h file double ExternalControl::getQueueLength(){return queueLength_veh;}
+
+// check if a jump of a controlled vehicle occurred if useJump
+
+bool ExternalControl::checkNewJump(double time_s){
+  newJump=useJump&&(times[i_jump]<time_s);
+  if(newJump){
+    i_jump++; // index guruanteed to exist: times[n_times-1] always >sim time
+    cout <<"ExternalControl.checkJump: jump! time="<<time_s
+	 <<" new gap="<<s_jump[i_jump]
+	 <<endl;
+  }
+  return newJump;
+}
+
+
+// in .h file double ExternalControl::getQueueLength(){
+// return queueLength_veh;}
 
 
 

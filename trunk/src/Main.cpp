@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
  cout<<"Main: main simulation loop starts ....\n";
 
  for (int it=1; it<=nt; it++){
-   //cout <<"before writeAll: it="<<it<<" nt="<<nt<<endl;
+   //cout <<"it="<<it<<" nt="<<nt<<" choice_integr="<<choice_integr<<endl;
 
    // MT Apr 13: Select integration method by optional second cmdline parameter
    
