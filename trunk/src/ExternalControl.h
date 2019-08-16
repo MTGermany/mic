@@ -1,6 +1,8 @@
 #ifndef EXTERNALCONTROL_H
 #define EXTERNALCONTROL_H
 
+// for comments of the 4 control types, see the .cpp file
+
 class ExternalControl{ 
 
  public:

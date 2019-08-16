@@ -38,6 +38,11 @@ the following extensions
 (4) <proj>.jump<number> exists: The gap, speed, and desired speed is 
     changed simulating a cutin/cutout. In contrast to (1)-(3), this is a 
     one-off (nonpermanent) control for each indicated time in the .jump file
+    Outside jump times, the controlled vehicle drives with its 
+    normal model, before the first jump controlled by the IC
+    since generic model has no parameter v0, the generic alpha_v0 is chosen
+    to represent new vehicles modelled by the jumps 
+    (it is easy to add alpha_T, alpha_a later on)
 
 NOTE: Both s and v (.svlead<n>) in micVLA (oct06)
 
@@ -206,18 +211,18 @@ double ExternalControl::getVel(double time_s){ // useVel or useVelBosch
 } 
 
 double ExternalControl::getVelJump(){ // discrete, not interpol. as otherwise
-  return (useJump) ? v_jump[i_jump] : 0;
+  return (useJump) ? v_jump[max(i_jump-1,0)] : 0;
 } 
 
 double ExternalControl::getAlphaV0Jump(){
-  return (useJump) ? alpha_v0_jump[i_jump] : 0;
+  return (useJump) ? alpha_v0_jump[max(i_jump-1,0)] : 0;
 } 
 
 
 double ExternalControl::getGapBackJump(double time_s){// Bosch or jumps
   return (useVelBosch) 
     ? getGapBack(time_s+dtData)-getGapBack(time_s-dtData)
-    : (useJump) ? s_jump[i_jump] : 0;
+    : (useJump) ? s_jump[max(i_jump-1,0)] : 0;
 } 
 
 double ExternalControl::getGapBack(double time_s){ // only Bosch
@@ -253,10 +258,12 @@ bool ExternalControl::newTargetDetected(double time_s){
 bool ExternalControl::checkNewJump(double time_s){
   newJump=useJump&&(times[i_jump]<time_s);
   if(newJump){
-    i_jump++; // index guruanteed to exist: times[n_times-1] always >sim time
-    cout <<"ExternalControl.checkJump: jump! time="<<time_s
-	 <<" new gap="<<s_jump[i_jump]
-	 <<endl;
+    i_jump++; // index guaranteed to exist: times[n_times-1] always >sim time
+    cout <<"ExternalControl.checkJump: jump! t="<<time_s
+    	 <<" new laggap="<<getGapBackJump(time_s)
+    	 <<" speed="<<getVelJump()
+    	 <<" alpha_v0="<<getAlphaV0Jump()
+    	 <<endl;
   }
   return newJump;
 }

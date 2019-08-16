@@ -1127,11 +1127,6 @@ void RoadSection::update(int it){
 
 	if(externalControl[iCtrl]->ctrlByJump()){
 	  if(externalControl[iCtrl]->checkNewJump(time)){
-	    if(true){
-	      cout <<"RoadSection.update (4b): external jump ctrl: new jump!"
-		   <<" t="<<time<<endl;
-	      //exit(0);
-	    }
 	    veh[iveh].setVelJump(externalControl[iCtrl]->getVelJump());
 	    veh[iveh].setAlphaV0(externalControl[iCtrl]->getAlphaV0Jump());
 	    double laggap=externalControl[iCtrl]->getGapBackJump(time);
@@ -1139,7 +1134,16 @@ void RoadSection::update(int it){
 	    if(iveh<imax){
 	      veh[iveh].setPos(veh[iveh+1].getPos()+laggap+vehlength);
 	    }
-	    cout <<"iveh="<<iveh<<" alpha_v0="<<veh[iveh].getAlphaV0()<<endl;
+	    if(true){
+	      cout <<"RoadSection.update (4b): external jump ctrl: new jump!"
+		   <<" t="<<time
+	           <<" iveh="<<iveh
+		   <<" new laggap="<<laggap
+	           <<" speed="<<veh[iveh].getVel()
+		   <<" alpha_v0="<<veh[iveh].getAlphaV0()
+		   <<endl;
+	    }
+
 	  }
 
 	}// jump control
