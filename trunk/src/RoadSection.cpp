@@ -1975,8 +1975,8 @@ void  RoadSection::get_fueldata(string carName)
   ifstream  infileCarData (carDataName, ios::in);
   ifstream  infileEngineData (engineDataName, ios::in);
 
-  calcFuelConsumption=infileCarData;  // true if file exists
-  useEngineDataSheet=infileEngineData; // calc with tabulated engine map if file exists
+  calcFuelConsumption=infileCarData.is_open();  // true if file exists
+  useEngineDataSheet=infileEngineData.is_open(); // calc with tabulated engine map if file exists
 
   if(!infileCarData){
     cout<<"RoadSection.get_fueldata: No car data file "<<carDataName <<endl;

@@ -65,7 +65,7 @@ TrajectoryLOS::TrajectoryLOS(const char* project, double dt)
       exit(-1);
     }
     else{
-      bool useEngineDataSheet=infileEngine;
+      bool useEngineDataSheet=infileEngine.is_open();
       infileEngine.close();
       infileCar.close();
       bool testSimpleFormula=true;

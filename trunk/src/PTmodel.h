@@ -70,7 +70,7 @@ class PTmodel: public MicroModel
 
  private:
 
-  static const double gaussnorm=0.39894228; // 1/sqrt(2*PI);
+  static constexpr double gaussnorm=0.39894228; // 1/sqrt(2*PI);
   double delta; // 0.5*(1-gamma)
   double dw;  // 1-wm
 

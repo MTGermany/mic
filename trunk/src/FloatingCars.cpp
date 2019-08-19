@@ -78,7 +78,7 @@ FloatingCars::FloatingCars(const char projectName[], ProjectParams* proj) {
 
 	ifstream infileEngine(engineDataName, ios::in);
 	ifstream infileCar(carDataName, ios::in);
-	calcFuelConsumption=infileCar;
+	calcFuelConsumption=infileCar.is_open();
 	if (!calcFuelConsumption) {
 	  calcFuelConsumption = false;
 	  cout << "RoadSection.get_fueldata: No car data sheet file "
@@ -87,7 +87,7 @@ FloatingCars::FloatingCars(const char projectName[], ProjectParams* proj) {
 	}
 	else{
 	  //calcFuelConsumption = true;
-	  useEngineDataSheet=infileEngine;
+	  useEngineDataSheet=infileEngine.is_open();
 	  infileEngine.close();
 	  infileCar.close();
 

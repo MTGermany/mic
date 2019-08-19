@@ -1,0 +1,18 @@
+(1) in-class no static const noninteger constants:
+
+static const double gaussnorm=0.39894228;
+->
+static constexpr double gaussnorm=0.39894228;
+[seems generally to be better; difference only for non-integer
+constants:  https://stackoverflow.com/questions/41125651/constexpr-vs-static-const-which-one-to-prefer]
+
+(2) filestream has no longer a true/false value (if filestream exists or
+not): 
+
+ifstream  infileCarData (carDataName, ios::in); 
+fileExists=infileCarData;
+->
+fileExists=infileCarData.is_open();
+
+(3) viele Warnungen, wenn ich fixed string, wie ".IC" in ein z.B. char[199]
+Array schreibe (mache nix)
