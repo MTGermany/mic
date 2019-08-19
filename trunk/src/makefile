@@ -17,7 +17,10 @@ LIBOBJECTS=general.o InOut.o RandomUtils.o
 # compiler specific settings
 #####################################################################
 
-CFLAGS= -Wall -O3
+# -std=c++0x, since without constexpr [instead of const] 
+# (i) not available in Ubuntu12, (ii)  required in Ubuntu18 
+
+CFLAGS= -Wall -std=c++0x -O3  
 
 ## gnu compiler: Folgende zwei Zeilen aktivieren
 CC=g++
