@@ -247,16 +247,22 @@ double IDM::acc(int it, int iveh, int imin, int imax,
   //##################################################
   // actual IDM formula (directly recoded instead of using accSimple 
   // for speed)
+  // use negative values of IDM s1 parameter to code for v>v0 variants:
+  // s1>=0: default with extension Treiber(2013), Eq (11.22) for v>v0
+  // -2<s1<0: set delta=1 and reverse v/v0 for v>v0
+  // s1<=-2: Original IDM without any extensions
   //##################################################
   
-  double sstar = s0 + max(0., Tloc*v + s1*sqrt((v+0.0001)/v0loc) + 0.5*v*dv/sqrt(aloc*b));
+  double sstar = s0 + max(0., Tloc*v + s1*sqrt((v+0.0001)/v0loc)
+			  + 0.5*v*dv/sqrt(aloc*b));
 
-  // Original IDM
+  double a_wanted =
+    (v<v0loc) ? aloc*(1.- pow((v/v0loc),delta) - SQR(sstar/s)) :
+    (s1>=0)   ? -b*( 1.- pow(v0loc/v, aloc*b/delta)) - aloc*SQR(sstar/s) :
+    (s1>-2)   ? aloc*(1.- v/v0loc - SQR(sstar/s)) :
+    aloc*(1.- pow((v/v0loc),delta) - SQR(sstar/s));
 
-  double a_wanted = (v<v0loc) ? aloc*( 1.- pow((v/v0loc),delta) - SQR(sstar/s))
-    : aloc*( 1.- v/v0loc - SQR(sstar/s));
-
-
+ 
   // "IDM+" Model of Ros, TU Delft (Referee Oct 2012)
 
   //double a_wanted = aloc*min(1.- pow((v/v0loc),delta), 1 - SQR(sstar/s));//!!
