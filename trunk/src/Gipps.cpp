@@ -189,7 +189,8 @@ double Gipps::acc(int it, int iveh, int imin, int imax,
   
   double v0loc = alpha_v0*v0;
   double Tloc = alpha_T*T;
-  
+  //cout <<"Gipps.accSimple: Tloc="<<Tloc<<endl;
+
   //#############################################################
   // actual Gipps formula
   //#############################################################

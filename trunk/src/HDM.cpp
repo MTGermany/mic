@@ -126,7 +126,7 @@ void HDM::get_modelparams(const char fname[])
   InOut inout;
 	
 	//oct06:
-	int number_params = inout.getNumberOfLines(fname);
+	int number_params = inout.getNumberOfDataLines(fname);
 	if(number_params != 11){
 		cerr<<"\nError!!!\n"<<endl;
 		cerr<<"HDM input for \""<<fname<<"\" requires 11 parameters (upgrade version Oct06) but provided are only "<<number_params<<endl;

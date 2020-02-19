@@ -238,7 +238,15 @@ void Vehicle::updatePosVel()
     if(v<0){ v=0; acc=0;}
   }
 
-  // MT dec16 Gipps model position updated with new speed 
+  // !!! MT feb20 Gipps model (modelNumber=10) position update
+  // * either with new speed x+= dt * v + acc*SQR(dt)
+  //   => no stop&Go and smooth stopping behind traffic lights
+  //   => no crashes (mic_sim/Steckbriefe_book_engl/Gipps_startStopTestCrash)
+  // * or normal ballistic update x+= dt * v + 0.5*acc*SQR(dt)
+  //   => stop&Go and abrupt stopping behind traffic lights
+  //   => crashes
+  // !! TODO make complete Gipps
+
   // (separate block because of runtime)
 
   else if(modelNumber==10){
@@ -247,7 +255,8 @@ void Vehicle::updatePosVel()
       acc=(vOld-v)/dt;
     }
     double advance = (acc*dt >= -v)
-      ? dt * v + acc*SQR(dt) // =dt*(v+acc*dt)=dt*vNew
+      //? dt * v + acc*SQR(dt) // =dt*(v+acc*dt)=dt*vNew
+      ? dt * v + 0.5*acc*SQR(dt) // =dt*0.5*(v+vNew)
       : -0.5 * SQR(v)/acc; 
     x+=advance;
     v+=dt*acc;
