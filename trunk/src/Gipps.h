@@ -40,7 +40,10 @@ class Gipps: public MicroModel
   double T;
   double a;
   double b;
-  double s0; // additional generalizing parameter; s0>=2 for safety
+  double s0;    // additional generalizing parameter; s0>=2 for safety
+  double bl;    // MT feb20: est leader's decel. if >=0 activates full Gipps
+  double theta; // MT feb20: addtl safe dist theta*T*vsafe; 
+                // theta=0.5 in original Gipps
 
   // Gipps state variables (elapsed times, old values,
   // acceleration relaxations etc)

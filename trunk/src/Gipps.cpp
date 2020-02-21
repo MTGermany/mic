@@ -56,6 +56,24 @@ void Gipps::get_modelparams(const char fname[]){
   inout.getvar(fp,&a);
   inout.getvar(fp,&b);
   inout.getvar(fp,&s0);
+
+  // MT feb20: estimated leader's deceleration
+  // Activates full Gipps with theta=tau/2 if bl exists and is >0
+  // (<=0 safe flag for using simplified Gipps)
+
+  bl=-1;     // default use simplified Gipps
+  theta=0.5; // default for full Gipps (in units of T)
+
+  inout.getvar(fp,&bl); 
+  inout.getvar(fp,&theta); 
+
+  // revert to default if theta not in param file
+  // comment out if theta=0 is an option (=>use simplified bsafe, full bfree)
+
+  // if(theta<=1e-6){theta=0.5;}
+
+  cout<<"bl="<<bl<<endl;
+  cout<<"theta="<<theta<<endl; 
   fclose(fp);
 
   
@@ -146,19 +164,26 @@ void Gipps::calc_eq()
 // s=net distance (m),
 // v=own velocity (m/s)
 // dv=approaching rate (v-v_front) to the front vehicle (m/s)
+// simple version typically safe for s0>=2, full version ...
 //######################################
 
 double Gipps::accSimple(double s, double v, double dv, double v0, double T){
 
-
-  // Gipps acceleration
-  // typically safe for s0>=2
   // T*=1; //!!! Test T neq dt (Crash falls T<=0.95 dt)
-  double vp=v-dv;
 
-  double vsafe=-b*T+sqrt(b*b*T*T+vp*vp+2*b*max(s-s0,0.)); // safe velocity
-  //vsafe *= (1.-0.005*exp(-pow((s-8)/3, 2))); //!!! test FD mit Wendepunkt
-  double vnew=min(vsafe, min(v+a*T, v0));
+  double vl=v-dv;
+  bool useSimple=(bl<=0); // Use simplified Gipps of book 2013
+                          // Otherwise use full Gipps of original publication
+
+  double vsafe=(useSimple) // safe speed in next step t+T
+    ? -b*T+sqrt(SQR(b*T)+2*b*max(s-s0,0.)+SQR(vl))
+    : -b*T+sqrt(SQR(b*T)+2*b*max(s-s0,0.)+SQR(vl)*b/bl-2*b*v*theta*T); 
+
+  double vfree=(useSimple)
+    ? min(v+a*T, v0)
+    : v+2.5*a*(1-v/v0)*sqrt(0.025+v/v0)*T;
+
+  double vnew=min(vsafe, vfree);
   double a_wanted = (vnew-v)/T;
   return a_wanted;
 }
