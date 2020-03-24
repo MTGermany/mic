@@ -524,11 +524,15 @@ double HDM::acc(int it, int iveh, int imin, int imax,
 	//interaction partner 1...n_anti_max
   for (int j=1; (j<=n_anti_actual); j++){
     
-		if(j>1){
-	    sOld += s_stretch*(cyclicBuf->get_s(iveh-j+1,it,T_react_loc));
-	  }
-      
-    double dvOld = vOld-cyclicBuf->get_v(iveh-j,it,T_react_loc);
+    if(j>1){
+      sOld += s_stretch*(cyclicBuf->get_s(iveh-j+1,it,T_react_loc));
+    }
+
+    // MT 2020: Test dv with and without time delay (Ngoduy thinks that no
+    // influence!!!
+    
+    double dvOld = vOld-cyclicBuf->get_v(iveh-j,it,T_react_loc);// dv react
+    //double dvOld = vOld-cyclicBuf->get_v(iveh-j,it,0);         //dv react0
          
 	  //if(iveh<5)cout<<"accTwoVehInt T="<<T<<", Tloc="<<Tloc<<", s0="<<s0<<", s1="<<s1<<endl;
 		
