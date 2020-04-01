@@ -34,7 +34,7 @@ const char COMMENTCHAR2 = '#';
 const int  NSTRMAX = 256;
 
 const int NBC      = 1441;      // max. number of jumps for Dirichlet-BC
-const int NRHO     = 50;       // time critical 100=>20: 30% faster
+const int NRHO     = 100;       // time critical 100=>20: 30% faster
 
 const double SMALL_VAL = 1.e-7;
 const double LARGE_VAL = 1./SMALL_VAL;

@@ -163,9 +163,8 @@ void VW::calc_eq()
 
 	// acceleration for various variants
 
-        double acc = (s>s0) 
-	  ? a * (1-pow(v_it/v0, 4) - sstar*sstar/(s*s) )
-          :0;
+        double acc =// accACC_IDMplus(0,0,v_it,s,0,0,1,1);
+	   (s>s0) ? a * min(1-pow(v_it/v0, 4),1 - sstar*sstar/(s*s)) :0;
 
 	// actual relaxation 
 
@@ -307,7 +306,7 @@ double VW::accACC_IIDM(int it, int iveh, double v, double s, double dv, double a
     : applyJerkControl(accACC_IIDM);
 
   //cout <<"VW:accACC_IIDM: accFinal="<<accFinal<<endl;
-  return accFinal;
+  return max(accFinal,-bmax); //Watch out! not always active
  
 }
 
@@ -366,7 +365,8 @@ double VW::accACC_IDMplus(int it, int iveh, double v, double s, double dv, doubl
   }
 
 
-  return accFinal;
+  return max(accFinal,-bmax);
+
  
 }
 
@@ -415,7 +415,8 @@ double VW::accACC_IDM(int it, int iveh, double v, double s, double dv, double a_
     ? accACC_IDM
     : applyJerkControl(accACC_IDM);
 
-  return accFinal;
+  return max(accFinal,-bmax);
+
 }
 
 
