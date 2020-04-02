@@ -276,13 +276,14 @@ void HDM::calc_eq()
     // start with rho=0
 
     veqtab[0]    = v0;
-    v0loc        = v0; // used in accTwoVehInt
+    //v0loc        = v0; // used in accTwoVehInt
 		//renorm for identical fundDia as IDM 
-    Tloc         = T*renormFactorAntic[1];  // used in accTwoVehInt
-		s0           *= renormFactorAntic[1];
-		s1           *= renormFactorAntic[1];
-    aloc         = a;  // used in accTwoVehInt 
-
+    double TlocInit = T*renormFactorAntic[1];  // used in accTwoVehInt
+    //aloc         = a;  // used in accTwoVehInt 
+    s0           *= renormFactorAntic[1];
+    s1           *= renormFactorAntic[1];
+		
+ 
     double fact  = 1./(v2rel-v1rel);
 
     for(int ir=1; ir<=NRHO; ir++)
@@ -296,9 +297,9 @@ void HDM::calc_eq()
       double alpha_v0_res =alpha_v0_resmin+sigma*(1-alpha_v0_resmin);
       double alpha_T_res  =alpha_T_resmax +sigma*(1-alpha_T_resmax);
       double alpha_a_res  =alpha_a_resmin +sigma*(1-alpha_a_resmin);
-      v0loc      *= alpha_v0_res;
-      Tloc       *= alpha_T_res; //Use renorm for only one interaction partner !! (oct06)
-      aloc       *= alpha_a_res;
+      v0loc      = v0*alpha_v0_res;
+      Tloc       = TlocInit*alpha_T_res; //Use renorm for only one interaction partner !! (oct06)
+      aloc       =a* alpha_a_res;
       if(false)cout <<" rho="<<rho<<" v_it="<<v_it
 		    <<" fact="<<fact<<" v1rel="<<v1rel<<" sigma="<<sigma<<endl;
       if(false) cout << endl;
