@@ -211,12 +211,12 @@ double FVDM::accSimple(int choice_variant,
     a_wanted=min(a_wanted, 5.);
   }
   
-  // original  FVDM model mt jan2010
+  // original  FVDM model MT jan2010
   else if((choice_variant==3) || (choice_variant==4)){
     a_wanted = (vopt-v)/tau - lambda * ((dv>0) ? dv : 0);
   }
 
-  else if((choice_variant==5) || (choice_variant==6)){
+  else if((choice_variant==5) || (choice_variant==6)){ // MT 2020
     double T=beta;       // time headway
     //a_wanted = (vopt-v)/tau - 0.6*min(dv,0.) - lambda * max(dv,0.)/max(s, SMALL_VAL);
     //a_wanted = min( (v0-v)/tau, (vopt-v)/tau - 0.6*min(dv,0.) - lambda * max(dv,0.)/max(s, SMALL_VAL));
