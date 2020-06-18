@@ -165,6 +165,12 @@ void Gipps::calc_eq()
 // v=own velocity (m/s)
 // dv=approaching rate (v-v_front) to the front vehicle (m/s)
 // simple version typically safe for s0>=2, full version ...
+
+// difference full vs simplified Gipps:
+//  (a) T->0.5*T+theta, 
+//  (b) addtl term -b*v*T (NOT -(0.5*T+theta*v), here T real react time)
+//  (c) vl^2/b -> vl^2/bl
+
 //######################################
 
 double Gipps::accSimple(double s, double v, double dv, double v0, double T){
@@ -177,7 +183,8 @@ double Gipps::accSimple(double s, double v, double dv, double v0, double T){
 
   double vsafe=(useSimple) // safe speed in next step t+T
     ? -b*T+sqrt(SQR(b*T)+2*b*max(s-s0,0.)+SQR(vl))
-    : -b*T+sqrt(SQR(b*T)+2*b*max(s-s0,0.)+SQR(vl)*b/bl-2*b*v*theta*T); 
+    : -b*T*(0.5+theta)+sqrt(SQR(b*T*(0.5+theta))+2*b*max(s-s0,0.)
+			    +SQR(vl)*b/bl-b*v*T);
 
   double vfree=(useSimple)
     ? min(v+a*T, v0)
