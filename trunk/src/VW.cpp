@@ -98,15 +98,21 @@ void VW::get_modelparams(const char fname[]){
   inout.getvar(fp,&jerk);
   inout.getvar(fp,&b_crit);
 
-  // optional anticipation next-nearest leader (n_multi=2)
+  // optional anticipation next-nearest leader (choice_variant=2)
+  // or choice base model: (choice_variant=10: IDM, 11: IDMplus, 12: IIDM)
+  // with cool=0, jerk=1000 also pure IDMplus, IIDM possible
+  // default: IDMplus
   // (get_var returns 0 if line not exists)
+  // next-nearest antic only activated if => quick hack (2015-02) activated 
 
-  inout.getvar(fp,&n_multi);
-  if(n_multi==0){n_multi=1;}
-  else{n_multi=2;}
+  inout.getvar(fp,&choice_variant);
+  if(choice_variant==0){choice_variant=1;}
+  else if (choice_variant<10){choice_variant=2;}
 
 
-  cout <<" n_multi="<<n_multi<<endl;
+  cout <<" choice_variant="<<choice_variant
+       <<" base model="<<((choice_variant==10) ? "IDM"
+			  : (choice_variant==12) ? "IIDM" : "IDMplus");
 
   fclose(fp);
 
@@ -163,8 +169,10 @@ void VW::calc_eq()
 
 	// acceleration for various variants
 
-        double acc =// accACC_IDMplus(0,0,v_it,s,0,0,1,1);
-	   (s>s0) ? a * min(1-pow(v_it/v0, 4),1 - sstar*sstar/(s*s)) :0;
+        double acc =(choice_variant==10) ? accACC_IDM(0,0,v_it,s,0,0,1,1)
+	  :(choice_variant==12) ? accACC_IIDM(0,0,v_it,s,0,0,1,1)
+	  : accACC_IDMplus(0,0,v_it,s,0,0,1,1);
+
 
 	// actual relaxation 
 
@@ -229,15 +237,19 @@ double VW::acc(int it, int iveh, int imin, int imax,
   //       !! accVLA much better than the three simple versions below 
   //       !! Jerk control not reason but possible intelligent sstarmin (seffmin_s0 etc)
   //         (accVLA: integrated 3 below: separate method)(jan14)
+  // MT jun20: base model selected by choice_variant=10,11,12
   // accACC_IIDM: New ACC formulation with IIDM (preferred version)
   // accACC_IDMplus: New ACC formulation with IDM-Plus model (also OK)
   // accACC_IDM: New ACC formulation with IDM+v>v0 treatment (similar to RoySoc paper)
   //################################################################
 
   //double accResult=accVLA(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0, false);
-  //double accResult=accACC_IIDM(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0);
-  double accResult=accACC_IDMplus(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0); 
-  //double accResult=accACC_IDM(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0); 
+
+  double accResult=(choice_variant==10) 
+    ? accACC_IDM(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0)
+    : (choice_variant==12)
+    ? accACC_IIDM(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0)
+    : accACC_IDMplus(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0);
 
 
   //################################################################

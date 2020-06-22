@@ -92,8 +92,10 @@ class VW: public MicroModel
   /// Kritische Verzoegerung (b<b_crit<bmax) (m/s^2) 
   double b_crit; 
 
-  /// optional anticipation next-nearest leader (n_multi=2)
-  int n_multi;
+  /// optional anticipation next-nearest leader (choice_variant=2)
+  /// or choice base model: (hoice_variant=10: IDMplus, 11: IIDM)
+
+  int choice_variant;
 
   /// Zustandsvariablen (Kat. 5 der Anforderungen)
 
