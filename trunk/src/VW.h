@@ -52,6 +52,7 @@ class VW: public MicroModel
     /// <li> Benoetigte Modellaprameter aus der Klasse VW:
     /// v0,T,delta,a,b,s0,s1,b_crit,bmax,jerkmax, coolnesss
 
+
    double accVLA(int it, int iveh, double v, double s, double dv, 
                 double a_lead, double alpha_T, double alpha_v0,bool test_output);
    double accACC_IIDM(int it, int iveh, double v, double s, double dv, 
