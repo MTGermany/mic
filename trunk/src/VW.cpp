@@ -98,17 +98,14 @@ void VW::get_modelparams(const char fname[]){
   inout.getvar(fp,&jerk);
   inout.getvar(fp,&b_crit);
 
-  // optional anticipation next-nearest leader (choice_variant=2)
-  // or choice base model: (choice_variant=10: IDM, 11: IDMplus, 12: IIDM)
+  // optional setting: choice_variant
+  // {2=next-nearest leader IDM+,10=base IDM, 11=base IIDM, 12=base IDM+}
+  // next-nearestleader only activated if => quick hack (2015-02) activated 
   // with cool=0, jerk=1000 also pure IDMplus, IIDM possible
-  // default: IDMplus
-  // (get_var returns 0 if line not exists)
-  // next-nearest antic only activated if => quick hack (2015-02) activated 
+  // default: IDMplus (get_var returns 0 if line not exists)
 
   inout.getvar(fp,&choice_variant);
-  if(choice_variant==0){choice_variant=1;}
-  else if (choice_variant<10){choice_variant=2;}
-
+  if(choice_variant==0){choice_variant=11;} // IDMplus is default (no line->0)
 
   cout <<" choice_variant="<<choice_variant
        <<" base model="<<((choice_variant==10) ? "IDM"

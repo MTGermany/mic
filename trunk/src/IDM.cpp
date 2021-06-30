@@ -174,14 +174,17 @@ double IDM::accSimple(double s, double v, double dv){
   // !! also/only change IDM::acc directly; 
   // !! as of Aug 2016, accSimple is not used for reasons of speed!!
   // !! IDM::acc is reference, not IDM::accSimple!
+  // !! here special case (s1>-2) of general expression acc(...)
 
-  double sstar  = s0+max(0.,T*v + 0.5*v*dv /sqrt(a*b)+s1*sqrt((v+0.000001)/v0)); 
-  double a_wanted = a * ( 1.- pow((v/v0),delta) - SQR(sstar/s));
-
+  double sstar  = s0+max(0.,T*v + 0.5*v*dv /sqrt(a*b)+s1*sqrt((v+0.001)/v0)); 
+  double a_wanted = (v<=v0)
+    ? a * (1.- pow((v/v0),delta) - SQR(sstar/s))
+    : a * (1.- v/v0 - SQR(sstar/s));
+  
   // "IDM+" Model of Ros, TU Delft (Referee Oct 2012)
   //double a_wanted = a*min(1.- pow((v/v0),delta), 1 - SQR(sstar/s)); //!!
 
-  return  (a_wanted>-bmax) ? a_wanted : -bmax;
+  return  (a_wanted > -bmax) ? a_wanted : -bmax;
 }
 
 
