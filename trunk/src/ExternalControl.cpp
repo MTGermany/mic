@@ -191,10 +191,10 @@ ExternalControl::ExternalControl(char* projectName,
   }
 
   if(nCtrlFiles==0){
-    cerr<<" ExternalControl Cstr: Error: File .leadvehs or .ctrlRegions in single-veh mode exists," <<endl
-	<<" but not a single ctrl file for the indicated vehicle"
-	<<" index/indices n."<<endl
-	<<"Add one of the files .vlead"<<number
+    cerr<<"ExternalControl Cstr: Error: File .leadvehs or .ctrlRegions in single-veh mode exists," <<endl
+	<<"  but not a single ctrl file for line "<<number<<" of .leadvehs"<<
+      "( line numbers start with 1)"<<endl
+	<<"  Add one of the files .vlead"<<number
 	<<", .vleadBosch"<<number
 	<<", .brake"<<number
 	<<", or .jump"<<number<<endl;
