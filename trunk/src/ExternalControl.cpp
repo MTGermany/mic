@@ -183,16 +183,21 @@ ExternalControl::ExternalControl(char* projectName,
   
   if(nCtrlFiles>1){
     cerr<<" ExternalControl Cstr: Error: cannot prescribe more than one\n"
-	<<" external control file .vlead<n>, .vleadBosch<n>, .brake<n>,"
-	<<" or .jump<n>"<<endl;
+	<<" external control file .vlead"<<number
+	<<", .vleadBosch"<<number
+	<<", .brake"<<number
+	<<", or .jump"<<number<<"  for a given vehicle "<<number<<endl;
     exit(-1);
   }
 
   if(nCtrlFiles==0){
-    cerr<<" ExternalControl Cstr: Error: File .leadveh or .ctrlRegions in single-veh mode exists," <<endl
-	<<" but not a single ctrl file cannot prescribe more than one\n"
-	<<" external control file .vlead<n>, .vleadBosch<n>, .brake<n>,"
-	<<" or .jump<n>"<<endl;
+    cerr<<" ExternalControl Cstr: Error: File .leadvehs or .ctrlRegions in single-veh mode exists," <<endl
+	<<" but not a single ctrl file for the indicated vehicle"
+	<<" index/indices n."<<endl
+	<<"Add one of the files .vlead"<<number
+	<<", .vleadBosch"<<number
+	<<", .brake"<<number
+	<<", or .jump"<<number<<endl;
     exit(-1);
   }
 
