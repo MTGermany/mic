@@ -1,6 +1,7 @@
 # user-defined ignores (avoid committing large files)
 
 *.swp
+a.out
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
