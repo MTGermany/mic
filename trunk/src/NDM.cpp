@@ -39,7 +39,7 @@ NDM::NDM(const char fname[], double dt)
   this->dt=dt;
   calc_eq();
   cout <<"End NDM file Cstr: Test: rhomax="<<rhomax
-       <<" get_veq(0.02)="<<get_veq(0.02)<<endl;
+       <<" get_veq(0.5/lveh)="<<get_veq(0.5/lveh)<<endl;
 
 }
 

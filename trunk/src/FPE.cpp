@@ -28,7 +28,7 @@ FPE::FPE(const char fname[], ProjectParams* proj)
   // rhomax = 1./lveh; // in get_modelparams
   calc_eq();
   cout <<"End FPE file Cstr: Test: rhomax="<<rhomax
-       <<" get_veq(0.02)="<<get_veq(0.02)<<endl;
+       <<" get_veq(0.5/lveh)="<<get_veq(0.5/lveh)<<endl;
 
   cout <<"accSimple(s=100,v=30,sback=100,dt=0.2)="
        <<accSimple(100,30,100,0.2)
@@ -39,7 +39,7 @@ FPE::FPE(const char fname[], ProjectParams* proj)
        <<" \naccSimple(4,30,4,0.2)="
        <<accSimple(4,30,4,0.2)
        <<endl;
-  cout <<"End FPE file Cstr:  get_veq(0.04)="<<get_veq(0.04)<<endl;
+  cout <<"End FPE file Cstr"<<endl;
   //exit(0);
 }
 

@@ -33,10 +33,7 @@ CDDA::CDDA(const char fname[], double dt)
   calc_eq();
   
   cout <<"End CDDA file Cstr: Test: rhomax="<<rhomax
-       <<" get_veq(0.01)="<<get_veq(0.02)
-       <<" get_veq(0.02)="<<get_veq(0.02)
-       <<" get_veq(0.03)="<<get_veq(0.03)
-       <<" get_veq(0.04)="<<get_veq(0.04)
+       <<" get_veq(0.5/lveh)="<<get_veq(0.5/lveh)
        <<endl;
 
 }

@@ -54,8 +54,7 @@ Kerner::Kerner(const char projName[], int setNumber, double dt)
   }
   if(false){
     cout <<"End Kerner file Cstr: Test: NRHO="<<NRHO
-       <<" get_veq(0.02)=" << get_veq(0.02)
-       <<" get_veq(0.08)="<<get_veq(0.08)
+       <<" get_veq(0.5/lveh)=" << get_veq(0.5/lveh)
        <<" get_rhoQmax()="<<get_rhoQmax()
        <<" get_Qmax()="<<get_Qmax()
        <<" get_length()="<<get_length()
