@@ -71,7 +71,7 @@ class Consumption{
     return cForce+dForce*v+eForce*v*v+mveh*acc;
   }
 
-  void writeConsumptFieldsDatasheet(int gear, bool useEngineDataSheet);
+  void writeConsumptFieldsDatasheet(int gear);
   void writeConsumptFieldsAnalytic();
 
   // gear >=1: writes mechPower, consumption etc as f(v,acc) for a given gear

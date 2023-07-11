@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
  //#####################################################
   
  ProjectParams* proj = new ProjectParams(projectName);
- cout <<"Main-1"<<endl;
+ //cout <<"Main-1"<<endl;
  
  
  //#####################################################
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
  //hier dynamisch --> damit kein segmentation fault wg. zu geringem stack!
  
  RoadSection* roadsec = new RoadSection(projectName, proj);
- cout <<"Main-3"<<endl;
+ //cout <<"Main-3"<<endl;
  
  
  //#####################################################

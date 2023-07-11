@@ -6,6 +6,7 @@
 // c++ 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 using namespace std;
 
 #include "general.h"
@@ -20,8 +21,6 @@ double testFuel(double v){
 }
 
 
-// MT 2015: .engineData1 and .carData1 necessary for fuel consumption! 
-// analytic consumption not implemented??
 
 Consumption::Consumption(){;}
 
@@ -91,14 +90,14 @@ Consumption::Consumption(double dt,
   cout <<"Consumption: before writeTabulateData()"<<endl;
   if(writeTabulatedData&&useEngineDataSheet){  // EngineDataSheet must exist!
     cout <<"before writeConsumptFieldsDatasheet(5): useEngineDataSheet="<<useEngineDataSheet<<endl;
-    writeConsumptFieldsDatasheet(5,useEngineDataSheet);
+    writeConsumptFieldsDatasheet(5);
     cout <<"after writeConsumptFieldsDatasheet(5): useEngineDataSheet="<<useEngineDataSheet<<endl;
 
-    //writeConsumptFieldsDatasheet(4,useEngineDataSheet);
-    //writeConsumptFieldsDatasheet(3,useEngineDataSheet);
-    //writeConsumptFieldsDatasheet(2,useEngineDataSheet);
-    //writeConsumptFieldsDatasheet(1,useEngineDataSheet);
-    writeConsumptFieldsDatasheet(0,useEngineDataSheet);
+    //writeConsumptFieldsDatasheet(4);
+    //writeConsumptFieldsDatasheet(3);
+    //writeConsumptFieldsDatasheet(2);
+    //writeConsumptFieldsDatasheet(1);
+    writeConsumptFieldsDatasheet(0);
   }
 
 
@@ -326,9 +325,6 @@ double Consumption::getFuelFlow(double v, double acc, double jerk, int gear,
     pe_el = 2*powEl/(vol*fmot);  // part of pe due to electrical power
     pe=pe_gear+pe_el+ 2*rdyn2pi/(phi[gearIndex]*vol) * forceMech;
 
-    //if(pe<pemin){pe=pemin;} // mt mar07: auskommentiert!
-    //if(fmot<fmin){fmot=fmin;} // mt mar07: auskommentiert!
-
     specCons=getSpecificConsumption(fmot,pe); // m^3 Benzin/(Ws)
     fuelFlow=specCons*max(powMechEl+0.5*pe_gear*fmot*vol, 0.);
 
@@ -424,7 +420,12 @@ double Consumption::getFuelFlow(double v, double acc, double jerk, int gear,
   if(useEngineDataSheet&&(fmot<fmin)){
     if(gear==1){ // allowed for first gear; then "Leerlauf" or "Kupplung"
           fmot=fmin;
-          fuelFlow=powEl*LIMIT_SPEC_CONS;
+          //fuelFlow=powEl*LIMIT_SPEC_CONS;
+	  pe_el = 2*powEl/(vol*fmot); 
+	  double rdyn2pi=2*PI*rdyn;
+	  pe=pe_gear+pe_el+ 2*rdyn2pi/(phi[gearIndex]*vol) * forceMech;
+	  specCons=getSpecificConsumption(fmot,pe);
+	  fuelFlow=specCons*max(powMechEl+0.5*pe_gear*fmot*vol, 0.);
 	  //cout <<"v="<<v<<" gear="<<gear<<" fuelFlow="<<fuelFlow<<endl;
     }
     else{
@@ -437,6 +438,10 @@ double Consumption::getFuelFlow(double v, double acc, double jerk, int gear,
       }
     }
   }
+
+  // internal pressure too high (coarse extimate if absolutely too high)
+
+  if(pe>pemin+(npe-1)*dpe){fuelFlow=FUELFLOW_ERROR;}
 
 
   //####################################################################
@@ -534,18 +539,34 @@ double Consumption::getFuelFlowFixedGearscheme(double v, double acc, double jerk
 }
 
 
-void Consumption::writeConsumptFieldsDatasheet(int gear, bool useEngineDataSheet){
-  // Jante-Diagramm ...
-  cout <<"writeConsumptFieldsDatasheet: gear="<<gear<<" useEngineDataSheet="<<useEngineDataSheet<<endl;
+/*########################################################################
+write new vehicle data sheets ("Jante diagram"
+=engine map inserted into a car with car attributes)
+Needs an engine data sheet <proj>.engineData<carName>
+and a car data name <proj>.carData<carName>
+ => RoadSection.get_fueldata(string carName)
+ => only called get_fueldata("1") => need <proj>.carData1, <proj>.engineData1,
+For analytic tables, use writeConsumptFieldsAnalytic()
 
-  if(!useEngineDataSheet){
+@param gear:   gear>=1: for specific gear; 
+               gear=0:  fuel-optimal gear
+@return: file <proj>.JanteGearOpt (optimal gear)   (later often -> .carData
+           or <proj>.JanteGear<i> (gear i)
+ ########################################################################*/
+
+void Consumption::writeConsumptFieldsDatasheet(int gear){
+  // Jante-Diagramm ...
+  cout <<"writeConsumptFieldsDatasheet: gear="<<gear<<endl;
+
+  /*  if(!useEngineDataSheet){
     cerr<<"Consumption.writeConsumptFieldsDatasheet: Error: "
 	<<" need data sheet to use this function"<<endl;
     exit(-1);
   }
-
+  */
+  
   bool determineOptimalGear=(gear<1);
-  char filename[199];
+  char filename[199+20];
   if(determineOptimalGear){
     sprintf(filename, "%s.JanteGearOpt", projectName);
   }
@@ -561,24 +582,27 @@ void Consumption::writeConsumptFieldsDatasheet(int gear, bool useEngineDataSheet
   }
 
   outfile<<"# Fuel consumption based on engine data sheet:\n"
-	 <<"# v(km/h)  acc(m/s^2) \tforceMech(N)\tpowMech(kW)\t"
-	 <<"fuelFlow(l/h)\tconsump(liters/100km)\tGear"
+	 <<"# produced by project "<<projectName<<" for gear="
+	 <<((gear<1) ? "opt" : to_string(gear))
+	 <<"\n#\n"
+	 <<"#v[km/h] a[SI]\tF[N]\t\tP[kW]\t"
+	 <<"flow[l/h] C[l/100km]\tGear\tfmot[rpm]"
          <<endl;
 
-  const int NV=41; //101 // mt mar07
-  const int NACC=31; //61
-  double jerk=0; // for stationary situations
+  double dv_kmh=2; // grid width speed
+  double dacc=0.1;   // grid width accel
+  double jerk=0;      // for stationary situations
   double accmin=-1;
-  double accmax=2;
+  double accmax=3;
   double vmin_kmh=0;
   double vmax_kmh=200;
-  double dv_kmh=(vmax_kmh-vmin_kmh)/(NV-1);
-  double dacc=(accmax-accmin)/(NACC-1);
-  for (int iv=0; iv<NV; iv++){
-    for (int iacc=0; iacc<NACC; iacc++){
+  int nv=int(1e-6+(vmax_kmh-vmin_kmh)/dv_kmh)+1;
+  int nacc=int(1e-6+(accmax-accmin)/dacc)+1;
+  for (int iv=0; iv<nv; iv++){
+    for (int iacc=0; iacc<nacc; iacc++){
       double v_kmh=vmin_kmh+iv*dv_kmh;
       double v=v_kmh/3.6;
-      double acc=0.001*static_cast<int>(1000*(accmin+iacc*dacc));
+      double acc=accmin+iacc*dacc;
       double forceMech=getForceMech(v,acc);
       double powMechEl=max(v*forceMech + powEl, 0.); 
       double fuelFlow=100000;
@@ -592,10 +616,12 @@ void Consumption::writeConsumptFieldsDatasheet(int gear, bool useEngineDataSheet
 
       double consump_100km=1e5*fuelFlow/max(v,0.001);
       double fuelFlow_lh=3600*fuelFlow;
+      double fmot=phi[gear-1]*v/(2*PI*rdyn);
 
-      outfile<<v_kmh<<"\t\t"<<acc<<"\t"<<forceMech
-             <<"    \t"<<(0.001*powMechEl)<<"   \t"<<fuelFlow_lh
-             <<"\t\t"<<consump_100km <<"\t"<<gear<<endl;
+      outfile<< fixed << setprecision(2)
+	     <<v_kmh<<"\t"<<acc<<"\t"<<forceMech
+             <<"   \t"<<(0.001*powMechEl)<<"\t"<<fuelFlow_lh
+             <<" \t"<<consump_100km <<"\t"<<gear<<"\t"<<60*fmot<<endl;
     }
     outfile<<endl;
   }
@@ -607,7 +633,7 @@ void Consumption::writeConsumptFieldsDatasheet(int gear, bool useEngineDataSheet
 
 void Consumption::writeConsumptFieldsAnalytic(){
 
-  char filename[199];
+  char filename[199+20];
   sprintf(filename, "%s.consumpAnalytic%iKW", projectName, static_cast<int>(0.001*powMax));
 
   ofstream  outfile (filename, ios::out);
@@ -687,7 +713,7 @@ void Consumption::performSomeTests(){
     double v=vField[i];
     double a=aField[i];
     int gear=gearField[i];
-    int gearOpt;
+    int gearOpt=99; // will be set in getMinFuelFlow
     int gearFixed;
     bool jante=true;
     cout <<"\nv="<<(3.6*v)<<" km/h,"

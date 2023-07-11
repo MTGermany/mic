@@ -367,7 +367,7 @@ void RoadSection::initialize(int choice_init)
 	  // end MT 2011-04-13
 	  imax++;
 	  xloc -= 1./ rholoc;
-	  cout <<"xloc="<<xloc<<endl;
+	  //cout <<"xloc="<<xloc<<endl;
 	}
       imax--; // because imax imcremented after loop control
     }
@@ -1389,8 +1389,8 @@ void RoadSection::generateMacroFields(int choice_init, double rho[],
   double VMAX=50;        // (m/s)
   MicroModel* p_referenceModel = het->new_pmodel(0);
 
-  cout <<"RoadSection::generateMacroFields: rhomax="
-       <<p_referenceModel->get_rhomax()<<endl;
+  //cout <<"RoadSection::generateMacroFields: rhomax="
+  //    <<p_referenceModel->get_rhomax()<<endl;
   
   InOut inout;
   double dxVirtual = (xmax-xmin) / (nxMacro);
@@ -1488,7 +1488,7 @@ void RoadSection::generateMacroFields(int choice_init, double rho[],
 	}
     }
 
-  cout<<" End RoadSection::generateMacroFields: nxMacro="<<nxMacro<<endl;
+  //cout<<" End RoadSection::generateMacroFields: nxMacro="<<nxMacro<<endl;
   
   if(false)
     {

@@ -171,6 +171,9 @@ void Gipps::calc_eq()
 //  (b) addtl term -b*v*T (NOT -(0.5*T+theta*v), here T real react time)
 //  (c) vl^2/b -> vl^2/bl
 
+// limiting case theta->0 and bl=b: FD of full and simplified Gipps the same
+// but not the dynamics (term b*v*T always stays in the sqrt)
+
 //######################################
 
 double Gipps::accSimple(double s, double v, double dv, double v0, double T){
