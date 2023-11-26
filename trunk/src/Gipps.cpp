@@ -32,7 +32,6 @@ Gipps::Gipps(const char fname[], double dt)
   get_modelparams(fname);
   // rhomax = 1./lveh; // in get_modelparams
   this->dt=dt;
-  this->T=dt;  // Gipps: dt=T=Tr=tau_relax!
   calc_eq();
   cout <<"End Gipps file Cstr: Test: rhomax="<<rhomax
        <<" get_veq(0.5/lveh)="<<get_veq(0.5/lveh)<<endl;
@@ -53,9 +52,10 @@ void Gipps::get_modelparams(const char fname[]){
   inout.getvar(fp,&lveh); // vehicle length 
 
   inout.getvar(fp,&v0);
+  inout.getvar(fp,&T); 
+  inout.getvar(fp,&s0);
   inout.getvar(fp,&a);
   inout.getvar(fp,&b);
-  inout.getvar(fp,&s0);
 
   // MT feb20: estimated leader's deceleration
   // Activates full Gipps with theta=tau/2 if bl exists and is >0
@@ -72,8 +72,10 @@ void Gipps::get_modelparams(const char fname[]){
 
   // if(theta<=1e-6){theta=0.5;}
 
+  cout<<"Gipps file ctsr:"<<endl;
   cout<<"bl="<<bl<<endl;
   cout<<"theta="<<theta<<endl; 
+  cout<<"T="<<T<<endl; 
   fclose(fp);
 
   
@@ -116,7 +118,7 @@ void Gipps::calc_eq()
 
     veqtab[0]         = v0;
 
-    for(int ir=1; ir<=NRHO; ir++)
+    for(int ir=1; ir<=NRHO; ir++) 
     {
       double rho = rhomax*ir/NRHO;
       double s   = 1./rho - 1./rhomax;
@@ -151,7 +153,6 @@ void Gipps::calc_eq()
       veqtab[ir] = v_it;
 
     }
-
     calc_rhoQmax();  // Qmax, rhoQmax 
 } // Gipps::calc_eq()
 
@@ -176,6 +177,9 @@ void Gipps::calc_eq()
 
 //######################################
 
+// Gipps: model 10 (!! accSimple also valid for full model;
+// "simple" only denotes local)
+
 double Gipps::accSimple(double s, double v, double dv, double v0, double T){
 
   // T*=1; //!!! Test T neq dt (Crash falls T<=0.95 dt)
@@ -186,15 +190,25 @@ double Gipps::accSimple(double s, double v, double dv, double v0, double T){
 
   double vsafe=(useSimple) // safe speed in next step t+T
     ? -b*T+sqrt(SQR(b*T)+2*b*max(s-s0,0.)+SQR(vl))
-    : -b*T*(0.5+theta)+sqrt(SQR(b*T*(0.5+theta))+2*b*max(s-s0,0.)
-			    +SQR(vl)*b/bl-b*v*T);
+    : -0.5*b*(T+2*theta)
+    +sqrt(max(0., SQR(0.5*b*(T+2*theta))
+	      +b*(2*max(s-s0,0.)-v*T+SQR(vl)/bl)));
+  
+  double afreeSimple=(v<v0) ? a : (v0-v)/T;
+  // oscillations  only if old dt=1.1 s in Gipps .proj files
+  // double afreeSimple=(v<v0) ? a*(1-pow(v/v0,100)) : (v0-v)/T; 
+  double afree=(useSimple) ? afreeSimple : 2.5*a*(1-v/v0)*sqrt(0.025+v/v0);
 
-  double vfree=(useSimple)
-    ? min(v+a*T, v0)
-    : v+2.5*a*(1-v/v0)*sqrt(0.025+v/v0)*T;
-
-  double vnew=min(vsafe, vfree);
-  double a_wanted = (vnew-v)/T;
+  double a_wanted = min(afree, (vsafe-v)/T);
+  if(false){
+    //if(s>20){
+    cout<<endl<<"Gipps: accSimple: s="<<s<<" v="<<v<<" vl="<<vl
+        <<" v0="<<v0<<" T="<<T<<endl
+        <<" useSimple="<<useSimple
+	<<" afree="<<afree<<" vsafe="<<vsafe
+	<<" a_wanted="<<a_wanted
+	<<endl;
+  }
   return a_wanted;
 }
 
@@ -229,9 +243,10 @@ double Gipps::acc(int it, int iveh, int imin, int imax,
   //#############################################################
   // actual Gipps formula
   //#############################################################
+
+
   
   return  accSimple(s,v,dv,v0loc,Tloc);
-  
 }
 
 

@@ -12,7 +12,7 @@
 %
 7200 	 tmax           = Total simulation time (s)
 20000 	 xmax           = (Initial) Length of the simulated section (m)
-1.1 	 dt             = Discretization in t (s)
+0.1	 dt             = Discretization in t (s)
 %
 %    Output options
 %

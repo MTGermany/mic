@@ -50,9 +50,6 @@ Vehicle::Vehicle(double x, double v, ProjectParams* proj, Fluct fluctIn,
   
   this->modelNumber=modelNumber;
   this->setNumber=setNumber;
-  //!! martin07: eigentlich hat Gipps selbe Regel wie CA
-  // (sollte also isCAvehiclesein). Aber andere Regel ist effektiver/realistischer!
-  // fuer specialIssue brauche ich Gipps als !isCAvehicle
   
   this->isCAvehicle=((modelNumber==5)||(modelNumber==11)||(modelNumber==13)||(modelNumber==15));
   //this->finiteTr=finiteReactionTime;
@@ -223,7 +220,7 @@ void Vehicle::updatePosVel()
   xOld=x;
   vOld=v;
 
-  if((modelNumber!=4)&&(modelNumber!=10)&&(modelNumber!=17)
+  if((modelNumber!=4)&&(modelNumber!=17)
      &&(!isCAvehicle)){ // beim FPE-Model v<0 zulassen!
     if(v<0){ v=0;} 
     // bug fix 2015-02-02
@@ -238,30 +235,6 @@ void Vehicle::updatePosVel()
     if(v<0){ v=0; acc=0;}
   }
 
-  // !!! MT feb20 Gipps model (modelNumber=10) position update
-  // * either with new speed x+= dt * v + acc*SQR(dt)
-  //   => no stop&Go and smooth stopping behind traffic lights
-  //   => no crashes (mic_sim/Steckbriefe_book_engl/Gipps_startStopTestCrash)
-  // * or normal ballistic update x+= dt * v + 0.5*acc*SQR(dt)
-  //   => stop&Go and abrupt stopping behind traffic lights
-  //   => crashes
-  // !! TODO make complete Gipps
-
-  // (separate block because of runtime)
-
-  else if(modelNumber==10){
-    if(v<0){ v=0;} 
-    if(vel_isExternallyControlled){
-      acc=(vOld-v)/dt;
-    }
-    double advance = (acc*dt >= -v)
-      //? dt * v + acc*SQR(dt) // =dt*(v+acc*dt)=dt*vNew
-      ? dt * v + 0.5*acc*SQR(dt) // =dt*0.5*(v+vNew)
-      : -0.5 * SQR(v)/acc; 
-    x+=advance;
-    v+=dt*acc;
-    if(v<0){ v=0; acc=0;}
-  }
 
   // MT feb17 Laval's parsmionious CF model (PCF model)
   // (separate block because of runtime)
