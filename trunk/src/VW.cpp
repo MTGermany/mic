@@ -785,7 +785,7 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
 
 
   //#############################################################
-  // new Method (jan14)
+  // jerk control: central method
   // "jerk" comes from input: max jerk in normal cond.
   // increased by riskFactor if acc before jerk < b
   //#############################################################
@@ -794,9 +794,14 @@ double VW::applyJerkControl(double accBefore, int it){
   if(it<=1){a_old=0;}//!!! start with acc=0 (need it<=1)
   double abs_jerkBefore=fabs(accBefore- a_old)/dt;
   double sign_jerkBefore=(accBefore- a_old>=0) ? 1 : -1;
+
+  // several formulations of the risk factor
+  
   //double riskFactor=2./(1. + tanh((accBefore+b_crit)/b));
-  double riskFactor=(accBefore>-b_crit) ? 1 : SQR(-accBefore/b_crit);
+  //double riskFactor=(accBefore>-b_crit) ? 1 : SQR(-accBefore/b_crit);
+  double riskFactor=(accBefore>-b_crit) ? 1 : SQR(SQR(-accBefore/b_crit));
   //double riskFactor=(accBefore>-b) ? 1 : SQR(-accBefore/b);
+  
   double maxJerk= jerk*riskFactor;
   double abs_jerkAfter=min(abs_jerkBefore, maxJerk);
 
