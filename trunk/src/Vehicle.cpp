@@ -96,25 +96,15 @@ void Vehicle::calcAcc(int it, int iveh, int imin, int imax,
   double lengthLead = cyclicBuf->get_l(iveh-1);
 
 
-  bool check=false;
-  if(check)
-    {
-      cout <<" Vehicle::calcAcc: it="<<it<<" iveh="<<iveh
-	   <<" xveh[iveh]="<<xMe
-	   <<" xveh[iveh-1]="<<xLead
-	   <<" vveh[iveh]="<<vMe
-	   <<" vveh[iveh-1]="<<vLead
-	   <<endl;
-    }
 
   // Calculate errors in estimated distance, err_s, 
   // and estimated velocity difference, dv, by a stochastic Wiener process
 
-  //arne: error applies only to direct predecessor!!!
+  //arne: error applies only to direct predecessor!!
   //not the n anticipated vehicles (in HDM , VDT)
 
   // fluct-> oder fluct2.
-  // !!! MT aug 12: Bug: DOS for distance_error (v error and acc error works)
+  // !! MT aug 12: Bug: DOS for distance_error (v error and acc error works)
   // something obscure with cyclicBuffer?? error attributes to reference iveh &
   // but passed is iveh-1
   // possibly only effective if difference of errors is called (s but not v,dv?)
@@ -131,7 +121,7 @@ void Vehicle::calcAcc(int it, int iveh, int imin, int imax,
       err_dv = fluct2.get_dv_error(); 
       err_a  = fluct2.get_acc_error();
       
-      if(gap < 2.0) err_a = min(err_a, 0.);  //!!!
+      if(gap < 2.0) err_a = min(err_a, 0.);  //!
    
       //arne: diesen hack mit einem eingriff in die daten 
       // und das "undo" hinterher uebertrage ich in den cylicBuffer!!!!!!!!!
@@ -162,7 +152,7 @@ void Vehicle::calcAcc(int it, int iveh, int imin, int imax,
   // main acceleration calculation!!!
   //########################################################
 
-  acc=p_model->acc(it, iveh, imin, imax, alpha_v0_loc, alpha_T_loc, cyclicBuf);
+  acc=p_model->acc(it, iveh, imin, imax,alpha_v0_loc,alpha_T_loc,cyclicBuf);
 
   //##############################
 
@@ -192,10 +182,27 @@ void Vehicle::calcAcc(int it, int iveh, int imin, int imax,
   
   jerk = (acc-oldAcc)/dt;
 
-  if(check)
-    {
-      cout<<" Vehicle.calcAcc: iveh="<<iveh<<"acc="<<acc<<" and err_a="<<err_a<<endl;
-    }
+
+
+
+  // #########################################################3
+  // debug
+  // #########################################################3
+
+  bool check=false;
+  //bool check=((this->setNumber==1)&&(it<20));
+  if(check){
+    cout <<" Vehicle::calcAcc: it="<<it<<" iveh="<<iveh
+	 <<" x="<<xMe
+	 <<" xl="<<xLead
+	 <<" v="<<vMe
+	 <<" vl="<<vLead
+	 <<"  acc="<<acc
+	 <<" oldAcc="<<oldAcc
+	 <<" jerk="<<jerk
+      //<<" and err_a="<<err_a
+	 << endl;
+  }
 
   if(!((acc>-10000)&&(acc<1000)))
     {

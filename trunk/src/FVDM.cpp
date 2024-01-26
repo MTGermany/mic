@@ -22,12 +22,18 @@ FVDM::FVDM(const char fname[])
   initializeMicroModelVariables();  //arne -> init variables from MicroModel
   modelNumber=7;
 
+
+  // init last optional parameter(s)
+  
+  R=10;      // range parameter for the GFM propto exp((s-sopt)/R)
+
   //init variables from MicroModel:
-  T_react=0; //bug, was not initialized!!! arne 10-5-2005
+
   lveh=0; 
   rhomax=0; 
   Qmax=0;   
   rhoQmax=0; 
+  T_react=0; // optional; if reaction time>0 provide parameter
 
 
   cout << "\nin FVDM file Cstr: fname= "<<fname<<endl;
@@ -52,19 +58,23 @@ void FVDM::get_modelparams(const char fname[]){
   filecheck(fp,fname);
 
   inout.getvar(fp,&lveh); // vehicle length 
-  inout.getvar(fp,&choice_variant); // {original OVfun, triang. OV, 3phase, 
-                                    // 3=asymm orig, 4=asymm triang, 5=Delta v/s}
+  inout.getvar(fp,&choice_variant); // {original OVfun,1=triang. OV,2=3phase, 
+                                    // 3=asymm_orig,4=asymm_triang,
+                                    // 5=Delta v/s_orig,6=Delta v/s_triang,
+                                    // 7=GFM_orig,8=GFM_triang}
 
   inout.getvar(fp,&s0);   // addtl. introduced distance (m) for veq=0
 
   inout.getvar(fp,&v0); // martin mar08: Now always des. vel
   inout.getvar(fp,&tau);
-  inout.getvar(fp,&l_int);
-  inout.getvar(fp,&beta);
+  inout.getvar(fp,&l_int); // transition range
+  inout.getvar(fp,&beta); // =T for triang model variants
 
-  inout.getvar(fp,&lambda);
+  inout.getvar(fp,&lambda); // rel speed sensity (now mostly gamma)
 	
-  inout.getvar(fp,&T_react); //arne may07 (optional last parameter)
+  inout.getvar(fp,&T_react); //arne may07 (optional,  tau' in GFM)
+  cout<<"FVDM file cstr: after T_react"<<endl;
+  inout.getvar(fp,&R); // optional GFM range param
   fclose(fp);
 
   rhomax = 1./lveh;
@@ -147,10 +157,11 @@ void FVDM::calc_eq()
 // v=own velocity (m/s)
 // dv=approaching rate (v-v_front) to the front vehicle (m/s)
 // choice_variant:
-//   0 =original OVM function, 1=triang. OV, 
-//   2 =3phase,
-//   3 =asymmetric original, 4=asymmetric triang, 
-//   5,6 =FVDM with Delta v/s instead of Delta v and original/triang OV function
+//   0  =original OVM function, 1=triang. OV, 
+//   2  =3phase,
+//   3  =asymmetric original, 4=asymmetric triang, 
+//   5,6=FVDM with Delta v/s instead of Delta v and original/triang OV func
+//   7,8=GFM with original/triang OV function
 //######################################
 
 double FVDM::accSimple(int choice_variant,
@@ -171,7 +182,8 @@ double FVDM::accSimple(int choice_variant,
   // performance: could tanh(-beta) calc. in Cstr. if necessary
   //vopt(s)  = v0Prev *( tanh((s-s0)/l_int-beta) + tanh(beta)-0.1/s)
 
-  if((choice_variant==0) || (choice_variant==3) || (choice_variant==5)){
+  if((choice_variant==0) || (choice_variant==3)
+     || (choice_variant==5) || (choice_variant==7)){
     //<martin mai08>: OVM/FVDM nun so skaliert, dass v0 tats Wunschgeschw
     double v0Prev   = v0/(1.+tanh(betaLoc));
     vopt =max(v0Prev*( tanh((s-s0)/l_intLoc-betaLoc) - tanh(-betaLoc)), 0.);
@@ -183,7 +195,8 @@ double FVDM::accSimple(int choice_variant,
 
   // Triangular OVM function
 
-  else if ((choice_variant==1) || (choice_variant==4) || (choice_variant==6)){
+  else if ((choice_variant==1) || (choice_variant==4)
+	   || (choice_variant==6) || (choice_variant==8)){
     double T=beta;       // time headway
     vopt=max( min((s-s0)/T, v0), 0.);  // optimal velocity
   }
@@ -211,29 +224,48 @@ double FVDM::accSimple(int choice_variant,
     a_wanted=min(a_wanted, 5.);
   }
   
-  // original  FVDM model MT jan2010
+  // (original?) FVDM model with Theta(dv)
+  
   else if((choice_variant==3) || (choice_variant==4)){
     a_wanted = (vopt-v)/tau - lambda * ((dv>0) ? dv : 0);
   }
 
+  // FVDM models with dv/s senstivity
+  
   else if((choice_variant==5) || (choice_variant==6)){ // MT 2020
     double T=beta;       // time headway
-    //a_wanted = (vopt-v)/tau - 0.6*min(dv,0.) - lambda * max(dv,0.)/max(s, SMALL_VAL);
-    //a_wanted = min( (v0-v)/tau, (vopt-v)/tau - 0.6*min(dv,0.) - lambda * max(dv,0.)/max(s, SMALL_VAL));
-    //a_wanted = min( (v0-v)/tau, (vopt-v)/tau - lambda * dv/max(s, SMALL_VAL));
-    //a_wanted = min( (v0-v)/tau, (vopt-v)/tau - lambda * dv* v0*T/max(s,v0*T));
     a_wanted = (vopt-v)/tau - lambda * dv/max(1.,s/(v0*T));
-    //a_wanted = (vopt-v)/tau - lambda * dv/max(1.,s/l_intLoc);
-    //a_wanted = min( (v0-v)/tau, (vopt-v)/tau - lambda * dv/max(s,20.));
-    //a_wanted = (vopt-v)/tau - lambda * dv/max(s, SMALL_VAL);
-
-
   }
 
-  if (a_wanted>100){
-    cerr<<"error: acc>100!"<<" vopt="<<vopt
-	<<" v="<<v<<" tau="<<tau<<" dv="<<dv<<" lambda="<<lambda<<endl;
-     exit(-1);
+  // GFM models (MT 2024-01)
+  
+  else if((choice_variant==7) || (choice_variant==8)){ // MT 2020
+    double T=beta;       // time headway
+    double tauDash=1/lambda;
+
+    //double sopt=s0+v*T+0.5*v*dv/(v0/tau); // does not bring SO much
+    double sopt=s0+v*T;
+
+    // !!  w/o theta(dv) much better results, particularly
+    // gap too high for the theta(dv) restricted variant in startStop scen.
+
+    a_wanted = (vopt-v)/tau - dv/tauDash * exp((sopt-s)/R);
+    //a_wanted = (vopt-v)/tau - ((dv>0) ? dv : 0)/tauDash * exp((sopt-s)/R);
+
+    if ((dv>0)&&(sopt-s>10)){
+      cout<<"FVDM.accSimple, choice_variant="<<choice_variant
+  	  <<" v="<<v<<" dv="<<dv
+	  <<" vopt="<<vopt<<" s="<<s<<" sopt="<<sopt
+	  <<" exp(..)="<<exp((sopt-s)/R)
+	  <<" a_wanted="<<a_wanted<<endl;
+    }
+  }
+
+  
+  if (a_wanted<-100){
+    cerr<<"error: acc<-100"<<" vopt="<<vopt
+    	<<" v="<<v<<" tau="<<tau<<" dv="<<dv<<" lambda="<<lambda<<endl;
+    //exit(-1);
   }
 
   return max(a_wanted,-20.);

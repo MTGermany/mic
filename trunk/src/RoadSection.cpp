@@ -709,7 +709,7 @@ void RoadSection::updateEuler(int it){  // Test: pure Euler update
 
 //###################################################################
 void RoadSection::updateBallistic(int it){ 
- // Code check: should correspond to standard update
+ // Code check: should correspond to standard update RoadSection::update(it)
 //###################################################################
 
   // optional (2b) Check for inconsistencies
@@ -857,7 +857,7 @@ void RoadSection::updateRK4(int it){  // Test: standard fourth-order Runge-Kutta
 
 
 //###################################################################
-void RoadSection::update(int it){
+void RoadSection::update(int it){ // standard ballistic update
 //###################################################################
 
   //cout <<"in RoadSection.update before section 0: it="<<it<<endl;
@@ -1242,12 +1242,12 @@ void RoadSection::update(int it){
   
     //###################################################
     //###################################################
-    // (4d1) do calcAcc!!
+    // (4d1) do calcAcc!!!
     //###################################################
 
-    //if(alpha_T_global>1.001){cout <<"RoadSection: alpha_T_global="<<alpha_T_global<<endl;}
 
-    veh[i].calcAcc(it, i, imin, imax, alpha_v0_global, alpha_T_global, cyclicBuf);
+    veh[i].calcAcc(it, i, imin, imax,
+		   alpha_v0_global, alpha_T_global, cyclicBuf);
 
     //###################################################
   }

@@ -114,7 +114,7 @@ Heterogen::Heterogen(const char projectName[], ProjectParams* const proj)
 	  //p_modelRef[itype]= pvdt;
 	  p_model = pvdt;
 	}
-      else if(modelNumber==7)
+      else if(modelNumber==7) // FVDM/GFM with variants
 	{ // FVDM (old name:VelDiffModel)
 	  vdiffRef[itype]= FVDM(param_file); //OK
 	  FVDM* pvdiff = new FVDM(param_file); 

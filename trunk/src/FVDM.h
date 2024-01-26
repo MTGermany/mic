@@ -51,6 +51,7 @@ class FVDM: public MicroModel
   double beta;  // T (variant=1) or measure for tangent of V(s) at s=0
                 // (of the order of 1!)
   double lambda;  // sensitivity to velocity differences (new w/resp to OVM)
+  double R;  // range parameter
 
  private:
 

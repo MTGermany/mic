@@ -126,7 +126,7 @@ void VW::calc_eq()
     // Calculates equilibrium velocity  with finite s0
     // and free-acc exponent delta
     // uses numeric iteration procedure and
-    // !! calculates THE WHOLE FIELD veq
+    // ! calculates THE WHOLE FIELD veq
     // NO resignation effect respected up to now
   // output:   Arhomax, Atab[], vfactab[] (for calc_rhs! vfactab only hdcorr) 
   // veqtab[]                             (only needed for output),
@@ -226,14 +226,13 @@ double VW::acc(int it, int iveh, int imin, int imax,
 
 
   //################################################################
-  // !!! Choice of one of the acceleration models !!!
-  // accVLA: Most general case with separate jerk control, input errors etc
-  // (the other 3 methods have common jerk control block applyJerkControl(acc))
-  //        (if special effects turned off, nearly as accACC_IIDM)
-  //       !! with strong sudden braking -4 m/s^2 and cool=1
-  //       !! accVLA much better than the three simple versions below 
-  //       !! Jerk control not reason but possible intelligent sstarmin (seffmin_s0 etc)
-  //         (accVLA: integrated 3 below: separate method)(jan14)
+  // !! Choice of one of the acceleration models
+  // accVLA: Most general case
+  //       * if special effects turned off, nearly as accACC_IIDM
+  //       * with strong sudden braking -4 m/s^2 and cool=1
+  //         accVLA much better than the three simple versions below 
+  //         (Jerk control is not reason but possible intelligent
+  //         sstarmin (seffmin_s0 etc)
   // MT jun20: base model selected by choice_variant=10,11,12
   // accACC_IIDM: New ACC formulation with IIDM (preferred version)
   // accACC_IDMplus: New ACC formulation with IDM-Plus model (also OK)
@@ -312,7 +311,7 @@ double VW::accACC_IIDM(int it, int iveh, double v, double s, double dv, double a
 
   double accFinal=(jerk>50) 
     ? accACC_IIDM
-    : applyJerkControl(accACC_IIDM);
+    : applyJerkControl(accACC_IIDM, it);
 
   //cout <<"VW:accACC_IIDM: accFinal="<<accFinal<<endl;
   return max(accFinal,-bmax); //Watch out! not always active
@@ -363,7 +362,7 @@ double VW::accACC_IDMplus(int it, int iveh, double v, double s, double dv, doubl
 
   double accFinal=(jerk>50) 
     ? accACC_IDMplus
-    : applyJerkControl(accACC_IDMplus);
+    : applyJerkControl(accACC_IDMplus, it);
 
   if(false){
     cout <<"s="<<s<<" v="<<v<<" dv="<<dv<<" a_lead="<<a_lead
@@ -422,7 +421,7 @@ double VW::accACC_IDM(int it, int iveh, double v, double s, double dv, double a_
 
   double accFinal=(jerk>50) 
     ? accACC_IDM
-    : applyJerkControl(accACC_IDM);
+    : applyJerkControl(accACC_IDM, it);
 
   return max(accFinal,-bmax);
 
@@ -473,14 +472,14 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
  
   if(ConsiderSensorErrors){
     
-    bool isRange = false; //!!
+    bool isRange = false; //!
     double smax  = 150;  //1500,150
   
-    bool isDrift    = false; //!!
+    bool isDrift    = false; //!
     double s_drift  = 1;     // 1
     double dv_drift =-0.2; // -0.2
   
-    bool isFluct       = false; //!!
+    bool isFluct       = false; //!
     double sigma_s_rel = 0.02; //0, 0.02 sigma_s=sigma_s_rel*s 
     double sigma_dv    = 0.1;    // 0, 0.1(m/s)
     double sigma_v     = 0.1;    // 0, 0.1(m/s)
@@ -547,14 +546,14 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
   
   
   //#############################################################
-  // !!Konsistenzcheck der Eingangsgroessen
+  // Konsistenzcheck der Eingangsgroessen
   // (+ kontinuierliches Anpassen von v0 bei ext. Aenderungen)
   // + Tiefpass-Filterung von s,v,dv
   // zum Daempfen der Fluktuationen (Tiefpass von a nach dessen 
   // Berechnung weiter unten (part of accVLA: most general version)
   //#############################################################
   
-  // EMA !! evtl. alle EMA's zusammen zu Jerk control; ereignisgest.
+  // EMA evtl. alle EMA's zusammen zu Jerk control; ereignisgest.
   // EMA auf tau=0 setzten, wenn Gefahr! Dann zurueck und nochmal ohne
   // Daempfung => brauche zwei "alte" Werte!
   
@@ -608,7 +607,7 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
   double v0_sstar=20;   // lediglich Normierung, dass s1 Einheit m
   double sstar  = s0 + Tloc*v + s1*sqrt((v+0.01)/v0_sstar)+ (0.5*v*dv)/sqrt(aloc*b);
   
-    double sstarmin=seffmin_s0*s0+sstarmin_vT*v*Tloc; //!! neu
+    double sstarmin=seffmin_s0*s0+sstarmin_vT*v*Tloc; //! neu
   // bisher:
   //double sstarmin=           s0+sstarmin_vT*v*Tloc;
   
@@ -639,7 +638,7 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
   // als gewuenscht beschleunigt (part of accVLA: most general version)
 
   double aleadmax=max(0.0, 1.1*accIDM); 
-  double a_lead_eff=min(aleadmax, a_lead); // !! bisher: hart
+  double a_lead_eff=min(aleadmax, a_lead); // ! bisher: hart
   
   // CAH
   
@@ -669,9 +668,9 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
   double shiftb1 = 0.0*aloc;  // shift to negative values of accIDM
   //double shiftb1 = 0.2*aloc;  // shift to negative values of accIDM
   double delta_b = b*0.5*(tanh((-accIDM-shiftb1)/db1)+1);
-  //delta_b  = b;  //!! Deaktivieren der "delta" Manipulation
+  //delta_b  = b;  //! Deaktivieren der "delta" Manipulation
   
-  double acc2 = - delta_b + maxsmooth(accIDM, acc1, delta_b);//!!possibly overridden
+  double acc2 = - delta_b + maxsmooth(accIDM, acc1, delta_b);//!possibly overridden
 
 
   //######################################################
@@ -692,7 +691,7 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
   // (mt nov09) activate if new formulation with classical IDM wanted
   //  ( deactivate formulation with IDMnew below)
 
-  acc2=acc2New; // possibly overridden!!
+  acc2=acc2New; // possibly overridden!
 
   //######################################################
   //  (mt nov09)
@@ -734,54 +733,16 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
   
   
   //bool isJerkControl=(dt_since_new_leadveh<2*taumax_a);
-  bool isJerkControl=true; //!! (arne 6-5-05)
+  bool isJerkControl=true; //! (arne 6-5-05)
   
   // (2) Fuehre Jerk-control durch
   
-  double acc3=acc2;  // Vorbelegung, falls Jerk-control nicht aktiv
-  
-  /*
-  if(isJerkControl){
-    // nachste Zeile verhindert Moeglichkeit, 
-    // dass Vollbremsung ggf. nicht schnell genug beendet wird
-    double acc_min= min(acc2, a_old);  
-    
-    double taumax_a_newTargetCorr=min(taumax_a, 0.5*dt_since_new_leadveh); 
-    
-    // reduce or eliminate jerk control in case of danger
-    double tau_a  = taumax_a_newTargetCorr*0.5*(1. + tanh((acc_min+b_crit)/b) );
-    
-    // EMA of a (analog to s,v,dv at the beginning)
-    // EMA !! evtl. alle EMA's zusammen zu Jerk control; ereignisgest.
-    // EMA auf tau=0 setzten, wenn Gefahr!
-    
-    double beta   = 1. - exp(-dt/tau_a);
-    acc3 = beta*acc2 + (1.-beta)*a_old;
-    //cout <<"in jerkControl: taumax_a="<<taumax_a<<" dt_since_new_leadveh="<<dt_since_new_leadveh <<" tau_a="<<tau_a<<endl;
 
-    //cout << "new lead object: tau_a="<<tau_a <<endl; 
-  }
-  */
+  double accFinal=(isJerkControl) 
+    ? acc2
+    : applyJerkControl(acc2, it);
 
-  // new Method (jan14)
-  // "jerk" comes from input: max jerk in normal cond.
-  if(isJerkControl){
-
-    double abs_jerkBefore=fabs(acc2- a_old)/dt;
-    double sign_jerkBefore=(acc2- a_old>=0) ? 1 : -1;
-    // accmin avoids overbraking after strong brakes
-    // since riskfactor/max jerk also increased
-    // if *old* acceleration is sufficiently negative
-    double accmin=min(acc2, a_old);
-    double riskFactor=2./(1. + tanh((accmin+b_crit)/b));
-    double maxJerk= jerk*riskFactor;  
-    //double maxJerk= (sign_jerkBefore<0)  // only jerk<0 controlled: avoid overbraking
-    // ? jerk*riskFactor : abs_jerkBefore; 
-    double abs_jerkAfter=min(abs_jerkBefore, maxJerk);
-    acc3 = a_old+abs_jerkAfter*sign_jerkBefore*dt;
-
-  }
-    
+ 
   //#############################################################
   // Test-Output (VW::accVLA)
   //#############################################################
@@ -801,7 +762,7 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
       //  <<" b_kinDrive="<<(0.5*dv*dv/seff - a_lead_eff)
       //  <<" delta_b="<<delta_b
       //  <<"   accIDM="<<accIDM
-	 <<" result="<<max(acc3,-bmax)
+	 <<" result="<<max(accFinal,-bmax)
 	 <<endl
 	 <<"--------------------------"
 	 <<endl;
@@ -811,7 +772,7 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
   // update der internen History-Zustandsvariablen und return 
   //#############################################################
   
-  double acc4=max(acc3,-bmax);
+  double acc4=max(accFinal,-bmax);
   
   a_old      = acc4;
   a_lead_old  = a_lead;
@@ -823,9 +784,14 @@ double VW::accVLA(int it, int iveh, double v, double s, double dv, double a_lead
 }  // VW::accVLA
 
 
-  // new Method (jan14) !!
+  //#############################################################
+  // new Method (jan14)
   // "jerk" comes from input: max jerk in normal cond.
-double VW::applyJerkControl(double accBefore){
+  // increased by riskFactor if acc before jerk < b
+  //#############################################################
+
+double VW::applyJerkControl(double accBefore, int it){
+  if(it<=1){a_old=0;}//!!! start with acc=0 (need it<=1)
   double abs_jerkBefore=fabs(accBefore- a_old)/dt;
   double sign_jerkBefore=(accBefore- a_old>=0) ? 1 : -1;
   // accmin avoids overbraking after strong brakes
@@ -833,10 +799,17 @@ double VW::applyJerkControl(double accBefore){
   // if *old* acceleration is sufficiently negative
   double accmin=min(accBefore, a_old);
   double riskFactor=2./(1. + tanh((accmin+b_crit)/b));
-  double maxJerk= jerk*riskFactor;  
+  double maxJerk= jerk*riskFactor;
   //double maxJerk= (sign_jerkBefore<0)  // only jerk<0 controlled: avoid overbraking
   // ? jerk*riskFactor : abs_jerkBefore; 
   double abs_jerkAfter=min(abs_jerkBefore, maxJerk);
+  if(false){
+    cout<<"a_old="<<a_old<<" maxJerk="<<maxJerk
+	<<" abs_jerkAfter="<<abs_jerkAfter
+	<<endl;
+  } 
+
+
   double accAfter=a_old+abs_jerkAfter*sign_jerkBefore*dt;
   a_old=accAfter; // update old acceleration (data variable of class VW)
   //cout <<"VW::applyJerkControl: jerk="<<jerk<<" accBefore="<<accBefore<<" accAfter="<<accAfter<<endl;

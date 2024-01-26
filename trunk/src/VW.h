@@ -63,7 +63,7 @@ class VW: public MicroModel
                 double a_lead, double alpha_T, double alpha_v0);
 
    // helper function 
-   double applyJerkControl(double accBefore);
+  double applyJerkControl(double accBefore, int it);
 
   ///IDM parameter <br>
 
