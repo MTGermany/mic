@@ -794,15 +794,12 @@ double VW::applyJerkControl(double accBefore, int it){
   if(it<=1){a_old=0;}//!!! start with acc=0 (need it<=1)
   double abs_jerkBefore=fabs(accBefore- a_old)/dt;
   double sign_jerkBefore=(accBefore- a_old>=0) ? 1 : -1;
-  // accmin avoids overbraking after strong brakes
-  // since riskfactor/max jerk also increased
-  // if *old* acceleration is sufficiently negative
-  double accmin=min(accBefore, a_old);
-  double riskFactor=2./(1. + tanh((accmin+b_crit)/b));
+  //double riskFactor=2./(1. + tanh((accBefore+b_crit)/b));
+  double riskFactor=(accBefore>-b_crit) ? 1 : SQR(-accBefore/b_crit);
+  //double riskFactor=(accBefore>-b) ? 1 : SQR(-accBefore/b);
   double maxJerk= jerk*riskFactor;
-  //double maxJerk= (sign_jerkBefore<0)  // only jerk<0 controlled: avoid overbraking
-  // ? jerk*riskFactor : abs_jerkBefore; 
   double abs_jerkAfter=min(abs_jerkBefore, maxJerk);
+
   if(false){
     cout<<"a_old="<<a_old<<" maxJerk="<<maxJerk
 	<<" abs_jerkAfter="<<abs_jerkAfter
