@@ -61,6 +61,8 @@ class VW: public MicroModel
                 double a_lead, double alpha_T, double alpha_v0);
    double accACC_IDM(int it, int iveh, double v, double s, double dv,
                 double a_lead, double alpha_T, double alpha_v0);
+   double accACC_IDMsigmoid(int it, int iveh, double v, double s, double dv,
+                double a_lead, double alpha_T, double alpha_v0);
 
    // helper function 
   double applyJerkControl(double accBefore, int it);
@@ -84,7 +86,7 @@ class VW: public MicroModel
   /// Maximale Verzoegerung (m/s^2)
   double bmax;
 
- ///  Zusaetzl. VLA-Parameter (Kat. 3 und 4 der Anforderungen) <br>
+  ///  Zusaetzl. VLA-Parameter (Kat. 3 und 4 der Anforderungen) <br>
 
   /// coolness factor: =1 fuer VLA  (0 fuer IDM,  <1 fuer hybrid)
   double cool;
@@ -93,10 +95,17 @@ class VW: public MicroModel
   /// Kritische Verzoegerung (b<b_crit<bmax) (m/s^2) 
   double b_crit; 
 
+
+  /// other model variants for testing
+  
   /// optional anticipation next-nearest leader (choice_variant=2)
-  /// or choice base model: (hoice_variant=10: IDMplus, 11: IIDM)
+  /// or choice base model:
+  /// (choice_variant={10:baseIDM, 11:baseIIDM, 12: baseIDM+, 13: IDMsigmoid}
 
   int choice_variant;
+
+  double lambda; //IDMsigmoid transition scale [m]
+  double dc;     //IDMsigmoid critical gap (-s0) at transition [m]
 
   /// Zustandsvariablen (Kat. 5 der Anforderungen)
 

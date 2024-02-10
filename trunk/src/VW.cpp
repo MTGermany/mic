@@ -98,18 +98,22 @@ void VW::get_modelparams(const char fname[]){
   inout.getvar(fp,&jerk);
   inout.getvar(fp,&b_crit);
 
-  // optional setting: choice_variant
-  // {2=next-nearest leader IDM+,10=base IDM, 11=base IIDM, 12=base IDM+}
+  // optional setting: choice_variant (default always=0)
+  // {2=next-nearest leader IDM+,10=base IDM,11=base IIDM,12=base IDM+,13=IDMsigmoid}
   // next-nearestleader only activated if => quick hack (2015-02) activated 
   // with cool=0, jerk=1000 also pure IDMplus, IIDM possible
   // default: IDMplus (get_var returns 0 if line not exists)
 
   inout.getvar(fp,&choice_variant);
-  if(choice_variant==0){choice_variant=11;} // IDMplus is default (no line->0)
+  if(choice_variant==0){choice_variant=12;} // IDMplus is default (no line->0)
 
   cout <<" choice_variant="<<choice_variant
        <<" base model="<<((choice_variant==10) ? "IDM"
-			  : (choice_variant==12) ? "IIDM" : "IDMplus");
+			  : (choice_variant==11) ? "IIDM"
+			  : (choice_variant==12) ? "IDM+"
+			  : "IDMsigmoid");
+  inout.getvar(fp,&lambda); // IDMsigmoid transition scale [m] (default=0)
+  inout.getvar(fp,&dc);     // IDMsigmoid critical gap-s0  [m] (default=0)
 
   fclose(fp);
 
@@ -167,8 +171,10 @@ void VW::calc_eq()
 	// acceleration for various variants
 
         double acc =(choice_variant==10) ? accACC_IDM(0,0,v_it,s,0,0,1,1)
-	  :(choice_variant==12) ? accACC_IIDM(0,0,v_it,s,0,0,1,1)
-	  : accACC_IDMplus(0,0,v_it,s,0,0,1,1);
+	  :(choice_variant==11) ? accACC_IIDM(0,0,v_it,s,0,0,1,1)
+	  :(choice_variant==12) ? accACC_IDMplus(0,0,v_it,s,0,0,1,1)
+	  :(choice_variant==13) ? accACC_IDMsigmoid(0,0,v_it,s,0,0,1,1)
+	  : accACC_IDM(0,0,v_it,s,0,0,1,1);
 
 
 	// actual relaxation 
@@ -243,9 +249,13 @@ double VW::acc(int it, int iveh, int imin, int imax,
 
   double accResult=(choice_variant==10) 
     ? accACC_IDM(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0)
-    : (choice_variant==12)
+    : (choice_variant==11)
     ? accACC_IIDM(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0)
-    : accACC_IDMplus(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0);
+    : (choice_variant==12)
+    ? accACC_IDMplus(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0)
+    : (choice_variant==13)
+    ? accACC_IDMsigmoid(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0)
+    : accACC_IDM(it,iveh,v,s,dv,a_lead,alpha_T, alpha_v0);
 
 
   //################################################################
@@ -264,7 +274,8 @@ double VW::acc(int it, int iveh, int imin, int imax,
 
 //#######################################################
 /** MT jun11 accACC_IIDM just implements the final ACC model with 
-IIDM basis and without confusing special cases (but jerk control is possible)
+IIDM basis and without confusing special cases 
+(but jerk control is possible)
 */
 //#######################################################
 
@@ -322,7 +333,8 @@ double VW::accACC_IIDM(int it, int iveh, double v, double s, double dv, double a
 
 //#######################################################
 /** MT nov13 accACC_IDMplus just implements the final ACC model with 
- IDMplus basis and without confusing special cases (but jerk control is possible)
+ IDMplus basis and without confusing special cases
+ (but jerk control is possible)
 */
 //#######################################################
 
@@ -427,6 +439,32 @@ double VW::accACC_IDM(int it, int iveh, double v, double s, double dv, double a_
 
 }
 
+//#######################################################
+/** MT feb24 test variant IDMsigmoid (review, no CAH, no jerk)
+*/
+//#######################################################
+
+double VW::accACC_IDMsigmoid(int it, int iveh,
+			     double v, double s, double dv, double a_lead, 
+			     double alpha_T, double alpha_v0){
+
+  // IDM with v>v0 treatment
+
+  double Tloc  = alpha_T*T; 
+  double v0loc=max(1e-10, min(alpha_v0*v0, speedlimit)); 
+  double deltaloc=(v<v0loc) ? delta : 1; 
+  double sstar  = s0 + max(Tloc*v + s1*sqrt((v+0.00001)/v0loc)
+			   + 0.5*v*dv/sqrt(a*b),0.);
+  //bool useNormalIDM= ((s0<s) && (s<sstar)); // orig; will crash if s<s0
+  bool useNormalIDM= (s<sstar);
+  
+  double accFinal=(useNormalIDM)
+    ? a*( 1.- pow((v/v0loc),deltaloc) - SQR(sstar/s))
+    : a*( 1.- pow((v/v0loc),deltaloc) - 1./(1+exp(lambda*(s-sstar-dc))));
+
+  return max(accFinal,-bmax);
+
+}
 
 //#######################################################
 /** implements the most general case with sensor errors etc:
