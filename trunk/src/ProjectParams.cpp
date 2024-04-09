@@ -143,7 +143,8 @@ ProjectParams::ProjectParams(const char* projectName)
   if(choice_BCup==3){
     if(choice_BCdown==3){
       //int nveh=static_cast<int>(rho_init*(xmax-xmin));
-      //xmax = xmin+(nveh+1)/rho_init; //!! <martin jun08> commented out
+      //xmax = xmin+(nveh+1)/rho_init; //!! <martin jun08> does not help
+                                      // small bug at IC at x=0/xmax
     }
     else{
       cerr<<"ProjectParams: Error: choice_BCup=3 does only make sense"

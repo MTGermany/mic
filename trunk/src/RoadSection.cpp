@@ -324,14 +324,15 @@ void RoadSection::initialize(int choice_init)
       //macro IC
       double rhoinit[NVEHMAX];       // intermediate macroscopic fields
       double Qinit[NVEHMAX];         // !! rho,Q mac from 0..NVEHMAX,
-      int nxMacro=static_cast<int>(max(static_cast<int>(NVEHMAX/100), 100));
-      
+      int nxMacro=int((NVEHMAX-1)/10); // NVEHMAX=50001, 5000 vals enough
+      cout<<" RoadSection.initialize:macroIC: nxMacro="<<nxMacro<<endl;
       generateMacroFields(choice_init, rhoinit, Qinit, nxMacro);
 
       // Generate vehicles from macro-density and flow
       
       double xloc   = xmax;  // start from behind
-      double xlocmin = ( (proj->get_choice_BCup()) == 3 ) ? -SMALL_VAL :0;  // true->circle
+      //double xlocmin = ( (proj->get_choice_BCup()) == 3 ) ? -SMALL_VAL :0; 
+      double xlocmin =0;
       
       imin=0;
       imax=0;
@@ -370,6 +371,63 @@ void RoadSection::initialize(int choice_init)
 	  //cout <<"xloc="<<xloc<<endl;
 	}
       imax--; // because imax imcremented after loop control
+
+      // #############################################################
+      // MT-2024: New correction for discretisation errors in macro-IC
+      // to avoid stitching artifacts if there shoul be none
+      // #############################################################
+      
+      bool isRing=(proj->get_choice_BCup()==3)
+	&&(proj->get_choice_BCdown()==3);
+      
+      if(isRing&&(rhoinit[nxMacro-1]==rhoinit[0])){
+	cout <<"\n\n====================================\n"
+	     <<"RoadSection.initialize, periodic BC,"
+	     <<" same density at stitching ends: In correction ...\n";
+	double dxlast=veh[imax-1].getPos()-veh[imax].getPos();
+	double dxfirst=veh[0].getPos()-veh[min(1,imax)].getPos();
+	double dxstitch=xmax-veh[0].getPos()+veh[imax].getPos();
+	double randomNumber= myRand();
+	int type           = het->get_type(randomNumber);
+	int modelNumber=het->get_modelNumber(type);
+
+	cout<<"before correction: xfirst="<<veh[0].getPos()
+	    <<" xlast="<<veh[imax].getPos()<<endl;
+	cout<<"dxfirst="<<dxfirst<<" dxlast="<<dxlast
+	    <<" dxstitch="<<dxstitch<<endl;
+
+	if(dxstitch>0){// should be essentially zero; first=last car
+
+	  // For some F... reason this is needed although I do not know why
+	  if(true){
+	    imax++;
+	    veh[imax] = Vehicle(veh[imax-1].getPos()-dxlast,
+			      veh[imax-1].getVel(),
+			      proj, het->get_fluct(type),
+			      het->new_pmodel(type), modelNumber,
+			      het->get_setNumber(type));
+	  }
+
+	  cout<<"Before vehicle shift:"
+	    <<" veh[0].getPos()="<<veh[0].getPos() <<endl
+	    <<" veh[imax].getPos()="<<veh[imax].getPos() <<endl;
+	  dxstitch=xmax-veh[0].getPos()+veh[imax].getPos();
+	  double xminveh=veh[imax].getPos();
+	  if(xminveh>0){// should be very slightly negative
+	    //if(false){
+	    for(int i=1; i<imax+1; i++){
+	      veh[i].setPos(veh[i].getPos()-i/imax*xminveh*1.00001);
+	    }
+	  }
+	  
+	}
+	cout<<"After stitch mismatch correction:"
+	    <<" veh[0].getPos()="<<veh[0].getPos() <<endl
+	    <<" veh[imax].getPos()="<<veh[imax].getPos() <<endl;
+	  
+	cout<<endl;
+	
+      }// end correction stitching artifacts
     }
 
   // #############################################################
