@@ -3,6 +3,9 @@
 *.swp
 a.out
 
+## private README etc files
+GPLv3_*
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
