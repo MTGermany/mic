@@ -1,0 +1,6 @@
+((2024-07)
+mic does not provide at present pure correlated acceleration noise!
+TODO implement! Should be easy
+tests at
+~/versionedProjects/trafficflowdynamics/tex/figsMicro/sim_fluct
+~/trafficSim/mic_sim/fluct_platoon_concave/
