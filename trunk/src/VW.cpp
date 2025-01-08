@@ -217,8 +217,8 @@ double VW::acc(int it, int iveh, int imin, int imax,
 
   // (v_old,dv_old,a_old etc = local variables for each veh are updated at the end)
   
-  //if(false){
-  if(iveh==8){
+  if(false){
+  //if(iveh==8){
     cout <<"\nVW.acc: t="<<(it*dt)<<" iveh="<<iveh;
     cout <<" s="<<s<<" v="<<v<<" dv="<<dv<<" a_lead="<<a_lead<<endl
 	 <<"        v_old="<<v_old<<" a_old="<<a_old<<" dv_old="<<dv_old<<endl;

@@ -30,12 +30,16 @@ the following extensions
 (1) <proj>.vlead<number> exists: control of speed of the vehicle with 
     index in the number'th line of <proj>.leadvehs, leadvehs[number-1]
 
-(2) <proj>.brake<number> exists: externally control of acceleration
+(2) <proj>.alpha_v0<number> exists: control of desired speed
+    Whatch out for model reference or deep copy (don't know)!
+    In doubt, use a separate  model for this control!
 
-(3) <proj>.vleadBosch<number> exists: 
+(3) <proj>.brake<number> exists: externally control of acceleration
+
+(4) <proj>.vleadBosch<number> exists: 
     Test car-following data of Mannstetten/Bosch .vleadBosch<n>
 
-(4) <proj>.jump<number> exists: The gap, speed, and desired speed is 
+(5) <proj>.jump<number> exists: The gap, speed, and desired speed is 
     changed simulating a cutin/cutout. In contrast to (1)-(3), this is a 
     one-off (nonpermanent) control for each indicated time in the .jump file
     Outside jump times, the controlled vehicle drives with its 
@@ -64,6 +68,7 @@ ExternalControl::ExternalControl(char* projectName,
 
   this->vehIndex=vehIndex;
   this->useVel=false;
+  this->useAlphaV0=false;
   this->useVelBosch=false;
   this->useAcc=false;
   this->useJump=false;
@@ -75,7 +80,9 @@ ExternalControl::ExternalControl(char* projectName,
 
   char in_fname[199];
 
+  // ###################################################
   // test if controlled-vehicle's data in file .brake%i
+  // ###################################################
 
   sprintf(in_fname,"%s.brake%i",projectName, number);
   ifstream  infile (in_fname, ios::in);
@@ -91,12 +98,14 @@ ExternalControl::ExternalControl(char* projectName,
     }
   }
 
+  // ###################################################
   // test if controlled-vehicle's data in file .vleadBosch%i
   // => file format is that of Bosch: sim/drivedata.txt
 
   // .carfollowBosch<n>
   //   = ~/trafficSim/BoschData/Stuttgart/boschDataStuttgart.fcd[1-3]
   // Attention: More than 1 s inconsistency in jump at Set 3!!
+  // ###################################################
 
   sprintf(in_fname,"%s.vleadBosch%i",projectName, number);
   ifstream  infile2 (in_fname, ios::in);
@@ -125,8 +134,10 @@ ExternalControl::ExternalControl(char* projectName,
     }
   }
 
+  // ###################################################
   // test if controlled-vehicle's data in file .vlead%i
   // file format = two columns: t, v_lead(t)
+  // ###################################################
 
   sprintf(in_fname,"%s.vlead%i",projectName, number);
   ifstream  infile3 (in_fname, ios::in);
@@ -144,7 +155,31 @@ ExternalControl::ExternalControl(char* projectName,
 
   }
 
+  
+  // ###################################################
+  // test if controlled-vehicle's data in file .alpha_v0%i
+  // file format = two columns: t, alpha_v0(t)
+  // ###################################################
+
+  sprintf(in_fname,"%s.alpha_v0%i",projectName, number);
+  ifstream  infile5 (in_fname, ios::in);
+  if(infile5){ 
+    nCtrlFiles++;
+    useAlphaV0=true;
+    InOut inout;
+    if(n_times>NDATAMAX){
+      cerr<<"ExternalControl Cstr: Error: to many "
+	  <<" (>ExternalControl.NBC) externalControl data!\n";
+      exit(-1);
+    } 
+    inout.get_col(in_fname, 1, n_times, times);
+    inout.get_col(in_fname, 2, n_times, alpha_v0);
+
+  }
+
+  // ###################################################
   // test if controlled-vehicle's data in file .jump%i
+  // ###################################################
 
   sprintf(in_fname,"%s.jump%i",projectName, number);
   ifstream  infile4 (in_fname, ios::in);
@@ -178,12 +213,15 @@ ExternalControl::ExternalControl(char* projectName,
 
   }
 
+  // ###################################################
   // more than one or not a single file 
   // .vlead<n>, .vleadBosch<n>, .brake<n>, .jump<n>  found
+  // ###################################################
   
   if(nCtrlFiles>1){
     cerr<<" ExternalControl Cstr: Error: cannot prescribe more than one\n"
 	<<" external control file .vlead"<<number
+	<<", .alpha_v0"<<number
 	<<", .vleadBosch"<<number
 	<<", .brake"<<number
 	<<", or .jump"<<number<<"  for a given vehicle "<<number<<endl;
@@ -195,6 +233,7 @@ ExternalControl::ExternalControl(char* projectName,
 	<<"  but not a single ctrl file for line "<<number<<" of .leadvehs"<<
       "( line numbers start with 1)"<<endl
 	<<"  Add one of the files .vlead"<<number
+	<<", .alpha_v0"<<number
 	<<", .vleadBosch"<<number
 	<<", .brake"<<number
 	<<", or .jump"<<number<<endl;
@@ -213,6 +252,10 @@ double ExternalControl::getVel(double time_s){ // useVel or useVelBosch
   return (useVelBosch) 
     ? intp(vel, n_times, time_s, 0, 0.1*n_times)
     : intpextp(times, vel, n_times, time_s);
+} 
+
+double ExternalControl::getAlphaV0(double time_s){ // useVel or useVelBosch
+  return intpextp(times, alpha_v0, n_times, time_s);
 } 
 
 double ExternalControl::getVelJump(){ // discrete, not interpol. as otherwise

@@ -11,6 +11,7 @@ class ExternalControl{
   ExternalControl(char* projectName, int number, int vehIndex);
   double getAcc(double time_s); 
   double getVel(double time_s); 
+  double getAlphaV0(double time_s); 
   double getVelJump();
   double getAlphaV0Jump();
   double getGapBack(double time_s); 
@@ -20,6 +21,7 @@ class ExternalControl{
   bool checkNewJump(double time_s);
   int get_vehIndex(){return vehIndex;} 
   bool ctrlByVel(){return (useVel||useVelBosch);}
+  bool ctrlByAlphaV0(){return useAlphaV0;}
   bool ctrlByAcc(){return useAcc;}
   bool ctrlByJump(){return useJump;}
 
@@ -27,6 +29,7 @@ class ExternalControl{
   static const int NDATAMAX=10001;
   int nCtrlFiles;   // number of external control files (should be exactly 1)
   bool useVel;      // prescribe v in generic format (.vlead%i)
+  bool useAlphaV0;       // prescribe alpha_v0 in generic format (.v0lead%i)
   bool useVelBosch; // prescribe v in Bosch format (.vleadBosch%i)
   bool useAcc;      // prescribing acceleration (.brake%i)
   bool useJump;     // prescribing one-off jumps and speed changes
@@ -38,6 +41,7 @@ class ExternalControl{
   double tLastTargetEntered; // for jumps
   double acc[NDATAMAX];
   double vel[NDATAMAX];
+  double alpha_v0[NDATAMAX];
   double gapBack[NDATAMAX]; // only if useVelBosch
   double velBack[NDATAMAX]; // ""
   int i_jump;              // index of the latest jump

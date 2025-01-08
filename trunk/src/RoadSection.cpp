@@ -1181,6 +1181,14 @@ void RoadSection::update(int it){ // standard ballistic update
 	  }
 	}
 
+	// desired speed reduction control
+
+	if(externalControl[iCtrl]->ctrlByAlphaV0()){
+	  double alpha_v0=externalControl[iCtrl]->getAlphaV0(time);
+	  veh[iveh].setAlphaV0(alpha_v0);
+	}
+
+	
 	// jump control (aug19)
 
 	if(externalControl[iCtrl]->ctrlByJump()){
@@ -2314,7 +2322,7 @@ void RoadSection::get_regionControl()  // martin mai08
 	    <<indextab[iCtrl]<<endl;
       }
     }
-  }
+  } // region control exists
 }
 
 

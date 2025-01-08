@@ -144,9 +144,9 @@ void Vehicle::calcAcc(int it, int iveh, int imin, int imax,
   double oldAcc=acc;
   
   double alpha_v0_loc=((alpha_v0>1+SMALL_VAL)||(alpha_v0<1-SMALL_VAL))
-    ? alpha_v0 : alpha_v0_global; // if alpha_v0 neq 1, then regionControl
+    ? alpha_v0 : alpha_v0_global; // if alpha_v0 neq 1, then external control
   double alpha_T_loc=((alpha_T>1+SMALL_VAL)||(alpha_T<1-SMALL_VAL))
-    ? alpha_T : alpha_T_global; // if alpha_T neq 1, them regionControl
+    ? alpha_T : alpha_T_global; // if alpha_T neq 1, them external control
   
   //########################################################
   // main acceleration calculation!!!
