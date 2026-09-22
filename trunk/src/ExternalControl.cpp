@@ -37,6 +37,7 @@ the following extensions
 (3) <proj>.brake<number> exists: externally control of acceleration
 
 (4) <proj>.vleadBosch<number> exists: 
+    (obsolete, Bosch format works also with file name .vlead<n> MT Jan25)
     Test car-following data of Mannstetten/Bosch .vleadBosch<n>
 
 (5) <proj>.jump<number> exists: The gap, speed, and desired speed is 
