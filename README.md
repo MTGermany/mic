@@ -42,14 +42,13 @@ mic <projectName>
 ```
 However, this can only be done inside the directory containing the project.
 
+Inside the respective directories, there may also be other gnuplot script files, e.g. `analytics_W26.gnu` in  `simulations/W26/` plotting the boundaries of the different traffic regimes and the acceleration function of the Wiedemann-like W-26 model
 
-* Inside the respective directories, there may also be other gnuplot script files, e.g. `analytics_W26.gnu` in  `simulations/W26/` plotting the boundaries of the different traffic regimes and the acceleration function of the Wiedemann-like W-26 model
+### Examples: 
 
-* Examples:
+* `mic simulations/IDM/IDM_startStopCity` performs the simulation in the target directory `simulations/IDM/`
 
-+ `mic simulations/IDM/IDM_startStopCity` performs the simulation in the target directory `simulations/IDM/`
-
-+ `cd simulations/IDM/; IDM_startStopCity.run` calls mic and then some gnuplot and/or xfig scripts to produce pdfs or eps files
+* `cd simulations/IDM/; IDM_startStopCity.run` calls mic and then some gnuplot and/or xfig scripts to produce pdfs or eps files
 
 
 ## The mic project
