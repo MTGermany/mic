@@ -104,13 +104,14 @@ void Fluct::initialize(){
 
   xi_s=0;
   beta_s = exp(-dt/tau_s);
-  Q_s=2./tau_s;  // strength (1/s) of a Wiener (1,tau_s) process
+  Q_s=2./tau_s;  // strength (1/s) of a OU (1,tau_s) process
 
   xi_dv=0;
   beta_dv = exp(-dt/tau_dv);
-  Q_dv=2./tau_dv;  //strength (1/s) of a Wiener (1,tau_dv) process 
+  Q_dv=2./tau_dv;  //strength (1/s) of a OU (1,tau_dv) process 
 
   xi_a=0;
+  beta_a=0; //!!
 }
 
 
@@ -133,10 +134,10 @@ void Fluct::update(double s, double v, double dv)
 	{
 	  double randomVar = myRand(); // G(0,1)
 	  double random_mu0_sig1 = sqrt12*(randomVar-0.5);
-	  xi_a = sqrt(Q_acc/dt) * random_mu0_sig1;
+	  xi_a = sqrt(Q_acc/dt) * random_mu0_sig1; // Fluct.h: get_acc_error()
 	}
 
-      // dv(est)=dv + s/ttc*xi_v(t),  xi_v(t)= Wiener(1, tau_dv) process 
+      // dv(est)=dv + s/ttc*xi_v(t),  xi_v(t)= OU(1, tau_dv) process 
       // Q_dv such that <(xi_dv)^2> = (stddev_dv)^2
       // => Q_dv=2*(stddev_dv)^2/tau
       

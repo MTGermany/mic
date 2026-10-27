@@ -3,6 +3,7 @@
 
 // overview of actually implemented models: 
 // Heterogen.h and corresponding <Model>.cpp and sometimes <Model>.README files
+// overview of param file abbreviations: Heterogen::getExtension (in cpp)
 
 // Instructions for implementing new model:
 // (0) pull from git repository

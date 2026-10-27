@@ -76,6 +76,7 @@ class Fluct{
 
   double beta_s;  // exp(-tau_s/dt) etc.
   double beta_dv;
+  double beta_a;
 };
 
 

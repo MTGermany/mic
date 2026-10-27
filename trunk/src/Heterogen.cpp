@@ -72,7 +72,6 @@ Heterogen::Heterogen(const char projectName[], ProjectParams* const proj)
 	{
 	  vwRef[itype]= VW(param_file,proj->get_dt()); //OK
 	  VW* pvw = new VW(param_file,proj->get_dt()); 
-	  //p_modelRef[itype]= pvw;
 	  p_model=pvw;
 	}
       else if(modelNumber==2)
@@ -83,42 +82,36 @@ Heterogen::Heterogen(const char projectName[], ProjectParams* const proj)
 	  sprintf(param_fileIDM,"%s.IDM%i", projectName, setNumber[itype]);
 	  hdmRef[itype]= HDM(param_fileIDM,param_file,proj->get_dt());
 	  HDM *phdm = new HDM(param_fileIDM,param_file,proj->get_dt()); 
-	  //p_modelRef[itype]= phdm;
 	  p_model = phdm;
 	}
       else if(modelNumber==3)
 	{
 	  ovmRef[itype]= OVM(param_file);
 	  OVM* povm = new OVM(param_file); 
-	  //p_modelRef[itype]= povm;
 	  p_model = povm;
 	}
       else if(modelNumber==4)
 	{
 	  fpeRef[itype]= FPE(param_file, proj);
 	  FPE* pfpe = new FPE(param_file, proj); 
-	  //p_modelRef[itype]= pfpe;
 	  p_model = pfpe;
 	}
       else if(modelNumber==5)
 	{
-	  humanSchreckRef[itype]= HumanSchreck(param_file,proj->get_dt()); //OK
-	  HumanSchreck* phumanSchreck = new HumanSchreck(param_file,proj->get_dt()); 
-	  //p_modelRef[itype]= phumanSchreck;
-	  p_model = phumanSchreck;
+	  w26Ref[itype]= W26(param_file,proj->get_dt()); //OK
+	  W26* pw26 = new W26(param_file,proj->get_dt()); 
+	  p_model = pw26;
 	}
       else if(modelNumber==6)
 	{ // VDT needs 2 input files IDM%i und HDM%i
 	  vdtRef[itype]= VDT(projectName,setNumber[itype],proj->get_dt()); //OK
 	  VDT* pvdt = new VDT(projectName,setNumber[itype],proj->get_dt()); 
-	  //p_modelRef[itype]= pvdt;
 	  p_model = pvdt;
 	}
       else if(modelNumber==7) // FVDM/GFM with variants
 	{ // FVDM (old name:VelDiffModel)
 	  vdiffRef[itype]= FVDM(param_file); //OK
 	  FVDM* pvdiff = new FVDM(param_file); 
-	  //p_modelRef[itype]= pvdiff;
 	  p_model=pvdiff;
 	}
       else if(modelNumber==8)
@@ -126,7 +119,6 @@ Heterogen::Heterogen(const char projectName[], ProjectParams* const proj)
 	  //arne 9-11-2005: Kerner model
 	  kernerRef[itype]= Kerner(projectName,setNumber[itype],proj->get_dt());
 	  Kerner* pKerner = new Kerner(projectName,setNumber[itype],proj->get_dt()); 
-	  //p_modelRef[itype]= pKerner;
 	  p_model = pKerner;
 	}
       else if(modelNumber==9)
@@ -343,13 +335,15 @@ void Heterogen::getExtension(int itype, char* extension) const{
 
     exit(-1);
   }
+  // (2026-10) eliminated HumanSchreck (*.HSM<n>) in favour of our new
+  // Wiedemann26 model 
   else{
     if(modelNumber[itype]==0){sprintf(modelName,"IDM");}
     else if(modelNumber[itype]==1){sprintf(modelName,"VW");}
     else if(modelNumber[itype]==2){sprintf(modelName,"HDM");}
     else if(modelNumber[itype]==3){sprintf(modelName,"OVM");}
     else if(modelNumber[itype]==4){sprintf(modelName,"FPE");}
-    else if(modelNumber[itype]==5){sprintf(modelName,"HSM");} //HumanSchreck
+    else if(modelNumber[itype]==5){sprintf(modelName,"W26");} //Wiedemann26
     else if(modelNumber[itype]==6){sprintf(modelName,"VDT");}
     else if(modelNumber[itype]==7){sprintf(modelName,"FVDM");}
     else if(modelNumber[itype]==8){sprintf(modelName,"KER");} //todo
@@ -426,8 +420,8 @@ MicroModel* Heterogen::new_pmodel(int itype) const{
     //p_model=p_modelRef[itype];  // !! faster, but only view own models 
   }
   else if(modelNumber==5){
-    HumanSchreck* phumanSchreck = new HumanSchreck(humanSchreckRef[itype]); 
-    p_model=phumanSchreck;        //
+    W26* pw26 = new W26(w26Ref[itype]); 
+    p_model=pw26;        // our new "Wiedemann 26" model
   }
   else if(modelNumber==6){
     VDT* pvdt = new VDT(vdtRef[itype]); 

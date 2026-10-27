@@ -9,15 +9,16 @@
 
 #include "Fluct.h"
 
-#include "IDM.h" // Model 0: Intelligent-Driver Model (IDM)
+#include "IDM.h"    // Model 0: Intelligent-Driver Model (IDM)
 #include "VW.h"
-#include "HDM.h" // Model 2: Human Driver Model
+#include "HDM.h"    // Model 2: Human Driver Model
 
 #include "OVM.h"
 #include "FPE.h"
-#include "HumanSchreck.h"
+#include "W26.h"    // Model 5: (2026-10) replaced never used HumanSchreck
+                    // by our Wiedemann26 model
 #include "VDT.h"
-#include "FVDM.h"  // Full velocity difference model
+#include "FVDM.h"   // Full velocity difference model
 #include "Kerner.h" // Model 8: Kerner's continuous micromodel
 #include "CDDA.h"   // Model 9: Helbing/Treiber,
                     // continuous deceleration-delayed-acceleration model 
@@ -95,7 +96,7 @@ class Heterogen
   VW  vwRef[NTYPEMAX+1];
   HDM hdmRef[NTYPEMAX+1];
   VDT vdtRef[NTYPEMAX+1];
-  HumanSchreck humanSchreckRef[NTYPEMAX+1];
+  W26 w26Ref[NTYPEMAX+1];
   OVM  ovmRef[NTYPEMAX+1];
   FVDM vdiffRef[NTYPEMAX+1];
   FPE  fpeRef[NTYPEMAX+1];

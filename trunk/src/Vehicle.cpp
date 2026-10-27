@@ -51,7 +51,7 @@ Vehicle::Vehicle(double x, double v, ProjectParams* proj, Fluct fluctIn,
   this->modelNumber=modelNumber;
   this->setNumber=setNumber;
   
-  this->isCAvehicle=((modelNumber==5)||(modelNumber==11)||(modelNumber==13)||(modelNumber==15));
+  this->isCAvehicle=((modelNumber==11)||(modelNumber==13)||(modelNumber==15));
   //this->finiteTr=finiteReactionTime;
 
   id=myIntRand(); //arne 9-6-2005

@@ -7,7 +7,7 @@ const int RESIGNATION_ON = 1;   // 0=false, 1=true --> in IDM.cpp
 const int DROP_NONENTERING_RAMP_VEHICLES = 1;//0=false, true=1, bool geht nicht
                                              //--> in Ramp.cpp
 const double MINSPACE_MERGE_M=1.0; //--> used in Ramp.cpp
-const double RAMP_VEL_REDUCEFACTOR=0.6; //!!! VDT 0.5, HSM 0.7, allg 0.5 .. 0.7
+const double RAMP_VEL_REDUCEFACTOR=0.6; //!!! VDT 0.5, allg 0.5 .. 0.7
 // remove RoadSection.o+recompile after change of RAMP_VEL_REDUCEFACTOR
 
 //const int NT_HISTORY=10;    // Number of saved past timesteps for each vehicle

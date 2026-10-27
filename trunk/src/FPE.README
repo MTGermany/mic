@@ -1,0 +1,20 @@
+(2026-10)
+
+No active simulation project with *.FPE* files on my computer
+
+Underlying papers:
+
+https://arxiv.org/pdf/cond-mat/0307219 from 2003, also no sources (could retrieve latex sources from 2003 arxiv)
+
+D. Helbing, M. Treiber and A. Kesting (2006)
+Understanding interarrival and interdeparture time statistics from interactions in queuing systems.
+Physica A, Volume 363, Issue 1, Pages 62-72 doi:10.1016/j.physa.2006.01.048. (also no sources and not even pdf)
+
+M. Treiber and D. Helbing (2009)
+Hamilton-like statistics in onedimensional driven dissipative many-particle systems
+European Physical Journal B, Vol. 8, No. 4, pp.607-618. DOI 10.1140/epjb/e2009-00121-8.  at least pdf:
+~/papers/2009_Hamiltonian_OVMfreePush.pdf
+
+
+
+Since simple model and easily to be recreated, leave it in the mic model set 
