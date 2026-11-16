@@ -1,0 +1,17 @@
+%###########################################
+% Parameters  of our new Wiedemann-26 model
+%###########################################
+%  
+8	 lveh       vehicle length [m]
+%
+15	 v0         desired speed
+3	 s0	    minimum gap [m]
+0.9	 T1 	    time gap lower bound following region RCF [s]     
+1.8	 T2	    time gap upper bound following region [s]
+2	 dv0	    half-width rel speed [m/s] at lower RCF bound
+1000	 tau_a	    speed relaxation time [s]
+2	 a0	    max accel. [m/s^2]
+2	 b	    comf decel. [m/s^2]
+8	 bmax 	    max decel. [m/s^2] (overridden by system?)
+0	 use_vl	    0=false: use s0+T1*v etc, 1=true: s0+T1*vl
+1	 indiff	    indifference factor in [0.1] (default 1)
