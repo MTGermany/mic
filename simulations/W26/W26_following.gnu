@@ -4,7 +4,7 @@
 # check consistency of parameters from analytic file of region boundaries!
 # check consistency of vl value from .vlead1 file
 
-load 'boundaries_analytic.gnu'
+load 'W26_following.inputScript.gnu'
 vl=10.
 
 
