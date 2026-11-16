@@ -235,8 +235,8 @@ void Vehicle::updatePosVel()
       acc=(vOld-v)/dt;
     }
     double advance = (acc*dt >= -v)
-      ? dt * v + 0.5 * acc*SQR(dt)
-      : -0.5 * SQR(v)/acc; 
+      ? dt * v + 0.5 * acc*sqr(dt)
+      : -0.5 * sqr(v)/acc; 
     x+=advance;
     v+=dt*acc;
     if(v<0){ v=0; acc=0;}
@@ -251,8 +251,8 @@ void Vehicle::updatePosVel()
       acc=(vOld-v)/dt;
     }
     double advance = (acc*dt >= -v)
-      ? dt * v + 0.5*acc*SQR(dt) // =dt*(v+acc*dt)=dt*vNew
-      : -0.5 * SQR(v)/acc; 
+      ? dt * v + 0.5*acc*sqr(dt) // =dt*(v+acc*dt)=dt*vNew
+      : -0.5 * sqr(v)/acc; 
     x+=advance;
     v=advance/dt;
     if(v<0){ v=0; acc=0;}
@@ -280,7 +280,7 @@ void Vehicle::updatePosVel()
     }
   }
   else{
-    double advance = dt*v + 0.5*acc*SQR(dt);
+    double advance = dt*v + 0.5*acc*sqr(dt);
     x+=advance;
     v+=dt*acc;
   }

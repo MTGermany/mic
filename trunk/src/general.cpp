@@ -400,9 +400,9 @@ double integrate(const double f[], int imin, int imax)
     int   i;
     double mu   = avg(f,imin,imax);
     double sqrsum = 0.;
-    for(i=imin; i<=imax; i++) sqrsum += SQR(f[i]);
+    for(i=imin; i<=imax; i++) sqrsum += sqr(f[i]);
 
-    double result = ( sqrsum - n*SQR(mu)) / (n-1); // emp. variance!!
+    double result = ( sqrsum - n*sqr(mu)) / (n-1); // emp. variance!!
     return(result);
   }
 
@@ -417,7 +417,7 @@ double integrate(const double f[], int imin, int imax)
     for(int i=imin; i<=imax; i++)
     {
       double x = xmin+(i-imin)*dx;
-      result += SQR(x-mu) * w[i]*dx;
+      result += sqr(x-mu) * w[i]*dx;
     }
     return(result);
   }

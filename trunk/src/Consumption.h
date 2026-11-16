@@ -67,7 +67,7 @@ class Consumption{
   void setEnginePower(double powMax){this->powMax=powMax;}
 
   double getForceMech(double v, double acc){
-    //return max(c+d*v+e*SQR(v)+mveh*acc, 0.001);
+    //return max(c+d*v+e*sqr(v)+mveh*acc, 0.001);
     return cForce+dForce*v+eForce*v*v+mveh*acc;
   }
 

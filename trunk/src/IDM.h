@@ -46,15 +46,9 @@ class IDM: public MicroModel
   double da_thr; //actual acc difference threshold for new action point
   // </MT 2016 action points>
 
-  double v0min;    // if resignation effect: minimal desired vel.
-  double tau_res;   // if resignation effect: time constant of v0dyn
-  double alpha_v0dyn;   // if resignation effect: 
-  double alpha_Tdyn;   // if resignation effect: 
-  double alpha_adyn;   // dynamic alpha_v0dyn=alpha_v0_resmin ... 1 etc
-  double alpha_v0_resmin;
-  double alpha_T_resmax;
-  double alpha_a_resmin;  // multipoliczatively to static alpha_v0 etc
 
+  double inv_2sqrt_ab;  // optimizing by removing denominator and sqrt calc
+  bool s1_zero;  // leaving out s1 part in nearly all cases
   void get_modelparams(const char* fname);
   void calc_eq();
 

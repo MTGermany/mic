@@ -161,7 +161,7 @@ double NewModel::accSimple(double s, double v, double dv,
 
   if(false){
     double sstar = s0+max(0.,Tloc*v + s1*sqrt((v+0.0001)/v0loc) + 0.5*v*dv/sqrt(aloc*b));
-    a_wanted = aloc*( 1.- pow((v/v0loc),delta) - SQR(sstar/s));
+    a_wanted = aloc*( 1.- pow((v/v0loc),delta) - sqr(sstar/s));
   }
 
   // NewModel acceleration (Test of the CCFM (You-Jun, 2012, referee))
@@ -193,7 +193,7 @@ double NewModel::accSimple(double s, double v, double dv,
 
   if(true){
     double sstar = s0 + max(0.,Tloc*v + s1*sqrt((v+0.0001)/v0loc) + 0.5*v*dv/sqrt(aloc*b));
-    a_wanted = aloc*min(1.- pow((v/v0loc),delta), 1 - SQR(sstar/s));
+    a_wanted = aloc*min(1.- pow((v/v0loc),delta), 1 - sqr(sstar/s));
   }
 
 

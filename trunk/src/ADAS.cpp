@@ -217,7 +217,7 @@ void ADAS::calc_eq()
 	// acceleration for various variants
 
         double acc = (s>s0) 
-	  ? a * (1-pow(v_it/v0, 4) - SQR(sstar/s ))
+	  ? a * (1-pow(v_it/v0, 4) - sqr(sstar/s ))
           :0;
 	*/
 

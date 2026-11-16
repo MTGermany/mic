@@ -589,6 +589,8 @@ void RoadSection::initialize(int choice_init)
 
   All except (2*) sort of quick-hack! 
 
+  WATCH OUT! all options w/o default 0 as second argument not optimized/slow!
+
   Work only 
     - w/o sources/sinks (choice_BC==2, then boundary_up->updateUpstream 
       and boundary_down->updateDownstream does nothing 
@@ -622,7 +624,7 @@ void RoadSection::initialize(int choice_init)
 
     // IDM_startStopLSA, dt=0.2, Trapezoid:
     // (a) if(false): error if v<0  applies for the first time
-    // (b) x -= 0.5*acc*SQR(dt): artifacts since calc. is not correct!
+    // (b) x -= 0.5*acc*sqr(dt): artifacts since calc. is not correct!
     // (c) x+=0: OK
     // (d) x -= 0.5*v_old^2/acc with acc=k1, 0.5*(k1+k2) or k2: OK
     //     but only 0.5*(k1+k2) is strictly consistent with condition
@@ -723,7 +725,7 @@ void RoadSection::checkCorrectNegativeSpeeds(const double ynew[],
       double vold=yold[i-imin+imax+1];
       double acc=min((vnew-vold)/dtOldNew, -1e-8); // catch zero denominator
       veh[i].setVel(0);
-      veh[i].setPos(yold[i-imin] -0.5 * SQR(vold)/acc);
+      veh[i].setPos(yold[i-imin] -0.5 * sqr(vold)/acc);
     }
   }
 }
@@ -791,7 +793,7 @@ void RoadSection::updateBallistic(int it){
   calc_rhs(it,alpha_v0_global,alpha_T_global,k1);
   for (int i=0; i<2*(imax-imin+1); i++){ 
     ynew[i]=y[i]+k1[i]*dt
-      + ((i<(imax-imin+1)) ? 0.5*k1[i+imax-imin+1]*SQR(dt): 0);
+      + ((i<(imax-imin+1)) ? 0.5*k1[i+imax-imin+1]*sqr(dt): 0);
   }
   setState(ynew,it);
   checkCorrectNegativeSpeeds(ynew,y,dt);
@@ -1477,8 +1479,8 @@ void RoadSection::generateMacroFields(int choice_init, double rho[],
 	{
 	  double x=xmin+ix*dxVirtual-xCenter;
 	  rho[ix] = rho_init 
-	    + ampl_init / SQR( cosh( x/wplus))
-	    - wplus/wminus * ampl_init / SQR( cosh( (x-dw)/wminus));
+	    + ampl_init / sqr( cosh( x/wplus))
+	    - wplus/wminus * ampl_init / sqr( cosh( (x-dw)/wminus));
 	  Q[ix] = rho[ix] * p_referenceModel->get_veq(rho[ix]); 
 	  if(rho[ix]<RHOMIN){rho[ix]=RHOMIN;}
 	  if(Q[ix]>VMAX*rho[ix]){Q[ix]=VMAX*rho[ix];}
@@ -1831,8 +1833,8 @@ void RoadSection::calc_DrivingComfort(int it, double tau_0, double& accSqr, doub
       
       if(!ignore_veh)
 	{
-	  accSqr  += SQR(veh[i].getAcc());
-	  jerkSqr += SQR(veh[i].getJerk());
+	  accSqr  += sqr(veh[i].getAcc());
+	  jerkSqr += sqr(veh[i].getJerk());
 	  if(false && (fabs(veh[i].getAcc())>10 || fabs(veh[i].getJerk())>10) ){
 	    printf("\nit=%i\tt=%.2f for veh i=%i at x=%.2f: acc=%.5f\tjerk=%.5f\n",
 		   it,(it*dt),i,veh[i].getPos(),veh[i].getAcc(),veh[i].getJerk());
@@ -1844,7 +1846,7 @@ void RoadSection::calc_DrivingComfort(int it, double tau_0, double& accSqr, doub
   //    if(false && (fabs(acc)>10 || fabs(jerk)>10)){
   //      printf("\nit=%i\tt=%.2f for veh i=%i at x=%.2f: acc=%.5f\tjerk=%.5f\n",it,(it*dt),i,veh[i].getPos(),acc,jerk);
   //    }
-  //comfort += SQR(acc)+SQR(tau_0*jerk); //comfort is sum of squares
+  //comfort += sqr(acc)+sqr(tau_0*jerk); //comfort is sum of squares
     
   //accululated is for whole sim, so one has to weight with absolute number of vehicles
  

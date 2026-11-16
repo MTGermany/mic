@@ -34,7 +34,7 @@ class FVDM: public MicroModel
   // vopt=max(v0*( tanh((s-s0)/l_int-beta) - tanh(-beta)), 0)
 
   // other OVM function from IDM with delta=2:
-  // vopt=v0/sqrt(1+SQR(v0*T/max(s-s0, 1e-10)))
+  // vopt=v0/sqrt(1+sqr(v0*T/max(s-s0, 1e-10)))
 
   // Overview of variants: 
   //   0 =original OVM function, 1=triang. OV, 

@@ -184,7 +184,7 @@ void HDM::get_modelparams(const char fname[])
   double gamma=0;
 
   for (int i=1; i<=n_antimax; i++){
-    gamma += 1./SQR(i*s_stretch);
+    gamma += 1./sqr(i*s_stretch);
   }
 
   gamma=sqrt(gamma); 
@@ -224,7 +224,7 @@ void HDM::get_modelparams(const char fname[])
 	//das ist nur die korrektur der renormalisierung !!
 	for(int j=1;j<n_antimax;j++){
 		double sum=0;
-		for (int i=1; i<=j; i++){sum += 1./SQR(i*s_stretch);}
+		for (int i=1; i<=j; i++){sum += 1./sqr(i*s_stretch);}
 		renormFactorAntic[j] = gamma/sqrt(sum); 
   }
 	
@@ -398,7 +398,7 @@ double HDM::accTwoVehInt(double s, double v, double dv, double a, double T_react
 	     <<endl;
       }
     
-    return (-aloc*SQR(sstar/s_antic));
+    return (-aloc*sqr(sstar/s_antic));
 
 } // accTwoVehInt
 

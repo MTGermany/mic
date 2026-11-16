@@ -162,7 +162,7 @@ double VDT::acc(int it, int iveh, int imin, int imax,
 
 	for (int j=0; j<nveh_actual; j++)
 	  {
-	    sumsqr += SQR(cyclicBuf->get_v(iveh-j,it,T_react) - avgv);
+	    sumsqr += sqr(cyclicBuf->get_v(iveh-j,it,T_react) - avgv);
 	  }
       
       double sigma2v    = sumsqr/(nveh_actual-1); //mar05

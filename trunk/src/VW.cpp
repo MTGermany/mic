@@ -412,7 +412,7 @@ double VW::accACC_IDM(int it, int iveh, double v, double s, double dv, double a_
   double deltaloc=(v<v0loc) ? delta : 1; 
   double sstar  = s0 + max(Tloc*v + s1*sqrt((v+0.00001)/v0loc)+ 0.5*v*dv/sqrt(a*b),0.);
 
-  double accIDM=a*( 1.- pow((v/v0loc),deltaloc) - SQR(sstar/s));
+  double accIDM=a*( 1.- pow((v/v0loc),deltaloc) - sqr(sstar/s));
 
   //CAH
 
@@ -459,7 +459,7 @@ double VW::accACC_IDMsigmoid(int it, int iveh,
   bool useNormalIDM= (s<sstar);
   
   double accFinal=(useNormalIDM)
-    ? a*( 1.- pow((v/v0loc),deltaloc) - SQR(sstar/s))
+    ? a*( 1.- pow((v/v0loc),deltaloc) - sqr(sstar/s))
     : a*( 1.- pow((v/v0loc),deltaloc) - 1./(1+exp(lambda*(s-sstar-dc))));
 
   return max(accFinal,-bmax);
@@ -836,9 +836,9 @@ double VW::applyJerkControl(double accBefore, int it){
   // several formulations of the risk factor
   
   //double riskFactor=2./(1. + tanh((accBefore+b_crit)/b));
-  //double riskFactor=(accBefore>-b_crit) ? 1 : SQR(-accBefore/b_crit);
-  double riskFactor=(accBefore>-b_crit) ? 1 : SQR(SQR(-accBefore/b_crit));
-  //double riskFactor=(accBefore>-b) ? 1 : SQR(-accBefore/b);
+  //double riskFactor=(accBefore>-b_crit) ? 1 : sqr(-accBefore/b_crit);
+  double riskFactor=(accBefore>-b_crit) ? 1 : sqr(sqr(-accBefore/b_crit));
+  //double riskFactor=(accBefore>-b) ? 1 : sqr(-accBefore/b);
   
   double maxJerk= jerk*riskFactor;
   double abs_jerkAfter=min(abs_jerkBefore, maxJerk);

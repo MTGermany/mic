@@ -158,7 +158,7 @@ double LCM::accSimple(double s, double v, double vl,
   double Tloc=alpha_T*T;  //generic parameter
   double aloc  = a;     //generic parameter
 
-  double sstar=max(s0,s0+v*Tloc+0.5*(SQR(v)/b-SQR(vl)/B));
+  double sstar=max(s0,s0+v*Tloc+0.5*(sqr(v)/b-sqr(vl)/B));
   double a_DSM=0;
   if(choice_variant==2){ // DSM
     double alpha1=a;      // redefinition for DSM

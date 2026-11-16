@@ -23,9 +23,9 @@ using namespace std;
 
 IDM::IDM(const char fname[])
 {  
-  initializeMicroModelVariables();  //arne -> set generic variables (lveh,Tr etc) to zero
+  initializeMicroModelVariables();  //arne 2025 -> set generic variables (lveh,Tr etc) to zero
   // otherwwise, some trouble possible; initialize... inherited from  MicroModel
-  modelNumber=0; //arne 10-5-2005
+  modelNumber=0; 
 
   cout << "\nin IDM file Cstr: fname= "<<fname<<endl;
   get_modelparams(fname);
@@ -71,28 +71,12 @@ void IDM::get_modelparams(const char fname[]){
   inout.getvar(fp,&b);
 
   inout.getvar(fp,&bmax);
+  
   fclose(fp);
 
-  if(false){
-      cerr << "Sorry; only standard IDM (choice_variant=5) supported"
-	   <<endl
-	   <<"To run old projects, use the sources of src_16jun02"<<endl;
-      exit(-1);
-  }
+  inv_2sqrt_ab=0.5/sqrt(a*b); // speed up calc. (no denom, no sqrt in loop)
+  s1_zero=(s1==0);
   rhomax = 1./lveh;
-
-  //###################################################
-  // resignation effect !!!
-  //###################################################
-  alpha_a_resmin=0.5;  // 0.6 parameter! 0.2 ... 1
-  alpha_v0_resmin=0.6;  // 0.8   0.2 ... 1
-  alpha_T_resmax=1.4;  // 1.4
-
-  alpha_adyn=1;      // initialization (leave to 1!)
-  alpha_v0dyn=1;     
-  alpha_Tdyn=1;     
-
-  tau_res=240;
 
 }
 
@@ -170,19 +154,19 @@ void IDM::calc_eq()
 double IDM::accSimple(double s, double v, double dv){
 
 
-  // central IDM acceleration
   // !! also/only change IDM::acc directly; 
   // !! as of Aug 2016, accSimple is not used for reasons of speed!!
   // !! IDM::acc is reference, not IDM::accSimple!
   // !! here special case (s1>-2) of general expression acc(...)
 
-  double sstar  = s0+max(0.,T*v + 0.5*v*dv /sqrt(a*b)+s1*sqrt((v+0.001)/v0)); 
+  // Notice: inv_2sqrt_ab=0.5/sqrt(a*b)
+  double sstar  = s0+max(0.,T*v + inv_2sqrt_ab*v*dv +s1*sqrt((v+0.001)/v0)); 
   double a_wanted = (v<=v0)
-    ? a * (1.- pow((v/v0),delta) - SQR(sstar/s))
-    : a * (1.- v/v0 - SQR(sstar/s));
+    ? a * (1.- pow((v/v0),delta) - sqr(sstar/s))
+    : a * (1.- v/v0 - sqr(sstar/s));
   
   // "IDM+" Model of Ros, TU Delft (Referee Oct 2012)
-  //double a_wanted = a*min(1.- pow((v/v0),delta), 1 - SQR(sstar/s)); //!!
+  //double a_wanted = a*min(1.- pow((v/v0),delta), 1 - sqr(sstar/s)); //!!
 
   return  (a_wanted > -bmax) ? a_wanted : -bmax;
 }
@@ -212,40 +196,15 @@ double IDM::acc(int it, int iveh, int imin, int imax,
   // space dependencies modelled by speedlimits, alpha's
   //#############################################
 
-  // martin mai08
+  // martin mai08 // safe if defined directly
 
+  //bool alphav0_active=(alpha_v0 !=1);
   double Tloc  = alpha_T*T; 
   double v0loc=min(alpha_v0*v0, speedlimit);   // martin mai08
-  double aloc  = a; //parameter
 
   //###############################################
-  // resignation effect: multiply Tloc,v0loc, aloc 
-  // with dynamical factors dependend on past history
-  // (multipl => combination space inhomog+resign. effect OK)
+  // resignation effect deleted here; is in HDM
   //###############################################
-  
-  if(false)
-    { 
-      // resignation effect:
-      //if(RESIGNATION_ON==1){ // resignation effect
-      double dt=0.2; //!!!
-      double beta = 1.-exp(-dt/tau_res);
-      double alpha_a_res=alpha_a_resmin+v/v0loc*(1-alpha_a_resmin);
-      double alpha_v0_res=alpha_v0_resmin+v/v0loc*(1-alpha_v0_resmin);
-      double alpha_T_res=alpha_T_resmax+v/v0loc*(1-alpha_T_resmax);
-      
-      alpha_v0dyn += beta*(alpha_v0_res-alpha_v0dyn);
-      v0loc       *= alpha_v0dyn;
-      
-      alpha_Tdyn += beta*(alpha_T_res-alpha_Tdyn);
-      Tloc       *= alpha_Tdyn;
-      
-      alpha_adyn  += beta*(alpha_a_res-alpha_adyn);
-      aloc        *= alpha_adyn;
-      
-    }
-  
-  // no resignation effect; nothing to do; Tloc,vloc,aloc defined above
   
   //##################################################
   // actual IDM formula (directly recoded instead of using accSimple 
@@ -256,19 +215,23 @@ double IDM::acc(int it, int iveh, int imin, int imax,
   // s1<=-2: Original IDM without any extensions
   //##################################################
   
-  double sstar = s0 + max(0., Tloc*v + s1*sqrt((v+0.0001)/v0loc)
-			  + 0.5*v*dv/sqrt(aloc*b));
+  //double sstar = s0 + max(0., Tloc*v + s1*sqrt((v+0.0001)/v0loc)
+  //			  + 0.5*v*dv/sqrt(a*b));
+  double sstar = (s1_zero)
+    ? s0 + max(0., Tloc*v + inv_2sqrt_ab*v*dv)
+    : s0 + max(0., Tloc*v + inv_2sqrt_ab*v*dv + s1*sqrt((v+0.0001)/v0loc) );
 
-  double a_wanted =
-    (v<v0loc) ? aloc*(1.- pow((v/v0loc),delta) - SQR(sstar/s)) :
-    (s1>=0)   ? -b*( 1.- pow(v0loc/v, aloc*b/delta)) - aloc*SQR(sstar/s) :
-    (s1>-2)   ? aloc*(1.- v/v0loc - SQR(sstar/s)) :
-    aloc*(1.- pow((v/v0loc),delta) - SQR(sstar/s));
+  double a_wanted = // powdelta alone is huge accelerator with 60% more speed!
+    (v<v0loc) ? a*(1.- powdelta(v/v0loc,delta) - sqr(sstar/s)) :
+    //(v<v0loc) ? a*(1.- pow((v/v0loc),delta) - sqr(sstar/s)) :
+    (s1>=0)   ? -b*( 1.- pow(v0loc/v, a*b/delta)) - a*sqr(sstar/s) :
+    (s1>-2)   ? a*(1.- v/v0loc - sqr(sstar/s)) :
+    a*(1.- powdelta((v/v0loc),delta) - sqr(sstar/s));
 
  
   // "IDM+" Model of Ros, TU Delft (Referee Oct 2012)
 
-  //double a_wanted = aloc*min(1.- pow((v/v0loc),delta), 1 - SQR(sstar/s));//!!
+  //double a_wanted = a*min(1.- pow((v/v0loc),delta), 1 - sqr(sstar/s));//!!
 
 
   //###############################################

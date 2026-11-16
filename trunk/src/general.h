@@ -17,11 +17,12 @@ using namespace std;
 
 const int NVALS = 10000;
 
-//warum mit static var???
-//geht nicht auch a*a ????
-#define SQR(x) ((x)*(x))
-//static double sqrarg;
-//#define SQR(a) ((sqrarg=(a))==0.0 ? 0.0 : sqrarg*sqrarg)
+
+// #define SQR(x) ((x)*(x)) obsolete; replace by constexpr below
+constexpr inline double sqr(double x) noexcept { return x * x; }
+constexpr inline double pow4(double x) noexcept { return sqr(sqr(x)); }
+constexpr inline double powdelta(double x,double delta) noexcept {
+  return (delta==4) ? sqr(sqr(x)) : pow(x,delta); }
 
 // Achtung: darf hier nix direkt definieren, sonst Fehler "multiple def"
 // beim Linken (da general.h oft eingebunden)

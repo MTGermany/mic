@@ -136,7 +136,7 @@ void Gipps::calc_eq()
 	// acceleration for various variants
 
         double acc = (s>s0) 
-	  ? a * (1-pow(v_it/v0, 4) - SQR(sstar/s ))
+	  ? a * (1-pow(v_it/v0, 4) - sqr(sstar/s ))
           :0;
 	*/
 
@@ -189,10 +189,10 @@ double Gipps::accSimple(double s, double v, double dv, double v0, double T){
                           // Otherwise use full Gipps of original publication
 
   double vsafe=(useSimple) // safe speed in next step t+T
-    ? -b*T+sqrt(SQR(b*T)+2*b*max(s-s0,0.)+SQR(vl))
+    ? -b*T+sqrt(sqr(b*T)+2*b*max(s-s0,0.)+sqr(vl))
     : -0.5*b*(T+2*theta)
-    +sqrt(max(0., SQR(0.5*b*(T+2*theta))
-	      +b*(2*max(s-s0,0.)-v*T+SQR(vl)/bl)));
+    +sqrt(max(0., sqr(0.5*b*(T+2*theta))
+	      +b*(2*max(s-s0,0.)-v*T+sqr(vl)/bl)));
   
   double afreeSimple=(v<v0) ? a : (v0-v)/T;
   // oscillations  only if old dt=1.1 s in Gipps .proj files

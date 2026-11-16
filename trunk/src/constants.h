@@ -1,7 +1,7 @@
 #ifndef CONST
 #define CONST
 
-const int RESIGNATION_ON = 1;   // 0=false, 1=true --> in IDM.cpp
+// const bool RESIGNATION_ON = false;   // no longer needed; is in HDM params
 
 ///DRASTISCHE auswirkung auf Simulation!!!
 const int DROP_NONENTERING_RAMP_VEHICLES = 1;//0=false, true=1, bool geht nicht

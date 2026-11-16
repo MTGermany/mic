@@ -180,7 +180,7 @@ double BIDM::accSimple(double s, double v, double dv,
     accWanted=min(a, max(accWanted, -b)); //!! b, not bmax, only in indiff zone
   }
   else{
-    accWanted=a*(1.- pow((v/v0loc),4)-SQR(sstar/s) );
+    accWanted=a*(1.- pow((v/v0loc),4)-sqr(sstar/s) );
   }
 
   accWanted=max(accWanted, -bmax);

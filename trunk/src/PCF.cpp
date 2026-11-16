@@ -139,7 +139,7 @@ double PCF::accSimple(double s, double v, double dv,
   // instance of free-flow displacement xi \sim N(mu,sigma^2)
 
   double dtDivTau=dt/tau;
-  double muSimple=v*dt+0.5*(v0loc-v)*SQR(dt)/tau; 
+  double muSimple=v*dt+0.5*(v0loc-v)*sqr(dt)/tau; 
   double mu=v0loc*dt-(1-exp(-dtDivTau))*tau*(v0loc-v); // exact
   double sig2=0.5*Q*pow(tau,3)*( exp(-dtDivTau)*(4-exp(-dtDivTau))
 				 +2*dtDivTau-3); // variance displacement
@@ -158,7 +158,7 @@ double PCF::accSimple(double s, double v, double dv,
   // final PCF displacement formula
 
   double xi=min(xiFree, xiInt);
-  double a_wanted=2*(xi-v*dt)/SQR(dt);
+  double a_wanted=2*(xi-v*dt)/sqr(dt);
 
   if(false){
     //if((iveh<=2)&&(it<10)){
