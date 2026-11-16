@@ -1,0 +1,7 @@
+* A single inline powdelta function in constants.h
+  reduces overall computation time for vanilla IDM by 40%,
+
+* two fixed local constants inv_2sqrt_ab and s1_zero further 5%, each.
+
+* Not implemented for other models (not even IDMplus in VW.cpp/.h)
+  but easy if needed 
