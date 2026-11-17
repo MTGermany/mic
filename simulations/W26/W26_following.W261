@@ -1,12 +1,12 @@
 %###########################################
-% Parameters  of our new Wiedemann-26 model
+% Parameters  of our new Wiedemann-26 model (also adapt .inputScript.gnu !)
 %###########################################
 %  
 8	 lveh       vehicle length [m]
 %
-20	 v0         desired speed
+22	 v0         desired speed
 3	 s0	    minimum gap [m]
-0.9	 T1 	    time gap lower bound following region RCF [s]     
+0.8	 T1 	    time gap lower bound following region RCF [s]     
 1.8	 T2	    time gap upper bound following region [s]
 2	 dv0	    half-width rel speed [m/s] at lower RCF bound
 10000	 tau_a	    speed relaxation time [s]

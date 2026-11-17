@@ -26,6 +26,6 @@
 360	10.0	0
 390	10.0	0
 420	10.0	0 % iveh=3
-450	10.0	0 % iveh=2
-482	10	0 % iveh=1 overridden by .vlead1
+445	9.0	0 % iveh=2
+480	10.0	0 % iveh=1 overridden by .vlead1
 60000	20	0 % if iback=1 in .veh_drop file, then dropped veh. this type

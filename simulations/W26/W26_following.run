@@ -1,6 +1,38 @@
+#!/bin/bash
 if mic W26_following;
 then echo "sim successful"; else echo "sim failed"; exit -1; fi
-W26_following.plot
+
+# copy .W261 regime values to W26_following.inputScript.gnu
+# adapted from AI
+# notice: v0 not really needed for boudaries
+
+infile="W26_following.W261"
+outfile="W26_following.inputScript.gnu"
+echo "copying relevant values from $infile to $outfile"
+
+# Scan the file for a line starting with a number, followed by whitespace, followed by the target string
+v0Val=$(awk -v target="v0"\
+  '$1 ~ /^[+-]?[0-9]+(\.[0-9]*)?$/ && $2 == "v0" {print $1; exit;}' "$infile")
+s0Val=$(awk -v target="s0"\
+  '$1 ~ /^[+-]?[0-9]+(\.[0-9]*)?$/ && $2 == "s0" {print $1; exit;}' "$infile")
+T1Val=$(awk -v target="T1"\
+  '$1 ~ /^[+-]?[0-9]+(\.[0-9]*)?$/ && $2 == "T1" {print $1; exit;}' "$infile")
+T2Val=$(awk -v target="T2"\
+  '$1 ~ /^[+-]?[0-9]+(\.[0-9]*)?$/ && $2 == "T2" {print $1; exit;}' "$infile")
+dv0Val=$(awk -v target="dv0"\
+  '$1 ~ /^[+-]?[0-9]+(\.[0-9]*)?$/ && $2 == "dv0" {print $1; exit;}' "$infile")
+use_vlVal=$(awk -v target="use_vl"\
+  '$1 ~ /^[+-]?[0-9]+(\.[0-9]*)?$/ && $2 == "use_vl" {print $1; exit;}' "$infile")
+
+perl -i -pe "s/^v0=[0-9\. \t]+(?=#)/v0=${v0Val}\t\t/g" $outfile
+perl -i -pe "s/^s0=[0-9\. \t]+(?=#)/s0=${s0Val}\t\t/g" $outfile
+perl -i -pe "s/^T1=[0-9\. \t]+(?=#)/T1=${T1Val}\t\t/g" $outfile
+perl -i -pe "s/^T2=[0-9\. \t]+(?=#)/T2=${T2Val}\t\t/g" $outfile
+perl -i -pe "s/^dv0=[0-9\. \t]+(?=#)/dv0=${dv0Val}\t\t/g" $outfile
+perl -i -pe "s/^use_vl=[0-9\. \t]+(?=#)/use_vl=${use_vlVal}\t/g" $outfile
+
+
+W26_following.plot 
 
 
 

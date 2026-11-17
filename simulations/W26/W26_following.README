@@ -1,4 +1,28 @@
-(aug13)
-Achtung, Bug, wenn das VW bzw ACC Modell auf kontrollierte beschl angewandt wird! Abstand des naechsten ACC-Fz (und nur dieses!) viel zu gering; gegen null -> Zappeln, wenn cool to 1!
 
-=> Nehme cool=0 (IIDM) oder Standard-IDM als Quick-Fix!
+Running just the simulation (from the command line):
+  mic W26_following
+
+Also plotting the files (requires gnuplot, first calls mic; then gnuplot):
+  W26_following.run
+
+Changing the model parameters
+(only one vehicle type, if more, we would have also W26_following.W262 etc)"
+  edit W26_following.W261
+  use_vl=1 => "rectangular" Wiedemann loops
+  use_vl=0 => "oblique" Wiedemann loops
+
+Inspect/edit leader profile (linearly interpolated, constant extrapolated)
+  edit W26_following.vlead1
+
+  Example:  only the line 120   10 => always v_lead=10 m/s
+  Example2: addtl line 125   6 => v_lead=10 m/s for t<120 s, 
+  v_lead=6 m/s for t>125 s, and linear interpolation for t in [120,125] s  
+
+Inspect/edit initial configuration:
+  edit W26_following.ICsingle
+  
+  => 17 cars i=0,...,16 are simulated with given initial positions and speeds 
+     i=0 irrelevant (bookkeeping, always prviding a defined gap)
+     i=1=externally controlled leader (defined in file .leadvehs 
+     i=2=test car making the loops in the s-dv diagram
+     i>3 more followers to test string stability 

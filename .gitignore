@@ -2,6 +2,9 @@
 
 *.swp
 a.out
+err
+log
+tmp
 
 ## private README etc files
 GPLv3_*

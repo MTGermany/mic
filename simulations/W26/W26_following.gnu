@@ -19,7 +19,7 @@ set xlabel "t [s]"
 set xrange [0:240]
 set key at screen 0.85,0.51
 
-xmin=0
+xmin=0.
 xmax=100
 vmin_kmh=0
 vmax_kmh=60
